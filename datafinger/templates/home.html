@@ -1,0 +1,8 @@
+{% block content %}
+    <h2>DHCP</h2>
+    <ul>
+        {% for dhcp in object_list %}
+            <li>{{ dhcp.dhcp_fingerprint }} : {{ dhcp.vendor_id }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
