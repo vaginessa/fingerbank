@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}
+        <img src="{% static "bullet_red.png" %}"> {% trans "Manage MAC OUI" %}
+{% endblock %}
+
+{% block content %}
+	<table class="gene">
+	<tr>
+	<th>{% trans "oui" %}</th>
+	<th colspan=3 style="width: 40px"></th>
+	</tr>
+{% for mac in object_list %}
+	<tr><td>{{ mac.oui }}</td>{% if user.is_staff %}<td><a href="/mac/del/{{ mac.id }}/" onClick="if(confirm('{% trans "Are you sure you want to delete "%}{{ mac.oui }} ?')){}else{return false}"><img src="{% static "delete.png" %}" title="{% trans "Remove MAC OUI" %}"></td>{% endif %}<td><a href="/mac/edit/{{ mac.id }}/"><img src="{% static "script_edit.png" %}" title="{% trans "Edit MAC OUI" %}"></a></td></tr>
+{% endfor %}
+	</td>
+	</table>
+<INPUT type="button" value="{% trans "Back" %}" onclick="history.back()">
+{{ form.as_p }}
+
+{% endblock %}
+

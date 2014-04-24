@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+
+
+{% block auth %}
+<fieldset id='fieldset' class='logout'><legend><img src="{% static "connect_no.png" %}">&nbsp;{% trans "Authentication" %}</legend>
+
+<form action="/logon/" Method="POST"/>
+{% csrf_token %}
+<input type="text" name="username" value="admin" />
+<input type="password" name="password" value="" />
+<input type='submit' value="{% trans "Login" %}" />
+</form>
+</fieldset>
+{% endblock %}
+
+{% block menu %}
+<div style='margin: 2em'>
+<img src="{% static "fingerbank.logo.png" %}">
+</div>
+{% endblock %}
+
+{% block main %}
+<div id='splash' style='margin-left: 3em'>
+		<p>
+		</p>
+
+		</div>
+{% endblock %}

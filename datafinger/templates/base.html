@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+
+
+{% block auth %}
+<fieldset id='fieldset' class='logon'><legend><img src="{% static "connect_established.png" %}">&nbsp;{% trans "Authentication" %}</legend>
+<form action='/logout/' method='POST'/>
+<center>{{ user }}</center>
+<input type='submit' class='inputbutton' value='{% trans "Logout" %}'>
+</form>
+</fieldset>
+{% endblock %}
+
+{% block _action %}
+	{% block action %}{% endblock %}
+{% endblock %}
+
+{% block main %}
+	<h1>{% block title %}{% endblock %}</h1>
+	{% block content %}{% endblock %}
+{% endblock %}
+
+
+{% block menu %}
+<ul>
+<li><a href='/fingerprints/'>{% trans "Fingerprints" %}</a></li>
+</ul>
+<ul>
+<li><a href='/devicesfamily/'>{% trans "Devices Family" %}</a></li>
+</ul>
+<ul>
+<li><a href='/devices/'>{% trans "Devices List" %}</a></li>
+</ul>
+<ul>
+<li><a href='/osfamily/'>{% trans "OS Family" %}</a></li>
+</ul>
+<ul>
+<li><a href='/ostype/'>{% trans "OS Type" %}</a></li>
+</ul>
+<ul>
+<li><a href='/os/'>{% trans "Operating system" %}</a></li>
+</ul>
+<ul>
+<li><a href='/mac/'>{% trans "Mac List" %}</a></li>
+</ul>
+{% endblock %}
