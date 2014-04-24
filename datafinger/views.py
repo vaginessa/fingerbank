@@ -145,3 +145,15 @@ def ostype_delete(request,nid):
     os = OS_Type.objects.get(id=nid)
     os.delete()
     return HttpResponseRedirect("/os/")
+
+def mac_edit(request,nid):
+    mac = MAC.objects.get(id=nid)
+    form = MACForm(instance=mac)
+    return render_to_response('mac.html', locals(),context_instance=RequestContext(request))
+
+def mac_delete(request,nid):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/logon/")
+    os = MAC.objects.get(id=nid)
+    os.delete()
+    return HttpResponseRedirect("/mac/")
