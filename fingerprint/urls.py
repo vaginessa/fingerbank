@@ -29,5 +29,6 @@ urlpatterns = patterns('',
     url(r'^mac/$', mac.as_view()),
     url(r'^mac/edit/(?P<nid>\d+)/$', 'datafinger.views.mac_edit'),
     url(r'^mac/del/(?P<nid>\d+)/$', 'datafinger.views.mac_delete'),
+    url(r'^sync/$', 'datafinger.views.sync'),
     url(r'^admin/', include(admin.site.urls)),
 )

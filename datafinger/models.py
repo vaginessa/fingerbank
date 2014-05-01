@@ -13,7 +13,7 @@ class Device_FamilyForm(ModelForm):
 
 class Device(models.Model):
     code = models.CharField(max_length=20)
-    family = models.ForeignKey(Device_Family)
+    family = models.ForeignKey(Device_Family, null=True)
     device_desc = models.CharField(max_length=50)
     def __str__(self):
         return self.code
@@ -68,8 +68,11 @@ class MACForm(ModelForm):
         fields = ['oui', 'device']
 
 class FINGERPRINT(models.Model):
-    os = models.ManyToManyField(OS)
-    device = models.ManyToManyField(Device)
+    os = models.ForeignKey(OS, null=True)
+    os_type = models.ForeignKey(OS_Type, null=True)
+    os_family =  models.ForeignKey(OS_Family, null=True)
+    device = models.ForeignKey(Device, null=True)
+    device_family = models.ForeignKey(Device_Family, null=True)
     dhcp_hash = models.CharField(max_length=32)
     dhcp_fingerprint = models.CharField(max_length=150, blank=True, null=True)
     vendor_id = models.CharField(max_length=100, blank=True, null=True)
@@ -91,6 +94,6 @@ class FINGERPRINT(models.Model):
 class FINGERPRINTForm(ModelForm):
     class Meta:
         model = FINGERPRINT
-        fields = ['dhcp_hash', 'dhcp_fingerprint', 'vendor_id', 'os', 'device']
+        fields = ['dhcp_fingerprint', 'vendor_id', 'user_agent', 'suites', 'os', 'os_type', 'os_family', 'device', 'device_family']
 
 

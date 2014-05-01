@@ -20,6 +20,12 @@
 	</td>
 	</table>
 <INPUT type="button" value="{% trans "Back" %}" onclick="history.back()">
+
+<form action="/devices/edit/1/" Method="POST"/>
+{% csrf_token %}
 {{ form.as_p }}
+<input type='submit' value="{% trans "Save" %}" />
+</form>
+
 {% endblock %}
 

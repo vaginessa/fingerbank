@@ -1,3 +1,4 @@
+import itertools as it
 from datafinger.models import *
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpRequest
@@ -7,6 +8,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.context_processors import csrf
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ObjectDoesNotExist
 
 def logon(request):
     if request.user.is_authenticated():
@@ -87,6 +89,18 @@ def fingerprint_delete(request,nid):
     return HttpResponseRedirect("/fingerprints/")
 
 def device_edit(request,nid):
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect('/logon/')
+
+    if request.method == 'POST':
+        c = {}
+        c.update(csrf(request))
+        form = DeviceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect("/devices/")
+        else:
+            return render_to_response('device.html', locals(),context_instance=RequestContext(request))
     device = Device.objects.get(id=nid)
     form = DeviceForm(instance=device)
     return render_to_response('device.html', locals(),context_instance=RequestContext(request))
@@ -157,3 +171,63 @@ def mac_delete(request,nid):
     os = MAC.objects.get(id=nid)
     os.delete()
     return HttpResponseRedirect("/mac/")
+
+def longestSubstringFinder(string1, string2):
+    answer = ""
+    len1, len2 = len(string1), len(string2)
+    for i in range(len1):
+        match = ""
+        for j in range(len2):
+            if (i + j < len1 and string1[i + j] == string2[j]):
+                match += string2[j]
+            else:
+                if (len(match) > len(answer)): answer = match
+                match = ""
+    return answer
+
+def sync(request):
+    finger = FINGERPRINT.objects.all().order_by('dhcp_fingerprint')
+    for fingerprint in finger:
+        try:
+            common_string = long_substr([fingerprint.vendor_id,fingerprint.user_agent])
+            if common_string:
+                try:
+                    device = Device.objects.get(code=common_string)
+                    if not fingerprint.device:
+                        fingerprint.device = device
+                        fingerprint.save()
+                except ObjectDoesNotExist:
+                    if len(common_string) > 4:
+                        try:
+                            device = Device.objects.get(code=common_string)
+                        except ObjectDoesNotExist:
+                            device = Device(code=common_string)
+                            device.save()
+                        if not fingerprint.device:
+                            fingerprint.device = device
+                            fingerprint.save()
+            else:
+                finger_compare = FINGERPRINT.objects.filter(vendor_id = fingerprint.vendor_id, device_id__isnull=False)
+                for finger_c in finger_compare:
+                    fingerprint.device = finger_c.device
+                    fingerprint.save()
+        except TypeError:
+            pass
+    return HttpResponseRedirect("/devices/")
+
+def long_substr(data):
+    substr = ''
+    if len(data) > 1 and len(data[0]) > 0:
+        for i in range(len(data[0])):
+            for j in range(len(data[0])-i+1):
+                if j > len(substr) and is_substr(data[0][i:i+j], data):
+                    substr = data[0][i:i+j]
+    return substr
+
+def is_substr(find, data):
+    if len(data) < 1 and len(find) < 1:
+        return False
+    for i in range(len(data)):
+        if find not in data[i]:
+            return False
+    return True

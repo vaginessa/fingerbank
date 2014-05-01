@@ -11,15 +11,17 @@
 	<tr>
 	<th>{% trans "DHCP Fingerprint" %}</th>
 	<th>{% trans "VendorID" %}</th>
+        <th>{% trans "Device" %}</th>
 	<th colspan=3 style="width: 40px"></th>
 	</tr>
 {% for dhcp in object_list %}
-	<tr><td>{{ dhcp.dhcp_fingerprint }}</td><td>{{ dhcp.vendor_id }}</td>{% if user.is_staff %}<td><a href="/fingerprints/del/{{ dhcp.id }}/" onClick="if(confirm('{% trans "Are you sure you want to delete "%}{{ dhcp.dhcp_fingerprint }} ?')){}else{return false}"><img src="{% static "delete.png" %}" title="{% trans "Remove Fingerprint" %}"></td>{% endif %}<td><a href="/fingerprints/edit/{{ dhcp.id }}/"><img src="{% static "script_edit.png" %}" title="{% trans "Edit Fingerprint" %}"></a></td></tr>
+	<tr><td>{{ dhcp.dhcp_fingerprint }}</td><td>{{ dhcp.vendor_id }}</td><td>{{ dhcp.device }}</td>{% if user.is_staff %}<td><a href="/fingerprints/del/{{ dhcp.id }}/" onClick="if(confirm('{% trans "Are you sure you want to delete "%}{{ dhcp.dhcp_fingerprint }} ?')){}else{return false}"><img src="{% static "delete.png" %}" title="{% trans "Remove Fingerprint" %}"></td>{% endif %}<td><a href="/fingerprints/edit/{{ dhcp.id }}/"><img src="{% static "script_edit.png" %}" title="{% trans "Edit Fingerprint" %}"></a></td></tr>
 {% endfor %}
 	</td>
 	</table>
 <INPUT type="button" value="{% trans "Back" %}" onclick="history.back()">
 {{ form.as_p }}
 
+{{ common_string }}
 {% endblock %}
 
