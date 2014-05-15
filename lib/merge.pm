@@ -6,6 +6,9 @@ use Readonly;
 use Data::Dumper;
 use utf8;
 use HTTP::BrowserDetect;
+use autodie;
+use Config::IniFiles;
+
 
 Readonly::Scalar our $DATABASE  => "./result.db";
 Readonly::Scalar our $DJANGODB  => "./db.sqlite3";
