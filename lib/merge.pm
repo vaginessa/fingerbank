@@ -75,6 +75,29 @@ sub import_fingerprint {
     print $count;
 }
 
+sub import_dhcp_class {
+    my($this) =@_;
+
+    my $dest = $this->{'dest'};
+    my $dhcp_fingerprint_file = 'dhcp_fingerprints.conf';
+    my %dhcp_fingerprints;
+    tie %dhcp_fingerprints, 'Config::IniFiles', ( -file => $dhcp_fingerprint_file  );
+
+    foreach my $class ( tied(%dhcp_fingerprints)->GroupMembers("class") ) {
+        my $class_id = $class;
+        $class_id =~ s/^class\s+//;
+        my $sty = $dest->prepare( "INSERT INTO datafinger_os_family (id, os_family) VALUES (?,?)");
+        $sty->execute($class_id,$dhcp_fingerprints{$class}{"description"});
+    }
+    foreach my $os ( tied(%dhcp_fingerprints)->GroupMembers("os") ) {
+        my $os_id = $os;
+        $os_id =~ s/^os\s+//;
+        my $os_family = int($os_id / 100);
+        my $sty = $dest->prepare( "INSERT INTO datafinger_os_type (id, os_family_id, os_type) VALUES (?,?,?)");
+        $sty->execute($os_id,$os_family,$dhcp_fingerprints{$os}{"description"});
+    }
+}
+
 sub disconnect {
     my($this) = @_;
     my $dest = $this->{'dest'};
