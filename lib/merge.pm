@@ -88,18 +88,15 @@ sub import_dhcp_class {
     tie %dhcp_fingerprints, 'Config::IniFiles', ( -file => $dhcp_fingerprint_file  );
 
     foreach my $class ( tied(%dhcp_fingerprints)->GroupMembers("class") ) {
-	$class =~ s/^class\s+//;
-	#say $class_id." -- ".$dhcp_fingerprints{$class}{"description"};
-        #my $sty = $dest->prepare( "INSERT INTO datafinger_os_family (os_family) VALUES (?)");
-        #$sty->execute($dhcp_fingerprints{$class}{"description"});
+		my ($class_id) = $class =~ /^class\s+(\d+)/;
+        my $sty = $dest->prepare( "INSERT INTO datafinger_os_family (os_family) VALUES (?)");
+        $sty->execute($dhcp_fingerprints{$class}{"description"});
     }
     foreach my $os ( tied(%dhcp_fingerprints)->GroupMembers("os") ) {
-	$os =~ s/^os\s+//;
-        my $os_family = int($os / 100);
-        say $os_family.$dhcp_fingerprints{$os}{"description"};
-	#say $os_id." -- ".$os_family." -- ".$dhcp_fingerprints{$os}{"description"};
-        #my $sty = $dest->prepare( "INSERT INTO datafinger_os_type (os_family_id, os_type) VALUES (?,?)");
-        #$sty->execute($os_family,$dhcp_fingerprints{$os}{"description"});
+		my ($os_id) = $os =~ /^os\s+(\d+)/;
+        my $os_family = int($os_id / 100);
+        my $sty = $dest->prepare( "INSERT INTO datafinger_os_type (os_family_id, os_type) VALUES (?,?)");
+        $sty->execute($os_family,$dhcp_fingerprints{$os}{"description"});
     }
 }
 
