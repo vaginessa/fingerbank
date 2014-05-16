@@ -87,12 +87,12 @@ sub import_dhcp_class {
     tie %dhcp_fingerprints, 'Config::IniFiles', ( -file => $dhcp_fingerprint_file  );
 
     foreach my $class ( tied(%dhcp_fingerprints)->GroupMembers("class") ) {
-        my $class_id = int($class) =~ s/^class\s+//;
+        my int($class_id) = $class =~ s/^class\s+//;
         my $sty = $dest->prepare( "INSERT INTO datafinger_os_family (id, os_family) VALUES (?,?)");
         $sty->execute($class_id,$dhcp_fingerprints{$class}{"description"});
     }
     foreach my $os ( tied(%dhcp_fingerprints)->GroupMembers("os") ) {
-        my $os_id = int($os) =~ s/^os\s+//;
+        my int($os_id) = $os =~ s/^os\s+//;
         my $os_family = int($os_id / 100);
         my $sty = $dest->prepare( "INSERT INTO datafinger_os_type (id, os_family_id, os_type) VALUES (?,?,?)");
         $sty->execute($os_id,$os_family,$dhcp_fingerprints{$os}{"description"});
