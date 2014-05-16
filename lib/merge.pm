@@ -8,6 +8,7 @@ use utf8;
 use HTTP::BrowserDetect;
 use autodie;
 use Config::IniFiles;
+use feature qw(say);
 
 
 Readonly::Scalar our $DATABASE  => "./result.db";
@@ -23,17 +24,17 @@ sub new {
     my ( $class, @argv ) = @_;
     my $this = bless {}, $class;
 
-    $this->connect($DATABASE,'orig');
-    $this->connect($DJANGODB,'dest');
+    $this->connection($DATABASE,'orig');
+    $this->connection($DJANGODB,'dest');
 
     return $this;
 }
 
-sub connect {
+sub connection {
     my($this,$database,$name) = @_;
 
-    my $sqlite = DBI->connect(          
-        "dbi:SQLite:dbname=$database", 
+    my $sqlite = DBI->connect(
+        "dbi:SQLite:dbname=$database",
         "",
         "",
         { RaiseError => 1}
@@ -47,10 +48,10 @@ sub import_fingerprint {
     my $dest = $this->{'dest'};
     my $orig = $this->{'orig'};
     my $count = '0';
-    # dhcp and http 
+    # dhcp and http
     my $sth = $orig->prepare( "select  dhcp.hash, http.hash, mac.vendor, dhcp.finger,dhcp.vendor_id, http.user_agent, http.suites, http.uaprof, dhcp.detect from dhcp inner join http on dhcp.mac=http.mac inner join mac on dhcp.mac = mac.mac" );
     $sth->execute();
-    
+
     while (my @data = $sth->fetchrow_array()) {
         my $stx = $dest->prepare( "SELECT http_hash FROM datafinger_fingerprint WHERE http_hash = (?) and dhcp_hash = (?)");
         $stx->execute($data[1],$data[0]);
@@ -65,7 +66,7 @@ sub import_fingerprint {
     #Only dhcp
     my $sth = $orig->prepare( "SELECT HASH, Finger, Vendor_ID, Computer_name FROM dhcp WHERE dhcp.mac NOT IN (SELECT mac FROM http GROUP BY mac) GROUP BY HASH");
     $sth->execute();
-    
+
     while (my @data = $sth->fetchrow_array()) {
         my $stx = $dest->prepare( "SELECT dhcp_hash FROM datafinger_fingerprint WHERE dhcp_hash = (?)");
         $stx->execute($data[0]);
@@ -87,15 +88,18 @@ sub import_dhcp_class {
     tie %dhcp_fingerprints, 'Config::IniFiles', ( -file => $dhcp_fingerprint_file  );
 
     foreach my $class ( tied(%dhcp_fingerprints)->GroupMembers("class") ) {
-        my int($class_id) = $class =~ s/^class\s+//;
-        my $sty = $dest->prepare( "INSERT INTO datafinger_os_family (id, os_family) VALUES (?,?)");
-        $sty->execute($class_id,$dhcp_fingerprints{$class}{"description"});
+	$class =~ s/^class\s+//;
+	#say $class_id." -- ".$dhcp_fingerprints{$class}{"description"};
+        #my $sty = $dest->prepare( "INSERT INTO datafinger_os_family (os_family) VALUES (?)");
+        #$sty->execute($dhcp_fingerprints{$class}{"description"});
     }
     foreach my $os ( tied(%dhcp_fingerprints)->GroupMembers("os") ) {
-        my int($os_id) = $os =~ s/^os\s+//;
-        my $os_family = int($os_id / 100);
-        my $sty = $dest->prepare( "INSERT INTO datafinger_os_type (id, os_family_id, os_type) VALUES (?,?,?)");
-        $sty->execute($os_id,$os_family,$dhcp_fingerprints{$os}{"description"});
+	$os =~ s/^os\s+//;
+        my $os_family = int($os / 100);
+        say $os_family.$dhcp_fingerprints{$os}{"description"};
+	#say $os_id." -- ".$os_family." -- ".$dhcp_fingerprints{$os}{"description"};
+        #my $sty = $dest->prepare( "INSERT INTO datafinger_os_type (os_family_id, os_type) VALUES (?,?)");
+        #$sty->execute($os_family,$dhcp_fingerprints{$os}{"description"});
     }
 }
 
