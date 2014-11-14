@@ -90,6 +90,106 @@ namespace :import do
    
   end
 
+  task :discover_windows_phone => :environment do
+    windows_phone = Device.where(:name => "Windows Phone").first
+    UserAgent.all.each do |user_agent|
+      value = user_agent.value.nil? ? '' : user_agent.value
+      matchdata = value.match(/.*Windows Phone.*;[ ]{0,1}([A-Za-z0-9 ]+);[ ]{0,1}([A-Za-z0-9 ]+)[);]{1}.*/)
+      unless matchdata.nil?
+        model = matchdata[2]
+        manufacturer_name = matchdata[1]
+        puts "#{manufacturer_name} #{model}"
+        puts user_agent.value
+
+        manufacturer = Device.where('lower(name) = ?',  "#{manufacturer_name} Windows Phone".downcase).first
+        if manufacturer.nil?
+          puts "Manufacturer #{manufacturer_name} Windows Phone doesn't exists"
+          manufacturer = Device.create!(:name => "#{manufacturer_name} Windows Phone", :parent => windows_phone, :inherit => true)
+          puts "Created manufacturer #{manufacturer.name}"
+        end
+
+        puts "Discoverered #{model}"
+        device = Device.where("lower(name) = ?", model.downcase).first
+        if device.nil?
+          device = Device.create!(:name => model, :parent => manufacturer, :inherit => true)
+          puts "Created device #{model}"
+        else
+          puts "Device #{model} exists"
+        end
+
+        rule_value = "user_agents.value regexp '.*Windows Phone.*;[ ]{0,1}#{manufacturer_name};[ ]{0,1}#{model}[);].*'"
+
+        discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{model} from model # on User Agent".downcase).first
+        unless discoverer.nil?
+          rule_already_in = false
+          discoverer.device_rules.each do |rule|
+            if rule.value == rule_value 
+              rule_already_in = true
+              break
+            end
+          end
+
+          unless rule_already_in
+            puts "Adding rule for model # #{model} to device #{device.name}"
+            rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
+          end
+        else
+          discoverer = Discoverer.create!(:description => "#{model} from model # on User Agent", :priority => 5, :device => device)
+          puts "Adding rule for model # #{model} to device #{device.name}"
+          rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
+        end
+
+
+      end
+
+
+
+
+    end
+  end
+
+
+  task :discover_blackberry_models => :environment do
+    blackberry = Device.where(:name => "RIM BlackBerry").first
+    UserAgent.all.each do |user_agent|
+      value = user_agent.value.nil? ? '' : user_agent.value
+      matchdata = value.match(/ (BlackBerry[; ][0-9]+)/)
+      model = matchdata.nil? ? nil : matchdata[0]
+      if model
+        model = model.gsub(/^ /, '')
+        model_untouched = model
+        model = model.gsub(';', ' ')
+        puts "Discoverered #{model}"
+        device = Device.where("lower(name) = ?", model.downcase).first
+        if device.nil?
+          device = Device.create!(:name => model, :parent => blackberry, :inherit => true)
+          puts "Created device #{model}"
+        else
+          puts "Device #{model} exists"
+        end
+
+        discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{model} from model # on User Agent".downcase).first
+        unless discoverer.nil?
+          rule_already_in = false
+          discoverer.device_rules.each do |rule|
+            if rule.value == "user_agents.value LIKE '%#{model_untouched}%'"
+              rule_already_in = true
+              break
+            end
+          end
+
+          unless rule_already_in
+            puts "Adding rule for model # #{model_untouched} to device #{device.name}"
+            rule = Rule.create!(:value => "user_agents.value LIKE '%#{model_untouched}%'", :device_discoverer => discoverer)
+          end
+        else
+          discoverer = Discoverer.create!(:description => "#{model} from model # on User Agent", :priority => 5, :device => device)
+          puts "Adding rule for model # #{model_untouched} to device #{device.name}"
+          rule = Rule.create!(:value => "user_agents.value LIKE '%#{model_untouched}%'", :device_discoverer => discoverer)
+        end
+      end
+    end
+  end
 
 
   task :merge_stats, [:db_path] => [:environment] do |t, args|
