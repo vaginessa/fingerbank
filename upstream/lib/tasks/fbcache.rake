@@ -7,6 +7,7 @@ namespace :fbcache do
 
   task build_discoverers: :environment do 
     Combination.device_matching_discoverers
+    Combination.first.find_matching_discoverers
   end
 
 end
