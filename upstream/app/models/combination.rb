@@ -186,15 +186,11 @@ class Combination < ActiveRecord::Base
 
   def self.device_matching_discoverers
     # we use the unserialized cache (pretty much a global variable)
-    if Rails.application.config.matching_discoverers
-      return Rails.application.config.matching_discoverers
-    # we fallback to the cache that lives across the instances
-    elsif Rails.cache.read("device_matching_discoverers")
-      Rails.application.config.matching_discoverers = Rails.cache.read("device_matching_discoverers")
-      return Rails.application.config.matching_discoverers
+    if FingerbankCache.get("device_matching_discoverers") 
+      return FingerbankCache.get("device_matching_discoverers")
     end
 
-    # complete cache miss, we compute the data
+    # cache miss, we compute the data
 
     combinations = {}
     Combination.all.each do |c|
@@ -229,9 +225,9 @@ class Combination < ActiveRecord::Base
       end
     end    
     # We keep our result in the cache
-    success = Rails.cache.write("device_matching_discoverers", combinations)
+    success = FingerbankCache.set("device_matching_discoverers", combinations)
     puts "writing cache gave #{success}"
-    return Rails.cache.read("device_matching_discoverers") 
+    return combinations
   end
 
   def if_for_query(query, started)
