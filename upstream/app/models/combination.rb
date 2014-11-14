@@ -122,6 +122,9 @@ class Combination < ActiveRecord::Base
     discoverer_detected_device = nil
     new_score = nil
     discoverers_match = Combination.device_matching_discoverers[id]
+    if discoverers_match.nil?
+      discoverers_match = find_matching_discoverers
+    end
     unless discoverers_match.empty?
       deepest = 0
       discoverers = discoverers_match 
@@ -285,7 +288,7 @@ class Combination < ActiveRecord::Base
       records.each do |record|
         while !record[count].nil?
           if record[count] == 1
-            discoverer = conditions[-count]
+            discoverer = conditions[count]
             matches.push discoverer
             puts "Matched OS rule in #{discoverer.id}"
           end
@@ -296,7 +299,7 @@ class Combination < ActiveRecord::Base
     end
 
     temp_combination.delete
-    valid_discoverers
+    return matches 
   end
 
   def find_version
