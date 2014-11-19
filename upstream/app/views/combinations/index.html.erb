@@ -1,14 +1,18 @@
 <div>
   
+
+  <%= render :partial => 'search' %>
+
+  <div class="pull-right">
+
   <%= link_to 'Known combinations', combinations_path, :class => request.path == combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
   <%= link_to 'See unknown', unknown_combinations_path, :class => request.path == unknown_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
   <%= link_to 'See unrated', unrated_combinations_path, :class => request.path == unrated_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
-
-  <%= link_to 'Submit a combination', new_combination_path, :class => 'btn btn-primary pull-right' %>
+  <%= link_to 'Submit a combination', new_combination_path, :class => 'btn btn-primary' %>
+  </div>
 </div>
 
-<%= render :partial => 'search' %>
-
+<div style="clear:both"></div>
 <table class="table-striped">
   <thead>
     <tr>
@@ -45,7 +49,6 @@
     <% end %>
   </tbody>
 </table>
-
 <%= will_paginate %>
 <br>
 
