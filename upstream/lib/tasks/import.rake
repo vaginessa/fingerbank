@@ -247,6 +247,38 @@ namespace :import do
 
     end
 
+    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac"
+
+    result = stm.execute
+
+    count = 0
+    result.each do |row|
+      ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
+
+      puts "Processing #{row[0]} #{count}/#{total_count}"
+
+      mac_value = row[0].nil? ? '' : ic.iconv(row[0] + ' ')[0..-2][0..7]
+      dhcp_fingerprint_value = row[1].nil? ? '' : ic.iconv(row[1] + ' ')[0..-2]
+      dhcp_vendor_value = row[2].nil? ? '' : ic.iconv(row[2] + ' ')[0..-2]
+      user_agent_value = row[3].nil? ? '' : ic.iconv(row[3] + ' ')[0..-2]
+      DhcpFingerprint.create(:value => dhcp_fingerprint_value)
+      dhcp_fingerprint = DhcpFingerprint.where(:value => dhcp_fingerprint_value).first
+      UserAgent.create(:value => user_agent_value)
+      user_agent = UserAgent.where(:value => user_agent_value).first
+      DhcpVendor.create(:value => dhcp_vendor_value)
+      dhcp_vendor = DhcpVendor.where(:value => dhcp_vendor_value).first 
+
+      combination = Combination.new
+      combination.dhcp_fingerprint = dhcp_fingerprint
+      combination.user_agent = user_agent
+      combination.dhcp_vendor = dhcp_vendor
+      combination.mac_vendor = MacVendor.from_mac(mac_value)
+      combination.save
+      combination = Combination.where(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => combination.mac_vendor).first
+
+      count+=1
+
+    end
 
   end
 
