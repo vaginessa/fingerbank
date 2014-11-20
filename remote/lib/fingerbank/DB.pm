@@ -38,7 +38,7 @@ sub fetch_upstream {
     my $logger = get_logger;
 
     my $download_url    = "https://fingerbank.inverse.ca/api/v1/download?key=";
-    my $api_key         = "6eb904adb920fc3686d88ba245fefedd6748711b";
+    my $api_key         = "";
     my $database_file   = "/src/fingerbank/remote/db/fingerbank_upstream.db";
 
     $logger->debug("Downloading the latest version of upstream database");
