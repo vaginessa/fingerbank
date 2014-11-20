@@ -3,6 +3,8 @@ package fingerbank::Query;
 use Moose;
 use namespace::autoclean;
 
+use JSON;
+use LWP::UserAgent;
 use Module::Load;
 
 use fingerbank::Combination;
@@ -50,10 +52,21 @@ sub match {
     if ( is_success($status_code) ) {
         return $self->_buildResult;
     }
-    # Something went wrong, we need to let the caller knows about it
-#    else {
-#        return ( $status_code, $status_msg )
-#    }
+    # We were unable to fullfil a match locally
+    # Most of the time, preconditions may have failed.
+    else {
+        my $upstream_api_url = "https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=";
+        my $api_key = "";
+        my $ua = LWP::UserAgent->new;
+        my $query_args = encode_json($args);
+
+        my $req = HTTP::Request->new( GET => $upstream_api_url.$api_key);
+        $req->content_type('application/json');
+        $req->content($query_args);
+
+        my $res = $ua->request($req);
+        return (decode_json($res->content));
+    }
 }
 
 =head2 getQueryKeyIDs
