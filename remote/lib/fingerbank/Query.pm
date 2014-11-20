@@ -175,6 +175,8 @@ sub _buildResult {
         }
         $result->{parents} = \@parents;
     }
+
+    return $result;
 }
 
 
