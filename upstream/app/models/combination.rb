@@ -221,7 +221,12 @@ class Combination < ActiveRecord::Base
                 WHERE (#{query});"
         records = ActiveRecord::Base.connection.execute(sql)
         records.each do |record|
-          combinations[record[0]] << discoverer
+          begin
+            combinations[record[0]] << discoverer
+          rescue
+            combinations[record[0]] = []
+            combinations[record[0]] << discoverer
+          end
         end
         puts "Found #{records.size} hits for discoverer #{discoverer.id}"
       
