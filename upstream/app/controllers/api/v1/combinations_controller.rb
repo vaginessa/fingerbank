@@ -35,12 +35,14 @@ class Api::V1::CombinationsController < Api::ApiController
 
     @combination = Combination.where(:user_agent =>user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor_id => dhcp_vendor, :mac_vendor => mac_vendor).first
 
-    respond_to do |format|
-      if @combination.nil?
-        @combination = Combination.create!(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor, :submitter => @current_user)
-        @combination.process
-      end
-      format.json { render 'combinations/show', status: :found, location: @combination }
+    if @combination.nil?
+      @combination = Combination.create!(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor, :submitter => @current_user)
+      @combination.process(:with_version => true)
+    end
+    if @combination.device.nil?
+      render json: @combination, :status => 404
+    else
+      render 'combinations/show.json'
     end
   end
 
