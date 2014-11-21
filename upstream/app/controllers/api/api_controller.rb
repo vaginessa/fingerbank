@@ -1,4 +1,7 @@
 class Api::ApiController < ApplicationController
+
+  protect_from_forgery with: :null_session
+
   skip_before_filter :ensure_admin
 
   before_filter :validate_key
