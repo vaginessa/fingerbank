@@ -1,8 +1,9 @@
 package fingerbank::DB;
 
+use strict;
+use warnings;
+
 use LWP::Simple qw(getstore);    # Required in fetch_upstream (getstore)
-use Moose;
-use namespace::autoclean;
 
 use fingerbank::Config;
 use fingerbank::Error qw(is_error is_success);
@@ -54,8 +55,6 @@ Will also make sure a local instance doesn't already exists.
 =cut
 sub initialize_local {
 }
-
-__PACKAGE__->meta->make_immutable;
 
 
 =head1 AUTHOR

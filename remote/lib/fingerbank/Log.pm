@@ -2,7 +2,7 @@ package fingerbank::Log;
 
 =head1 NAME
 
-fingerbank::Log - Logging framework
+fingerbank::Log
 
 =head1 DESCRIPTION
 

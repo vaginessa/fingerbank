@@ -2,7 +2,7 @@ package fingerbank::Error;
 
 =head1 NAME
 
-fingerbank::Model::error - Error codes and related functions
+fingerbank::Error
 
 =head1 DESCRIPTION
 
