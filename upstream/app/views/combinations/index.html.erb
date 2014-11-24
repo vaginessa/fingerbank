@@ -1,13 +1,13 @@
 <div>
   
-
   <%= render :partial => 'search' %>
 
   <div class="pull-right">
 
+  <%= render :partial => 'shared/stats' %>
   <%= link_to 'Known combinations', combinations_path, :class => request.path == combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
-  <%= link_to 'See unknown', unknown_combinations_path, :class => request.path == unknown_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
-  <%= link_to 'See unrated', unrated_combinations_path, :class => request.path == unrated_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
+  <%= link_to 'Unknown', unknown_combinations_path, :class => request.path == unknown_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
+  <%= link_to 'Unrated', unrated_combinations_path, :class => request.path == unrated_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
   <%= link_to 'Submit a combination', new_combination_path, :class => 'btn btn-primary' %>
   </div>
 </div>
@@ -25,6 +25,7 @@
       <th>User agent</th>
       <th>DhcpFingerprint</th>
       <th>DHCP vendor</th>
+      <th>Discovered when</th>
     </tr>
   </thead>
 
@@ -45,6 +46,7 @@
         <td><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
         <td><%= combination.dhcp_fingerprint ? combination.dhcp_fingerprint.value : "Unknown" %></td>
         <td><%= combination.dhcp_vendor ? combination.dhcp_vendor.value : "Unknown" %></td>
+        <td><%= time_ago_in_words(combination.created_at) %> ago</td>
       </tr>
     <% end %>
   </tbody>
