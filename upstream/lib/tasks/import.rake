@@ -59,10 +59,11 @@ namespace :import do
             model_number = model_number.sub('\'', '\'\'') 
             model_number = ic.iconv(model_number + ' ')[0..-2]
             discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{name} from model # on User Agent".downcase).first
+            rule_value = "user_agents.value regexp ' #{model_number}[\); ]{1}'"
             unless discoverer.nil?
               rule_already_in = false
               discoverer.device_rules.each do |rule|
-                if rule.value == "user_agents.value LIKE '% #{model_number} %'"
+                if rule.value == rule_value
                   rule_already_in = true
                   break
                 end
@@ -70,12 +71,12 @@ namespace :import do
     
               unless rule_already_in
                 puts "Adding rule for model # #{model_number} to device #{device.name}"
-                rule = Rule.create!(:value => "user_agents.value LIKE '% #{model_number} %'", :device_discoverer => discoverer)
+                rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
               end
             else
               discoverer = Discoverer.create!(:description => "#{name} from model # on User Agent", :priority => 5, :device => device)
               puts "Adding rule for model # #{model_number} to device #{device.name}"
-              rule = Rule.create!(:value => "user_agents.value LIKE '% #{model_number} %'", :device_discoverer => discoverer)
+              rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
             end
 
           end
@@ -192,7 +193,7 @@ namespace :import do
   end
 
 
-  task :merge_stats, [:db_path] => [:environment] do |t, args|
+  task :merge_stats, [:db_path, :days_to_merge] => [:environment] do |t, args|
 
     # what is the last inserted that has no owner (should be by this script)
     last_inserted = Combination.where(:submitter_id => nil).order(created_at: :desc).first
@@ -205,16 +206,21 @@ namespace :import do
       next
     end
 
+    if args[:days_to_merge].nil?
+      puts "No delay set. Using 365 days"
+      args[:days_to_merge] = 365
+    end
+
     orig = SQLite3::Database.open args[:db_path]
 
-    stm = orig.prepare "select count(*) as total_count from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac"
+    stm = orig.prepare "select count(*) as total_count from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days')"
 
     result = stm.execute
 
     total_count = 0
     result.each do |row| total_count = row[0] end
 
-    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac"
+    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days') "
 
     result = stm.execute
 
@@ -247,7 +253,14 @@ namespace :import do
 
     end
 
-    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac"
+    stm = orig.prepare "select count(*) as total_count from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days')"
+
+    result = stm.execute
+
+    total_count = 0
+    result.each do |row| total_count = row[0] end
+
+    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days') "
 
     result = stm.execute
 
@@ -282,4 +295,16 @@ namespace :import do
 
   end
 
+
+  task :rewrite_android_rules => :environment do 
+    Rule.all.each do |rule|
+      model = rule.value.match /user_agents.value like '% (.*) %'/i
+      if model
+        puts model
+        puts model[1] 
+        rule.value = "user_agents.value regexp ' #{model[1]}[\); ]{1}'"
+        rule.save!
+      end
+    end
+  end
 end
