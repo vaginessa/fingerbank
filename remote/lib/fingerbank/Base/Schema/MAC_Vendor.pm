@@ -12,4 +12,10 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->set_primary_key('id');
 
+# Custom accessor (value) that returns the MAC_Vendor name in list context
+sub value {
+    my ( $self ) = @_;
+    return $self->name;
+}
+
 1;
