@@ -4,6 +4,7 @@ use LWP::Simple qw(getstore);    # Required in fetch_upstream (getstore)
 use Moose;
 use namespace::autoclean;
 
+use fingerbank::Config;
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::Log qw(get_logger);
 use fingerbank::Schema::Local;
@@ -26,7 +27,7 @@ sub connect {
     }
 
     # Establishing connection to the requested database schema
-    return "fingerbank::Schema::$schema"->connect("dbi:SQLite:/src/fingerbank/remote/db/fingerbank_$schema.db");
+    return "fingerbank::Schema::$schema"->connect("dbi:SQLite:" . $INSTALL_PATH . "db/fingerbank_$schema.db");
 }
 
 =head2 fetch_upstream
@@ -37,13 +38,11 @@ Download the latest version of the upstream Fingerbank database
 sub fetch_upstream {
     my $logger = get_logger;
 
-    my $download_url    = "https://fingerbank.inverse.ca/api/v1/download?key=";
-    my $api_key         = "";
-    my $database_file   = "/src/fingerbank/remote/db/fingerbank_upstream.db";
+    my $database_file   = $INSTALL_PATH . "db/fingerbank_Upstream.db";
 
     $logger->debug("Downloading the latest version of upstream database");
 
-    getstore($download_url.$api_key, $database_file);
+    getstore($UPSTREAM_DB_URL.$API_KEY, $database_file);
 }
 
 =head2 initialize_local

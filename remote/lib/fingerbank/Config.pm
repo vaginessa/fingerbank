@@ -1,48 +1,31 @@
-package fingerbank::Log;
+package fingerbank::Config;
 
 =head1 NAME
 
-fingerbank::Log - Logging framework
+fingerbank::Config
 
 =head1 DESCRIPTION
 
-Logging framework that will take care of returning a logging instance depending on caller and
-will also handle the initiation and watching of log configuration files.
+File paths and configuration parameters
 
 =cut
 
 use strict;
 use warnings;
 
-use Log::Log4perl;
-
-use fingerbank::Config;
+use Readonly;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(get_logger);
+    @EXPORT = qw($INSTALL_PATH $UPSTREAM_DB_URL $API_KEY);
 }
 
-# Initiate the logger and check config every 10 seconds in case level changes
-Log::Log4perl::init_and_watch($INSTALL_PATH . 'conf/log.conf', 10);
 
-
-=head1 METHODS
-
-=cut
-
-=head2 get_logger
-
-Return a logger instance for the caller package
-
-=cut
-sub get_logger {
-    my ( $package, $filename, $line ) = caller;
-    return Log::Log4perl->get_logger($package);
-}
-
+Readonly::Scalar our $INSTALL_PATH      => '/src/fingerbank/remote/';
+Readonly::Scalar our $UPSTREAM_DB_URL   => 'https://fingerbank.inverse.ca/api/v1/download?key=';
+Readonly::Scalar our $API_KEY           => '';
 
 =back
 
