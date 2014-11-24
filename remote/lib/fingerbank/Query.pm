@@ -186,7 +186,7 @@ sub _buildResult {
             $parent_id = $parent->{parent_id} if ( defined($parent->{parent_id}) );
             $parent_exists = 0 if ( !defined($parent->{parent_id}) );
         }
-        $result->{parents} = \@parents;
+        $result->{device}->{parents} = \@parents;
     }
 
     return $result;
