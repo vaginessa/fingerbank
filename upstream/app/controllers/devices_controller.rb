@@ -84,7 +84,8 @@ class DevicesController < ApplicationController
   # PATCH/PUT /device/1
   # PATCH/PUT /device/1.json
   def update
-
+    # we expire the device tree before the update in case of a parent change
+    expire_device_tree(@device)
     respond_to do |format|
       if @device.update(device_params)
         expire_device_tree(@device)
