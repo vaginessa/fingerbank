@@ -43,9 +43,9 @@ class CombinationsController < ApplicationController
     if params[:search]
       @search = escaped_search
       @selected_fields = params[:fields]
-      @combinations = Combination.search(params[:search], @selected_fields).paginate(:page => params[:page])
+      @combinations = Combination.search(params[:search], @selected_fields).paginate(:page => params[:page]).order('created_at DESC')
     else
-      @combinations = Combination.paginate(:page => params[:page]) 
+      @combinations = Combination.paginate(:page => params[:page]) .order('created_at DESC')
     end
   end
 
@@ -54,9 +54,9 @@ class CombinationsController < ApplicationController
     if params[:search]
       @search = escaped_search
       @selected_fields = params[:fields]
-      @combinations = Combination.search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page])
+      @combinations = Combination.search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page]).order('created_at DESC')
     else
-      @combinations = Combination.unknown.paginate(:page => params[:page]) 
+      @combinations = Combination.unknown.paginate(:page => params[:page]).order('created_at DESC') 
     end
     render 'index'
   end
@@ -66,9 +66,9 @@ class CombinationsController < ApplicationController
     if params[:search]
       @search = escaped_search
       @selected_fields = params[:fields]
-      @combinations = Combination.search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
+      @combinations = Combination.search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page]).order('created_at DESC')
     else
-      @combinations = Combination.unrated.paginate(:page => params[:page]) 
+      @combinations = Combination.unrated.paginate(:page => params[:page]).order('created_at DESC') 
     end
     render 'index'
   end
@@ -86,7 +86,7 @@ class CombinationsController < ApplicationController
 
   def calculate 
     begin
-      @combination.process
+      @combination.process(:with_version => true)
       flash[:success] = "Combination was processed sucessfully. Yielded (Device='#{@combination.device.nil? ? "Unknown" : @combination.device.full_path}', Version='#{@combination.version}')"
       redirect_to :back
     rescue Exception => e
