@@ -1,0 +1,20 @@
+@import "global"; 
+
+span.minimized {
+  display:none;
+}
+
+span.device-toggler {
+  border: 1px solid grey;
+  cursor:pointer;
+  width:17px;
+  text-align:center;
+  display:inline-block;
+  @include rounded(3px);
+}
+
+li.no-bullet {
+  position:relative;
+  left:-21px;
+  list-style-type:none;
+}
