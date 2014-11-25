@@ -29,9 +29,9 @@ class User < ActiveRecord::Base
   def self.from_omniauth(auth)
     user = self.where(:github_uid => auth.uid).first
     if user 
-      user.update!(:github_uid => auth.uid, :name => auth.info.nickname, :display_name => auth.info.name)
+      user.update!(:github_uid => auth.uid, :name => auth.info.nickname, :display_name => auth.info.name, :email => auth.info.email)
     else
-      create(:github_uid => auth.uid, :name => auth.info.nickname, :display_name => auth.info.name)
+      create(:github_uid => auth.uid, :name => auth.info.nickname, :display_name => auth.info.name, :email => auth.info.email)
     end
     return self.where(:github_uid => auth.uid).first 
   end
