@@ -87,7 +87,7 @@ sub getQueryKeyIDs {
             get_column  =>  'id',                       # The value of which column do we want
         );
 
-        my ( $status_code, $result ) = "fingerbank::$key"->search(\%query);
+        my ( $status_code, $result ) = "fingerbank::Model::$key"->search(\%query);
 
         # If we cannot find any ID for a key, we need to return an error code since it is a precondition and we cannot continue
         if ( is_error($status_code) ) {
@@ -162,13 +162,13 @@ sub _buildResult {
     my $result = {};
 
     # Get the combination info
-    my $combination = fingerbank::Combination->read($self->combination_id);
+    my $combination = fingerbank::Model::Combination->read($self->combination_id);
     foreach my $key ( keys %$combination ) {
         $result->{$key} = $combination->{$key};
     }
 
     # Get device info
-    my $device = fingerbank::Device->read($combination->{device_id});
+    my $device = fingerbank::Model::Device->read($combination->{device_id});
     foreach my $key ( keys %$device ) {
         $result->{device}->{$key} = $device->{$key};
     }
@@ -180,7 +180,7 @@ sub _buildResult {
         my @parents;
         my $iteration = 0;
         while ( $parent_exists ) {
-            my $parent = fingerbank::Device->read($parent_id);
+            my $parent = fingerbank::Model::Device->read($parent_id);
             foreach my $key ( keys %$parent ) {
                 $parents[$iteration]{$key} = $parent->{$key};
             }
