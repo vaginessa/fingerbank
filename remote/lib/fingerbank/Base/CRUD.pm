@@ -2,6 +2,7 @@ package fingerbank::Base::CRUD;
 
 use Moose;
 use namespace::autoclean;
+use POSIX;
 
 use fingerbank::DB;
 use fingerbank::Error qw(is_error is_success);
@@ -28,6 +29,37 @@ sub _parseClassName {
     $className =~ s#^.*:##;
 
     return $className;
+}
+
+=head2 _getTableID
+
+=cut
+sub _getTableID {
+    my ( $self, $table ) = @_;
+
+    my $db = fingerbank::DB->connect('Local');
+    my $resultset = $db->resultset('TablesIDs')->first;
+
+    $table = lc($table);
+    return $resultset->$table;
+}
+
+=head2 _incrementTableID
+
+=cut
+sub _incrementTableID {
+    my ( $self, $table ) = @_;
+
+    my $db = fingerbank::DB->connect('Local');
+
+    # Get current ID before incrementing it
+    my $resultset = $db->resultset('TablesIDs')->first;
+    $table = lc($table);
+    my $id = $resultset->$table;
+
+    # Increment the ID and update the table
+    $id ++;
+    $db->resultset('TablesIDs')->update({ $table => $id });
 }
 
 
@@ -141,6 +173,61 @@ sub search {
     return ( $STATUS::NOT_FOUND, $status_msg );
 }
 
+=head2 create
+
+=cut
+sub create {
+    my ( $self, $args ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my $entry_id = "L" . $self->_getTableID($className);    # Local entries IDs are prefixed by L
+
+    # Prepare arguments for entry creation
+    $args->{id} = $entry_id;    # We need to override the ID for a local one
+    $args->{created_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding created_at with current timestamp
+    $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding updated_at with current timestamp
+
+    my $db = fingerbank::DB->connect('Local');
+    $db->resultset($className)->create($args);
+
+    $self->_incrementTableID($className);
+}
+
+=head2 update
+
+=cut
+sub update {
+    my ( $self, $id, $args ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+
+    $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));
+
+    # Fetching current data to build the resultset from which we will then update with new data
+    my $db = fingerbank::DB->connect('Local');
+    my $resultset = $db->resultset($className)->find($id);
+
+    $resultset->update($args);
+}
+
+=head2 delete
+
+=cut
+sub delete {
+    my ( $self, $id ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+
+    # Fetching current data to build the resultset that we will then delete
+    my $db = fingerbank::DB->connect('Local');
+    my $resultset = $db->resultset($className)->find($id);
+
+    # Calling delete on the resultset to delete it from the database
+    $resultset->delete;
+}
 
 __PACKAGE__->meta->make_immutable;
 
