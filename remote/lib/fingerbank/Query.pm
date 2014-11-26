@@ -42,8 +42,6 @@ sub match {
     foreach my $key ( @query_keys ) {
         my $concatenated_key = $key . '_value';
         $self->$concatenated_key($args->{lc($key)}) if ( defined($args->{lc($key)}) );
-#        my $keyObj = "fingerbank::$key"->new;
-#        $keyObj->content($args->{lc($key)}) if ( defined($args->{lc($key)}) );
     }
 
     ( $status_code, $status_msg ) = $self->getQueryKeyIDs;
@@ -132,8 +130,6 @@ sub getCombinationID {
     foreach my $key ( @query_keys ) {
         my $concatenated_key = $key . '_id';
         push @bindings, $self->$concatenated_key;
-#        my $keyObj = "fingerbank::$key"->new;
-#        push @bindings, $keyObj->id;
     }
 
     # Looking for best matching combination in schemas
@@ -147,9 +143,6 @@ sub getCombinationID {
         if ( defined($resultset) ) {
             $self->combination_id($resultset->id);
             $logger->info("Found combination ID '" . $self->combination_id . "' in schema '$schema'");
-#            my $combinationObj = fingerbank::Combination->new;
-#            $combinationObj->id($resultset->id);
-#            $logger->info("Found combination ID '" . $combinationObj->id . "' in schema '$schema'");
             next;
         }
 

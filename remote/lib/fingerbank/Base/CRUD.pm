@@ -8,8 +8,6 @@ use fingerbank::DB;
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::Log qw(get_logger);
 
-#has 'id'        => (is => 'rw', isa => 'Str', default => "");
-#has 'content'   => (is => 'rw', isa => 'Str', default => "");
 
 =head1 HELPERS
 
