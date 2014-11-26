@@ -1,8 +1,8 @@
-package fingerbank::MAC_Vendor;
+package fingerbank::Model::MAC_Vendor;
 
 =head1 NAME
 
-fingerbank::MAC_Vendor
+fingerbank::Model::MAC_Vendor
 
 =head1 DESCRIPTION
 

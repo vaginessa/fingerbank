@@ -1,12 +1,12 @@
-package fingerbank::DHCP_Vendor;
+package fingerbank::Model::DHCP_Fingerprint;
 
 =head1 NAME
 
-fingerbank::DHCP_Vendor
+fingerbank::Model::DHCP_Fingerprint
 
 =head1 DESCRIPTION
 
-Handling 'DHCP_Vendor' related stuff
+Handling 'DHCP_Fingerprint' related stuff
 
 =cut
 

@@ -1,12 +1,12 @@
-package fingerbank::Combination;
+package fingerbank::Model::User_Agent;
 
 =head1 NAME
 
-fingerbank::Combination
+fingerbank::Model::User_Agent
 
 =head1 DESCRIPTION
 
-Handling 'Combination' related stuff
+Handling 'User_Agent' related stuff
 
 =cut
 

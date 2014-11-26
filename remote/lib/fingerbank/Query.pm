@@ -7,17 +7,17 @@ use JSON;
 use LWP::UserAgent;
 use Module::Load;
 
-use fingerbank::Combination;
-use fingerbank::Device;
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::Log qw(get_logger);
+use fingerbank::Model::Combination;
+use fingerbank::Model::Device;
 
 # The query keys required to fullfil a match
 # - We load the appropriate module for each of the different query keys based on their name
 # - We declare object attributes for each of the different query keys based on their name
 our @query_keys = ('DHCP_Fingerprint', 'DHCP_Vendor', 'User_Agent', 'MAC_Vendor');
 foreach my $key ( @query_keys ) {
-    load "fingerbank::$key";
+    load "fingerbank::Model::$key";
     has $key . '_value' => (is => 'rw', isa => 'Str', default => "");
     has $key . '_id'    => (is => 'rw', isa => 'Str', default => "");
 }

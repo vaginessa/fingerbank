@@ -1,8 +1,8 @@
-package fingerbank::Device;
+package fingerbank::Model::Device;
 
 =head1 NAME
 
-fingerbank::Device
+fingerbank::Model::Device
 
 =head1 DESCRIPTION
 

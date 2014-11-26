@@ -1,12 +1,12 @@
-package fingerbank::User_Agent;
+package fingerbank::Model::DHCP_Vendor;
 
 =head1 NAME
 
-fingerbank::User_Agent
+fingerbank::Model::DHCP_Vendor
 
 =head1 DESCRIPTION
 
-Handling 'User_Agent' related stuff
+Handling 'DHCP_Vendor' related stuff
 
 =cut
 
