@@ -5,4 +5,5 @@ use namespace::autoclean;
 
 BEGIN {extends 'fingerbank::Base::Schema::DHCP_Vendor'; }
 
+
 1;

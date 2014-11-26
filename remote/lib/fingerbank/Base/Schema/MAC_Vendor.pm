@@ -12,10 +12,12 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->set_primary_key('id');
 
-# Custom accessor (value) that returns the MAC_Vendor name in list context
+# Custom accessor (value) that returns the MAC_Vendor name when called for listing entries
+# See L<fingerbank::Base::CRUD::read>
 sub value {
     my ( $self ) = @_;
     return $self->name;
 }
+
 
 1;

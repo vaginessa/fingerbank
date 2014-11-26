@@ -60,3 +60,27 @@ CREATE TABLE "user_agent" (
   "updated_at" datetime DEFAULT NULL,
   PRIMARY KEY ("id")
 );
+
+CREATE TABLE "tables_ids" (
+  "combination" int(11) NOT NULL,
+  "device" int(11) NOT NULL,
+  "dhcp_fingerprint" int(11) NOT NULL,
+  "dhcp_vendor" int(11) NOT NULL,
+  "mac_vendor" int(11) NOT NULL,
+  "user_agent" int(11) NOT NULL
+);
+INSERT INTO "tables_ids" VALUES (1, 1, 1, 1, 1, 1);
+
+CREATE TABLE "unknown" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "type" varchar(255) NOT NULL,
+  "value" varchar(1000) DEFAULT NULL,
+  "created_at" datetime DEFAULT NULL
+);
+
+CREATE TABLE "unmatched" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "query" blob DEFAULT NULL,
+  "result" blob DEFAULT NULL,
+  "created_at" datetime DEFAULT NULL
+);

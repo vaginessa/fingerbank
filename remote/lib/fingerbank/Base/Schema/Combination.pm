@@ -18,11 +18,13 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->set_primary_key('id');
 
-# Custom accessor (value) that returns the Combination device_id in list context
+# Custom accessor (value) that returns the Combination device_id when called for listing entries
+# See L<fingerbank::Base::CRUD::read>
 sub value {
     my ( $self ) = @_;
     return $self->device_id;
 }
+
 
 package fingerbank::Base::Schema::CombinationMatch;
 
