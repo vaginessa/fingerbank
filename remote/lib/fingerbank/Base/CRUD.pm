@@ -181,6 +181,8 @@ sub create {
     my $logger = get_logger;
 
     my $className = $self->_parseClassName;
+    my $return = {};
+
     my $entry_id = "L" . $self->_getTableID($className);    # Local entries IDs are prefixed by L
 
     # Prepare arguments for entry creation
@@ -189,9 +191,24 @@ sub create {
     $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding updated_at with current timestamp
 
     my $db = fingerbank::DB->connect('Local');
-    $db->resultset($className)->create($args);
+    my $resultset = $db->resultset($className)->create($args);
 
+    # Query doesn't returned any result
+    if ( !defined($resultset) ) {
+        my $status_msg = "Cannot create new '$className' entry with ID '$entry_id' in schema 'Local'.";
+        $logger->info($status_msg);
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    # Increment table ID after successful creation
     $self->_incrementTableID($className);
+
+    # Building the newly created resultset to be returned
+    foreach my $column ( $resultset->result_source->columns ) {
+        $return->{$column} = $resultset->$column;
+    }
+
+    return ( $STATUS::OK, $return );
 }
 
 =head2 update
@@ -202,14 +219,32 @@ sub update {
     my $logger = get_logger;
 
     my $className = $self->_parseClassName;
+    my $return = {};
 
+    # We need to update the 'updated_at' timestamp
     $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));
 
     # Fetching current data to build the resultset from which we will then update with new data
     my $db = fingerbank::DB->connect('Local');
     my $resultset = $db->resultset($className)->find($id);
 
+    # Query doesn't returned any result
+    if ( !defined($resultset) ) {
+        my $status_msg = "Could not find ID '$id' for '$className' in schema 'Local'. Cannot update.";
+        $logger->info($status_msg);
+        return ( $STATUS::NOT_FOUND, $status_msg );
+    }
+
+    # Calling update on the resultset to update it with new data
+    $logger->info("Found result in schema 'Local' for '$className' ID '$id'. Updating it.");
     $resultset->update($args);
+
+    # Building the updated resultset to be returned
+    foreach my $column ( $resultset->result_source->columns ) {
+        $return->{$column} = $resultset->$column;
+    }
+
+    return ( $STATUS::OK, $return );
 }
 
 =head2 delete
@@ -221,12 +256,22 @@ sub delete {
 
     my $className = $self->_parseClassName;
 
-    # Fetching current data to build the resultset that we will then delete
+    # Fetching current data to build the resultset from which we will delete
     my $db = fingerbank::DB->connect('Local');
     my $resultset = $db->resultset($className)->find($id);
 
+    # Query doesn't returned any result
+    if ( !defined($resultset) ) {
+        my $status_msg = "Could not find ID '$id' for '$className' in schema 'Local'. Cannot delete.";
+        $logger->info($status_msg);
+        return ( $STATUS::NOT_FOUND, $status_msg );
+    }
+
     # Calling delete on the resultset to delete it from the database
+    $logger->info("Found result in schema 'Local' for '$className' ID '$id'. Deleting it.");
     $resultset->delete;
+
+    return $STATUS::OK;
 }
 
 __PACKAGE__->meta->make_immutable;
