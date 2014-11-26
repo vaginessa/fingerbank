@@ -37,11 +37,12 @@ Download the latest version of the upstream Fingerbank database
 
 =cut
 sub fetch_upstream {
+    my ( $self ) = @_;
     my $logger = get_logger;
 
-    my $database_file   = $INSTALL_PATH . "db/fingerbank_Upstream.db";
+    my $database_file = $INSTALL_PATH . "db/fingerbank_Upstream.db";
 
-    $logger->debug("Downloading the latest version of upstream database");
+    $logger->info("Downloading the latest version of upstream database");
 
     getstore($UPSTREAM_DB_URL.$API_KEY, $database_file);
 }
@@ -54,6 +55,25 @@ Will also make sure a local instance doesn't already exists.
 
 =cut
 sub initialize_local {
+    my ( $self ) = @_;
+    my $logger = get_logger;
+
+    my $database_file   = $INSTALL_PATH . "db/fingerbank_Local.db";
+    my $schema_file     = $INSTALL_PATH . "db/schema_Local.sql";
+
+    if ( -f $database_file ) {
+        $logger->warn("Tried to initialize 'Local' database by applying default schema on an existing database. Exiting");
+        return;
+    }
+
+    $logger->debug("Initializing 'Local' database by applying default schema");
+    system("sqlite3 $database_file < $schema_file");
+    if ( $? != 0 ) {
+        $logger->warn("Failed to initialize 'Local' database when applying default schema");
+        return;
+    } else {
+        $logger->info("Successfully initialized 'Local' database by applying default schema");
+    }
 }
 
 
