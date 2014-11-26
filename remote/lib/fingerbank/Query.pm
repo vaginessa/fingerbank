@@ -78,7 +78,6 @@ sub getQueryKeyIDs {
 
     foreach my $key ( @query_keys ) {
         my $concatenated_key = $key . '_value';
-#        my $keyObj = "fingerbank::$key"->new;
 
         # We build the search query
         # ie: SELECT get_column FROM schema WHERE search_for = term;
@@ -86,7 +85,6 @@ sub getQueryKeyIDs {
         my %query = (
             search_for  =>  'value',                    # From which column we want to search
             term        =>  $self->$concatenated_key,   # The value we are searching from
-#            term        => $keyObj->content,
             get_column  =>  'id',                       # The value of which column do we want
         );
 
@@ -101,7 +99,6 @@ sub getQueryKeyIDs {
         }
 
         $self->{$key . '_id'} = $result;
-#        $keyObj->id($result);
     }
 
     return $STATUS::OK;
