@@ -7,6 +7,7 @@ use JSON;
 use LWP::UserAgent;
 use Module::Load;
 
+use fingerbank::Config;
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::Log qw(get_logger);
 use fingerbank::Model::Combination;
@@ -94,6 +95,17 @@ sub getQueryKeyIDs {
         if ( is_error($status_code) ) {
             my $status_msg = "Cannot find any ID for $key in " . (caller(0))[3];
             $logger->error($status_msg);
+
+            # We record the unknown query key if configured to do so
+            if ( $RECORD_UNKNOWN ) {
+                $logger->debug("Keeping track of the unknown query key '$key' with value " . $self->$concatenated_key . " in the 'unknown' database");
+                my $db = fingerbank::DB->connect('Local');
+                my $unknown_key = $db->resultset("Unknown")->create({
+                    type =>     $key,
+                    value =>    $self->$concatenated_key,
+                });
+            }
+
             return ( $STATUS::PRECONDITION_FAILED, $status_msg );
             last
         }

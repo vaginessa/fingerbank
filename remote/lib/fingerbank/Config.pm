@@ -19,13 +19,28 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT = qw($INSTALL_PATH $UPSTREAM_DB_URL $API_KEY);
+    @EXPORT = qw(
+        $INSTALL_PATH $UPSTREAM_DB_URL $UPSTREAM_QUERY_URL $API_KEY
+        $QUERY_UPSTREAM $RECORD_UNKNOWN $RECORD_UNMATCHED
+    );
 }
 
 
-Readonly::Scalar our $INSTALL_PATH      => '/src/fingerbank/remote/';
-Readonly::Scalar our $UPSTREAM_DB_URL   => 'https://fingerbank.inverse.ca/api/v1/download?key=';
-Readonly::Scalar our $API_KEY           => '';
+Readonly::Scalar our $INSTALL_PATH          => '/src/fingerbank/remote/';
+Readonly::Scalar our $UPSTREAM_DB_URL       => 'https://fingerbank.inverse.ca/api/v1/download?key=';
+Readonly::Scalar our $UPSTREAM_QUERY_URL    => 'https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=';
+Readonly::Scalar our $API_KEY               => '';
+
+
+# Should we query upstream Fingerbank API if no result found
+Readonly::Scalar our $QUERY_UPSTREAM        => '1';
+
+# Should we keep track of the unknown query keys
+Readonly::Scalar our $RECORD_UNKNOWN        => '1';
+
+# Should we keep track of the unmatched queries
+Readonly::Scalar our $RECORD_UNMATCHED      => '1';
+
 
 =back
 
