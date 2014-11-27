@@ -16,7 +16,7 @@ namespace :fbcache do
     http = Net::HTTP.new("fingerbank.inverse.ca", 443)
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    resp = http.get("/stats")
+    resp = http.get("/combinations")
     puts "Done" 
   end
 
