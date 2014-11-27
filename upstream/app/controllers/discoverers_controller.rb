@@ -6,7 +6,12 @@ class DiscoverersController < ApplicationController
   # GET /discoverers
   # GET /discoverers.json
   def index
-    @discoverers = Discoverer.all
+    if params[:search]
+      @discoverers = Discoverer.simple_search(params[:search])
+    else
+      @discoverers = Discoverer.all
+    end
+    @discoverers = @discoverers.paginate(:page => params[:page], :per_page => 50)
   end
 
   # GET /discoverers/1
