@@ -59,7 +59,7 @@ sub match {
         my $ua = LWP::UserAgent->new;
         my $query_args = encode_json($args);
 
-        my $req = HTTP::Request->new( GET => $upstream_api_url.$api_key);
+        my $req = HTTP::Request->new( GET => $UPSTREAM_QUERY_URL.$API_KEY);
         $req->content_type('application/json');
         $req->content($query_args);
 
