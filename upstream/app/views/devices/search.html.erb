@@ -1,0 +1,8 @@
+<%= render :partial => 'shared/search', :locals => {:action_url => search_devices_path , :previous_search => params[:search] } %>
+<% @devices.each do |device| %>
+  <ul>
+  <%= render :partial => 'searched_device', :locals => {:device => device} %>
+  </ul>
+<% end %>
+
+

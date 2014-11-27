@@ -41,6 +41,7 @@ Rails.application.routes.draw do
     post 'community', on: :new, :to => 'devices#community_create'
 
     collection do
+      get 'search'
       get 'not_approved'
     end
   

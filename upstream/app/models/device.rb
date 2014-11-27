@@ -1,4 +1,4 @@
-class Device < ActiveRecord::Base
+class Device < FingerbankModel
   #self.table_name = "device"
 
   has_many :device, :foreign_key => :parent_id

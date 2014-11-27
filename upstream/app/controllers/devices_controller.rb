@@ -3,7 +3,7 @@ class DevicesController < ApplicationController
   before_action :set_index_help, only: [:index]
   before_action :set_show_help, only: [:show]
 
-  skip_before_filter :ensure_admin, :only => [:community_new, :community_create]
+  skip_before_filter :ensure_admin, :only => [:community_new, :community_create, :search]
   before_filter :ensure_community, :only => [:community_new, :community_create]
 
   # GET /device
@@ -107,6 +107,10 @@ class DevicesController < ApplicationController
       format.html { redirect_to devices_url, notice: 'Great success. Device was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    @devices = Device.search(params[:search], 'name')
   end
 
   def expire_device_tree(device)
