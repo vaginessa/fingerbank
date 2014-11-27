@@ -135,6 +135,42 @@ sub read {
     }
 }
 
+=head2 list_paginated
+
+=cut
+sub list_paginated {
+    my ( $self, $query ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my @return;
+
+    foreach my $schema ( @fingerbank::DB::schemas ) {
+        $logger->debug("Listing all '$className' entries in schema '$schema'");
+
+        my $db = fingerbank::DB->connect($schema);
+        my $resultset = $db->resultset($className)->search({},
+            { offset => $query->{offset}, rows => $query->{nb_of_rows}, order_by => { -$query->{order} => $query->{order_field} } }
+        );
+
+        # Query doesn't returned any result
+        if ( $resultset eq 0 ) {
+            $logger->info("Listing of '$className' entries in schema '$schema' returned an empty set");
+            next;
+        }
+
+        $logger->info("Found entries in schema '$schema' for '$className' listing");
+
+        # Building the resultset to be returned
+        while ( my $row = $resultset->next ) {
+            my %array_row = ( $row->id => $row->value );
+            push ( @return, \%array_row );
+        }
+    }
+
+    return @return;
+}
+
 =head2 search
 
 =cut
