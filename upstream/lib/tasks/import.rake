@@ -207,20 +207,22 @@ namespace :import do
     end
 
     if args[:days_to_merge].nil?
-      puts "No delay set. Using 365 days"
-      args[:days_to_merge] = 365
+      days_to_merge = '365'
+      puts "No delay set. Using #{days_to_merge} days"
+    else
+      days_to_merge = args[:days_to_merge]
     end
 
     orig = SQLite3::Database.open args[:db_path]
 
-    stm = orig.prepare "select count(*) as total_count from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days')"
+    stm = orig.prepare "select count(*) as total_count from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{days_to_merge} days')"
 
     result = stm.execute
 
     total_count = 0
     result.each do |row| total_count = row[0] end
 
-    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days') "
+    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_dhcp left outer join stats_http on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{days_to_merge} days') "
 
     result = stm.execute
 
@@ -253,14 +255,14 @@ namespace :import do
 
     end
 
-    stm = orig.prepare "select count(*) as total_count from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days')"
+    stm = orig.prepare "select count(*) as total_count from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{days_to_merge} days')"
 
     result = stm.execute
 
     total_count = 0
     result.each do |row| total_count = row[0] end
 
-    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{args[:days_to_merge]} days') "
+    stm = orig.prepare "select stats_dhcp.mac, stats_dhcp.dhcp_fingerprint, stats_dhcp.vendor_id, stats_http.user_agent from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{days_to_merge} days') "
 
     result = stm.execute
 
