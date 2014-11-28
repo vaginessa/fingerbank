@@ -59,7 +59,7 @@ namespace :import do
             model_number = model_number.sub('\'', '\'\'') 
             model_number = ic.iconv(model_number + ' ')[0..-2]
             discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{name} from model # on User Agent".downcase).first
-            rule_value = "user_agents.value regexp ' #{model_number}[\); ]{1}'"
+            rule_value = "user_agents.value regexp '#{model_number}[\); ]{1}' and user_agents.value not regexp '[:word:]#{model_number}'"
             unless discoverer.nil?
               rule_already_in = false
               discoverer.device_rules.each do |rule|
@@ -300,13 +300,77 @@ namespace :import do
 
   task :rewrite_android_rules => :environment do 
     Rule.all.each do |rule|
-      model = rule.value.match /user_agents.value like '% (.*) %'/i
+      model = rule.value.match /user_agents.value regexp ' (.*)\[\)\; \]\{1\}'/i
       if model
         puts model
         puts model[1] 
-        rule.value = "user_agents.value regexp ' #{model[1]}[\); ]{1}'"
+        new_value = "user_agents.value regexp '#{model[1]}[\); ]{1}' and user_agents.value not regexp '[:word:]#{model[1]}'"
+        rule.value = new_value 
         rule.save!
       end
     end
   end
+
+  task :cfnetwork, [:file_path] => [:environment] do |t, args|
+    if args[:file_path].nil?
+      puts "No file path specified. Exiting"
+      next
+    end
+    require 'nokogiri'
+    page = Nokogiri::HTML(open(args[:file_path]))
+    table = page.css('table')
+    table.css('tr').each do |line|
+      cf_network = nil
+      model = nil
+      version = nil
+      got_cf_network = false
+      line.css('td').each do |info|
+        unless got_cf_network
+          cf_network = info.text
+          got_cf_network = true
+        else
+          data = info.text.match(/([a-zA-Z ]+) ([0-9.]+)/)
+          if data
+            model = data[1]
+            version = data[2]
+          end
+          break
+        end
+      end
+      if cf_network && model
+        puts cf_network
+        puts model
+        puts version 
+
+        if model == "Mac OSX"
+          device = Device.where(:name => "Mac OS X").first
+        elsif model == "iOS"
+          device = Device.where(:name => "Apple iPod, iPhone or iPad").first
+        else
+          next
+        end
+
+        description = "#{device.name} from #{cf_network} on user agent"
+
+        discoverer = Discoverer.where(:device => device).where("lower(description) = ?", description.downcase).first
+        if discoverer.nil?
+          rule_value = "user_agents.value like '%#{cf_network}%'"
+          discoverer = Discoverer.create!(:description => description, :priority => 5, :device => device)
+          puts "Adding rule for cf network #{cf_network} to device #{device.name} (#{rule_value})"
+          rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
+        end
+
+        description = "#{device.name} version #{version} from #{cf_network} on user agent"
+        discoverer = Discoverer.where(:device => device).where("lower(description) = ?", description.downcase).first
+         if discoverer.nil? && version
+          rule_value = "user_agents.value like '%#{cf_network}%'"
+          discoverer = Discoverer.create!(:description => description, :priority => 5, :device => device, :version => version)
+          puts "Adding rule for cf network #{cf_network} to device #{device.name} (#{rule_value}) with version #{version}"
+          rule = Rule.create!(:value => rule_value, :version_discoverer => discoverer)
+        end       
+
+      end
+    end
+  end
+
 end
