@@ -6,6 +6,7 @@ use namespace::autoclean;
 use JSON;
 use LWP::UserAgent;
 use Module::Load;
+use POSIX;
 
 use fingerbank::Config;
 use fingerbank::Error qw(is_error is_success);
@@ -94,15 +95,8 @@ sub getQueryKeyIDs {
             my $status_msg = "Cannot find any ID for $key in " . (caller(0))[3];
             $logger->error($status_msg);
 
-            # We record the unknown query key if configured to do so
-            if ( $RECORD_UNKNOWN ) {
-                $logger->debug("Keeping track of the unknown query key '$key' with value " . $self->$concatenated_key . " in the 'unknown' database");
-                my $db = fingerbank::DB->connect('Local');
-                my $unknown_key = $db->resultset("Unknown")->create({
-                    type =>     $key,
-                    value =>    $self->$concatenated_key,
-                });
-            }
+            # We record the unmatched query key if configured to do so
+            $self->_recordUnmatched($key, $self->$concatenated_key);
 
             return ( $STATUS::PRECONDITION_FAILED, $status_msg );
             last
@@ -192,6 +186,54 @@ sub _buildResult {
     }
 
     return $result;
+}
+
+=head2 _recordUnmatched
+
+=cut
+sub _recordUnmatched {
+    my ( $self, $key, $value ) = @_;
+    my $logger = get_logger;
+
+    # Are we configured to do so ?
+    if ( !$RECORD_UNMATCHED ) {
+        $logger->debug("Not configured to keep track of unmatched query keys. Skipping");
+        return;
+    }
+
+    $logger->debug("Record the unmatched query key '$key' with value " . $value . " in the 'unmatched' table of 'Local' database");
+
+    # We first check if we already have the entry, if so we simply increment the occurence number
+    my $db = fingerbank::DB->connect('Local');
+    my $resultset = $db->resultset('Unmatched')->search({
+        type    => { 'like', $key },
+        value   => { 'like', $value},
+    });
+
+    # We do not have an existing entry for that query key. Creating a new one
+    if ( $resultset eq 0 ) {
+        $logger->info("New unmatched '$key' query key detected with value '$value'. Adding an entry to the 'unmatched' table of 'Local' database");
+        my %args = (
+            type => $key,
+            value => $value,
+            created_at => strftime("%Y-%m-%d %H:%M:%S", localtime(time)),
+            updated_at => strftime("%Y-%m-%d %H:%M:%S", localtime(time)),
+        );
+        my $unmatched_key = $db->resultset('Unmatched')->create(\%args);
+    }
+
+    # We have an existing entry for that query key. Incrementing the occurence number
+    else {
+        $logger->info("Existing unmatched '$key' query key detected with value '$value'. Incrementing the number of occurence");
+        my $occurence = $resultset->first->occurence;
+        $occurence ++;
+        my %args = (
+            updated_at  => strftime("%Y-%m-%d %H:%M:%S", localtime(time)),
+            occurence   => $occurence,
+        );
+        my $unmatched_key = $db->resultset('Unmatched')->update(\%args);
+    }
+
 }
 
 

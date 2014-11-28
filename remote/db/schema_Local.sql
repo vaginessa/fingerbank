@@ -71,16 +71,11 @@ CREATE TABLE "tables_ids" (
 );
 INSERT INTO "tables_ids" VALUES (1, 1, 1, 1, 1, 1);
 
-CREATE TABLE "unknown" (
+CREATE TABLE "unmatched" (
   "id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "type" varchar(255) NOT NULL,
   "value" varchar(1000) DEFAULT NULL,
-  "created_at" datetime DEFAULT NULL
-);
-
-CREATE TABLE "unmatched" (
-  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-  "query" blob DEFAULT NULL,
-  "result" blob DEFAULT NULL,
-  "created_at" datetime DEFAULT NULL
+  "occurence" int(11) DEFAULT 1,
+  "created_at" datetime DEFAULT NULL,
+  "updated_at" datetime DEFAULT NULL
 );

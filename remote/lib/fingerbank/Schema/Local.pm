@@ -10,7 +10,6 @@ __PACKAGE__->load_classes(
     DHCP_Vendor,
     MAC_Vendor,
     User_Agent,
-    Unknown,
     Unmatched,
     TablesIDs,
 );

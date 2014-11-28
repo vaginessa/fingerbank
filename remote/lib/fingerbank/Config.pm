@@ -21,7 +21,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         $INSTALL_PATH $UPSTREAM_DB_URL $UPSTREAM_QUERY_URL $API_KEY
-        $QUERY_UPSTREAM $RECORD_UNKNOWN $RECORD_UNMATCHED
+        $QUERY_UPSTREAM $RECORD_UNMATCHED
     );
 }
 
@@ -35,10 +35,7 @@ Readonly::Scalar our $API_KEY               => '';
 # Should we query upstream Fingerbank API if no result found
 Readonly::Scalar our $QUERY_UPSTREAM        => '1';
 
-# Should we keep track of the unknown query keys
-Readonly::Scalar our $RECORD_UNKNOWN        => '1';
-
-# Should we keep track of the unmatched queries
+# Should we keep track of the unmatched query keys
 Readonly::Scalar our $RECORD_UNMATCHED      => '1';
 
 
