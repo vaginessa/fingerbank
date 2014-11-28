@@ -29,7 +29,7 @@ module ApplicationHelper
   def devices_discovered(from_when = 20.year.ago)
     devices = []
     Device.all.each do |d|
-      if !d.combinations.empty? && !devices.include?(d) && !d.combinations.where('created_at > ?', from_when).empty?
+      if !d.combinations.empty? && !devices.include?(d) && !d.combinations.where('created_at > ?', from_when).empty? && d.combinations.where('created_at < ?', from_when).empty?
         devices << d
       end
     end
