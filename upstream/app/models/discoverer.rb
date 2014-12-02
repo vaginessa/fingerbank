@@ -16,4 +16,111 @@ class Discoverer < FingerbankModel
       return "'#{self.version}'"
     end
   end
+
+  def self.cache
+    Discoverer.device_matching_discoverers
+    Discoverer.discoverers_ifs
+  end
+
+  def self.device_matching_discoverers
+    # we use the unserialized cache (pretty much a global variable)
+    if FingerbankCache.get("device_matching_discoverers") 
+      return FingerbankCache.get("device_matching_discoverers")
+    end
+
+    # cache miss, we compute the data
+
+    combinations = {}
+    Combination.all.each do |c|
+      combinations[c.id] = []
+    end
+    Discoverer.all.each do |discoverer|
+      matches = []
+
+      query = ""
+      started = false
+
+      discoverer.device_rules.each do |rule|
+        to_add = Combination.add_condition rule.computed, started
+        
+        query += to_add
+        started = true
+      end
+
+      unless query.empty?
+        sql = "SELECT combinations.id from combinations 
+                inner join user_agents on user_agents.id=combinations.user_agent_id 
+                inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
+                inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
+                left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
+                WHERE (#{query});"
+        records = ActiveRecord::Base.connection.execute(sql)
+        records.each do |record|
+          begin
+            combinations[record[0]] << discoverer
+          rescue
+            combinations[record[0]] = []
+            combinations[record[0]] << discoverer
+          end
+        end
+        puts "Found #{records.size} hits for discoverer #{discoverer.id}"
+      
+      end
+    end    
+    # We keep our result in the cache
+    success = FingerbankCache.set("device_matching_discoverers", combinations)
+    puts "writing cache gave #{success}"
+    return combinations
+  end
+
+  def self.if_for_query(query, started)
+    if started
+      return "IF(#{query}, 1, 0), "
+    else
+      return "IF(#{query}, 1, 0) "
+    end
+  end
+
+  def self.discoverers_ifs
+    ifs_started = false
+    ifs = FingerbankCache.get("ifs_for_discoverers") || ""
+    conditions = FingerbankCache.get("ifs_association_for_discoverers") || []
+
+    if ifs.empty? || conditions.empty?
+      ifs = ""
+      conditions = []
+      Discoverer.all.each do |discoverer|
+
+        query = ""
+        started = false
+
+        discoverer.device_rules.each do |rule|
+          to_add = rule.computed.gsub('dhcp_fingerprints.value', 'dhcp_fingerprint')
+          to_add = to_add.gsub('user_agents.value', 'user_agent')
+          to_add = to_add.gsub('dhcp_vendors.value', 'dhcp_vendor')
+          to_add = Combination.add_condition to_add, started
+          
+          query += to_add
+          started = true
+        end
+    
+        unless query.empty?
+          ifs.prepend(Discoverer.if_for_query(query, ifs_started))
+          conditions.unshift discoverer
+          ifs_started = true
+        end
+      end    
+      success = FingerbankCache.set("ifs_for_discoverers", ifs)
+      puts "wrinting ifs for discoverers gave #{success}"
+      success = FingerbankCache.set("ifs_association_for_discoverers", conditions)
+      puts "wrinting ifs conditions for discoverers gave #{success}"
+
+    end
+
+    return ifs, conditions
+
+  end
+
+
+
 end

@@ -28,7 +28,11 @@ Rails.application.routes.draw do
 
   resources :dhcp_vendors
 
-  resources :discoverers
+  resources :discoverers do
+    collection do
+      get 'cache'
+    end
+  end
 
   resources :rules do
     resources :conditions

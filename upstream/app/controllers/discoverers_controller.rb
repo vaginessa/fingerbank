@@ -1,7 +1,13 @@
 class DiscoverersController < ApplicationController
+  skip_before_filter :ensure_admin, only: [:cache]
   before_action :set_discoverer, only: [:show, :edit, :update, :destroy]
   before_action :set_index_help, only: [:index]
   before_action :set_show_help, only: [:show]
+
+  def cache
+    Discoverer.cache
+    render text: 'ok'
+  end
 
   # GET /discoverers
   # GET /discoverers.json
