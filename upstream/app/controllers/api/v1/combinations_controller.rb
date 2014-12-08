@@ -10,7 +10,7 @@ class Api::V1::CombinationsController < Api::ApiController
     interogate_params[:dhcp_vendor] = interogate_params[:dhcp_vendor] || ""
     interogate_params[:mac] = interogate_params[:mac] || ""
 
-    puts interogate_params
+    logger.debug "Interogate params : #{interogate_params.inspect}"
 
     if interogate_params[:user_agent].blank? && interogate_params[:dhcp_fingerprint].blank? && interogate_params[:dhcp_vendor].blank? && interogate_params[:mac].blank?
       render json: {:message => 'There is no parameter in your query'}, :status => :bad_request
@@ -20,15 +20,15 @@ class Api::V1::CombinationsController < Api::ApiController
     @combination = nil
     user_agent = UserAgent.where(:value => interogate_params[:user_agent]).first
     user_agent = UserAgent.create(:value => interogate_params[:user_agent]) unless user_agent
-    puts "Matched UA #{user_agent.id} : #{user_agent.value}"
+    logger.info "Matched UA #{user_agent.id} : #{user_agent.value}"
 
     dhcp_fingerprint = DhcpFingerprint.where(:value => interogate_params[:dhcp_fingerprint]).first
     dhcp_fingerprint = DhcpFingerprint.create(:value => interogate_params[:dhcp_fingerprint]) unless dhcp_fingerprint
-    puts "Matched DHCP fingerprint #{dhcp_fingerprint.id} : #{dhcp_fingerprint.value}"
+    logger.info "Matched DHCP fingerprint #{dhcp_fingerprint.id} : #{dhcp_fingerprint.value}"
 
     dhcp_vendor = DhcpVendor.where(:value => interogate_params[:dhcp_vendor]).first
     dhcp_vendor = DhcpVendor.create(:value => interogate_params[:dhcp_vendor]) unless dhcp_vendor
-    puts "Matched DHCP vendor #{dhcp_vendor.id} : #{dhcp_vendor.value}"
+    logger.info "Matched DHCP vendor #{dhcp_vendor.id} : #{dhcp_vendor.value}"
 
     mac_vendor = MacVendor.from_mac(interogate_params[:mac])
     mac_vendor_id = mac_vendor.nil? ? 'NULL' : mac_vendor.id
@@ -36,12 +36,15 @@ class Api::V1::CombinationsController < Api::ApiController
     @combination = Combination.where(:user_agent =>user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor_id => dhcp_vendor, :mac_vendor => mac_vendor).first
 
     if @combination.nil?
+      logger.warn "Combination doesn't exist. Creating a new one"
       @combination = Combination.create!(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor, :submitter => @current_user)
       @combination.process(:with_version => true)
     end
     if @combination.device.nil?
+      logger.warn "Combination didn't yield any device."
       render json: @combination, :status => 404
     else
+      logger.info "Combination processed correctly."
       render 'combinations/show.json'
     end
   end

@@ -20,7 +20,7 @@ class CombinationsController < ApplicationController
   def escaped_search
     search = String.new(params[:search]) unless params[:search].nil?
     #search = search.gsub!(/[+\-"]/, ' ')
-    puts search
+    logger.debug "escaped_search #{search}"
     return search
   end
 
@@ -109,7 +109,6 @@ class CombinationsController < ApplicationController
       :dhcp_fingerprint_value => new_params[:dhcp_fingerprint_value],
       :mac_value => new_params[:mac_value],
     }
-    puts "MAC : "+new_params[:mac_value]
 
     UserAgent.create(:value => new_params[:user_agent_value]) 
     DhcpVendor.create(:value => new_params[:dhcp_vendor_value]) 

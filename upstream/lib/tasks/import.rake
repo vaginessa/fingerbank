@@ -28,28 +28,28 @@ namespace :import do
         #manufacturer = line
         manufacturer = Device.where('lower(name) = ?',  "#{line} Android".downcase).first
         if manufacturer.nil?
-          puts "Manufacturer #{line} Android doesn't exists"
+          Rails.logger.debug "Manufacturer #{line} Android doesn't exists"
           manufacturer = Device.create!(:name => "#{line} Android", :parent => generic_android, :inherit => true)
-          puts "Created manufacturer #{manufacturer.name}"
+          Rails.logger.info "Created manufacturer #{manufacturer.name}"
         else
-          puts "Manufacturer #{manufacturer.name} exists"
+          Rails.logger.debug "Manufacturer #{manufacturer.name} exists"
         end
       elsif state == "looking_for_device" or state=="parsing_devices" and !line.empty?
         state = "parsing_devices"
         count += 1
-        puts "#{line}"
+        Rails.logger.debug "processing #{line}"
         data = line.split('(')
         name = data[0]
         name = ic.iconv(name + ' ')[0..-2]
         name.gsub!(/ *$/, "")
-        puts "'#{name}'"
+        Rails.logger.debug "got device name : '#{name}'"
 
         device = Device.where('lower(name) = ?', name.downcase).first
         if device.nil?
-          puts "Device #{name} doesn't exist yet. Creating it"
+          Rails.logger.warn "Device #{name} doesn't exist yet. Creating it"
           device = Device.create!(:name => name, :parent => manufacturer, :inherit => true)
         else
-          puts "Device #{name} exists"
+          Rails.logger.debug "Device #{name} exists"
         end
 
         unless data[1].nil?
@@ -70,12 +70,12 @@ namespace :import do
               end
     
               unless rule_already_in
-                puts "Adding rule for model # #{model_number} to device #{device.name}"
+                Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
                 rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
               end
             else
               discoverer = Discoverer.create!(:description => "#{name} from model # on User Agent", :priority => 5, :device => device)
-              puts "Adding rule for model # #{model_number} to device #{device.name}"
+              Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
               rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
             end
 
@@ -87,8 +87,6 @@ namespace :import do
       end
     end
 
-    puts count
-   
   end
 
   task :discover_windows_phone => :environment do
@@ -99,23 +97,23 @@ namespace :import do
       unless matchdata.nil?
         model = matchdata[2]
         manufacturer_name = matchdata[1]
-        puts "#{manufacturer_name} #{model}"
-        puts user_agent.value
+        Rails.logger.debug "Processing : #{manufacturer_name} #{model}"
+        Rails.logger.debug "Current user agent : #{user_agent.value}"
 
         manufacturer = Device.where('lower(name) = ?',  "#{manufacturer_name} Windows Phone".downcase).first
         if manufacturer.nil?
-          puts "Manufacturer #{manufacturer_name} Windows Phone doesn't exists"
+          Rails.logger.warn "Manufacturer #{manufacturer_name} Windows Phone doesn't exists"
           manufacturer = Device.create!(:name => "#{manufacturer_name} Windows Phone", :parent => windows_phone, :inherit => true)
-          puts "Created manufacturer #{manufacturer.name}"
+          Rails.logger.info "Created manufacturer #{manufacturer.name}"
         end
 
-        puts "Discoverered #{model}"
+        Rails.logger.debug "Discoverered #{model}"
         device = Device.where("lower(name) = ?", model.downcase).first
         if device.nil?
           device = Device.create!(:name => model, :parent => manufacturer, :inherit => true)
-          puts "Created device #{model}"
+          Rails.logger.warn "Created device #{model}"
         else
-          puts "Device #{model} exists"
+          Rails.logger.debug "Device #{model} exists"
         end
 
         rule_value = "user_agents.value regexp '.*Windows Phone.*;[ ]{0,1}#{manufacturer_name};[ ]{0,1}#{model}[);].*'"
@@ -131,12 +129,12 @@ namespace :import do
           end
 
           unless rule_already_in
-            puts "Adding rule for model # #{model} to device #{device.name}"
+            Rails.logger.warn "Adding rule for model # #{model} to device #{device.name}"
             rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
           end
         else
           discoverer = Discoverer.create!(:description => "#{model} from model # on User Agent", :priority => 5, :device => device)
-          puts "Adding rule for model # #{model} to device #{device.name}"
+          Rails.logger.warn "Adding rule for model # #{model} to device #{device.name}"
           rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
         end
 
@@ -160,13 +158,13 @@ namespace :import do
         model = model.gsub(/^ /, '')
         model_untouched = model
         model = model.gsub(';', ' ')
-        puts "Discoverered #{model}"
+        Rails.logger.debug "Discoverered #{model}"
         device = Device.where("lower(name) = ?", model.downcase).first
         if device.nil?
           device = Device.create!(:name => model, :parent => blackberry, :inherit => true)
-          puts "Created device #{model}"
+          Rails.logger.warn "Created device #{model}"
         else
-          puts "Device #{model} exists"
+          Rails.logger.debug "Device #{model} exists"
         end
 
         discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{model} from model # on User Agent".downcase).first
@@ -180,12 +178,12 @@ namespace :import do
           end
 
           unless rule_already_in
-            puts "Adding rule for model # #{model_untouched} to device #{device.name}"
+            Rails.logger.warn "Adding rule for model # #{model_untouched} to device #{device.name}"
             rule = Rule.create!(:value => "user_agents.value LIKE '%#{model_untouched}%'", :device_discoverer => discoverer)
           end
         else
           discoverer = Discoverer.create!(:description => "#{model} from model # on User Agent", :priority => 5, :device => device)
-          puts "Adding rule for model # #{model_untouched} to device #{device.name}"
+          Rails.logger.warn "Adding rule for model # #{model_untouched} to device #{device.name}"
           rule = Rule.create!(:value => "user_agents.value LIKE '%#{model_untouched}%'", :device_discoverer => discoverer)
         end
       end
@@ -199,7 +197,7 @@ namespace :import do
     last_inserted = Combination.where(:submitter_id => nil).order(created_at: :desc).first
     # the stats database uses the local time at Inverse inc.
     last_inserted_time = Time.now.in_time_zone("Eastern Time (US & Canada)") 
-    puts last_inserted_time
+    #puts last_inserted_time
 
     if args[:db_path].nil?
       puts "No database specified. Exiting"
@@ -230,7 +228,7 @@ namespace :import do
     result.each do |row|
       ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
 
-      puts "Processing #{row[0]} #{count}/#{total_count}"
+      Rails.logger.debug "Processing #{row[0]} #{count}/#{total_count}"
 
       mac_value = ic.iconv(row[0] + ' ')[0..-2][0..7]
       dhcp_fingerprint_value = row[1].nil? ? '' : ic.iconv(row[1] + ' ')[0..-2]
@@ -255,6 +253,8 @@ namespace :import do
 
     end
 
+    puts "Done processing join dhcp -> http"
+
     stm = orig.prepare "select count(*) as total_count from stats_http left outer join stats_dhcp on stats_dhcp.mac=stats_http.mac where stats_dhcp.timestamp > date('now', '-#{days_to_merge} days')"
 
     result = stm.execute
@@ -270,7 +270,7 @@ namespace :import do
     result.each do |row|
       ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
 
-      puts "Processing #{row[0]} #{count}/#{total_count}"
+      Rails.logger.debug "Processing #{row[0]} #{count}/#{total_count}"
 
       mac_value = row[0].nil? ? '' : ic.iconv(row[0] + ' ')[0..-2][0..7]
       dhcp_fingerprint_value = row[1].nil? ? '' : ic.iconv(row[1] + ' ')[0..-2]
@@ -294,6 +294,10 @@ namespace :import do
       count+=1
 
     end
+
+    puts "Done processing join http -> dhcp"
+
+    puts "Done with merging stats"
 
   end
 
@@ -338,9 +342,9 @@ namespace :import do
         end
       end
       if cf_network && model
-        puts cf_network
-        puts model
-        puts version 
+        Rails.logger.debug "cf_network : #{cf_network}"
+        Rails.logger.debug "model : #{model}"
+        Rails.logger.debug "version : #{version}"
 
         if model == "Mac OSX"
           device = Device.where(:name => "Mac OS X").first
@@ -356,7 +360,7 @@ namespace :import do
         if discoverer.nil?
           rule_value = "user_agents.value like '%#{cf_network}%'"
           discoverer = Discoverer.create!(:description => description, :priority => 5, :device => device)
-          puts "Adding rule for cf network #{cf_network} to device #{device.name} (#{rule_value})"
+          Rails.logger.warn "Adding rule for cf network #{cf_network} to device #{device.name} (#{rule_value})"
           rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
         end
 
@@ -365,7 +369,7 @@ namespace :import do
          if discoverer.nil? && version
           rule_value = "user_agents.value like '%#{cf_network}%'"
           discoverer = Discoverer.create!(:description => description, :priority => 5, :device => device, :version => version)
-          puts "Adding rule for cf network #{cf_network} to device #{device.name} (#{rule_value}) with version #{version}"
+          Rails.logger.warn "Adding rule for cf network #{cf_network} to device #{device.name} (#{rule_value}) with version #{version}"
           rule = Rule.create!(:value => rule_value, :version_discoverer => discoverer)
         end       
 

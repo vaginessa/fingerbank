@@ -7,7 +7,7 @@ class MacVendor < ActiveRecord::Base
     mac.gsub!(/ /, '')
     mac.gsub!(/:/, '')
     mac = mac[0..5]
-    puts mac
+    logger.debug "clean mac : #{mac}"
     return self.where(:mac => mac).first
   end
 

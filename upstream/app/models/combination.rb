@@ -130,11 +130,10 @@ class Combination < ActiveRecord::Base
       discoverers = discoverers_match 
       scores = Combination.score_from_discoverers discoverers
       discoverer_detected_device, new_score = (scores.sort_by {|key, value| value}).last
-      puts "found #{discoverer_detected_device}"
       self.device = discoverer_detected_device 
       self.score = new_score unless new_score.nil?
     else
-      puts "empty rules for #{id}"
+      logger.warn "empty device rules for #{id}"
     end 
 
     if options[:with_version]
@@ -143,9 +142,9 @@ class Combination < ActiveRecord::Base
         # leave as is 
       else
         find_version
-        puts self.device.nil? ? "Unknown device" : "Detected device "+self.device.full_path  
-        puts "Score "+score.to_s
-        puts version ? "Version "+version : "Unknown version"
+        logger.debug self.device.nil? ? "Unknown device" : "Detected device "+self.device.full_path  
+        logger.debug "Score "+score.to_s
+        logger.debug version ? "Version "+version : "Unknown version"
       end
     end
     save!
@@ -164,7 +163,7 @@ class Combination < ActiveRecord::Base
       records = ActiveRecord::Base.connection.execute(sql)
       unless records.size == 0
         matches.push rule
-        puts "Matched OS rule in #{discoverer.id}"
+        logger.debug "Matched OS rule in #{discoverer.id}"
       end
     end
 
@@ -179,7 +178,7 @@ class Combination < ActiveRecord::Base
       records = ActiveRecord::Base.connection.execute(sql)
       unless records.size == 0
         matches.push rule
-        puts "Matched OS rule in #{discoverer.id}"
+        logger.debug "Matched OS rule in #{discoverer.id}"
       end
     end
 
@@ -204,7 +203,7 @@ class Combination < ActiveRecord::Base
           if record[count] == 1
             discoverer = conditions[count]
             matches.push discoverer
-            puts "Matched OS rule in #{discoverer.id}"
+            logger.debug "Matched OS rule in #{discoverer.id}"
           end
           count+=1
         end
@@ -218,7 +217,7 @@ class Combination < ActiveRecord::Base
 
   def find_version
     if self.device.nil?
-      puts "device is nil"
+      logger.warn "device is nil"
       return
     end
     discoverers = device.tree_discoverers
@@ -238,7 +237,7 @@ class Combination < ActiveRecord::Base
         records = ActiveRecord::Base.connection.execute(sql)
         unless records.size == 0
           matches.push rule
-          puts "Matched version rule in #{discoverer.id}"
+          logger.debug "Matched version rule in #{discoverer.id}"
           version_discovered = records.first[0]
         end
       end
@@ -270,8 +269,8 @@ class Combination < ActiveRecord::Base
           disc_per_device[parent].each{|discoverer| score += discoverer.priority}
         end
       end
-      puts device.full_path
-      puts score
+      logger.debug device.full_path
+      logger.debug score
       score_per_device[device] = score
     end
     return score_per_device

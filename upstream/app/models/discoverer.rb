@@ -63,13 +63,13 @@ class Discoverer < FingerbankModel
             combinations[record[0]] << discoverer
           end
         end
-        puts "Found #{records.size} hits for discoverer #{discoverer.id}"
+        logger.info "Found #{records.size} hits for discoverer #{discoverer.id}"
       
       end
     end    
     # We keep our result in the cache
     success = FingerbankCache.set("device_matching_discoverers", combinations)
-    puts "writing cache gave #{success}"
+    logger.info "Writing cache gave #{success}"
     return combinations
   end
 
@@ -111,9 +111,9 @@ class Discoverer < FingerbankModel
         end
       end    
       success = FingerbankCache.set("ifs_for_discoverers", ifs)
-      puts "wrinting ifs for discoverers gave #{success}"
+      logger.info "Writing ifs_for_discoverers gave #{success}"
       success = FingerbankCache.set("ifs_association_for_discoverers", conditions)
-      puts "wrinting ifs conditions for discoverers gave #{success}"
+      logger.info "Writing ifs_association_for_discoverers gave #{success}"
 
     end
 

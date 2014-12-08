@@ -12,29 +12,37 @@ pdftotext -layout tmp/android_devices.pdf
 sed 's///g' tmp/android_devices.txt > tmp/android_devices_clean.txt
 
 # we launch the importation job
+echo "Starting Android import job"
 RAILS_ENV=production rake import:android_models[tmp/android_devices_clean.txt]
 
 # refresh cfnetwork discoverers
 curl http://user-agents.me/cfnetwork-version-list > tmp/cfnetwork-version-list.html
 # we discover the cfnetwork
-RAILS_ENV=production rake import:cfnetwork
+echo "Starting CFNETWORK import job"
+RAILS_ENV=production rake import:cfnetwork[tmp/cfnetwork-version-list.html]
 
 # discovery jobs
+echo "Starting Windows phone discovery job"
 RAILS_ENV=production rake import:discover_windows_phone
+echo "Starting BB phone discovery job"
 RAILS_ENV=production rake import:discover_blackberry_models
 
 # merge the stats that were collected (2 days worth)
+echo "Starting merge with stats"
 RAILS_ENV=production rake import:merge_stats[tmp/stats.sqlite,2]
 
 # rebuild the discoverers cache from scratch
 RAILS_ENV=production rake fbcache:clear_discoverers 
+echo "Starting discoverers cache build"
 RAILS_ENV=production rake fbcache:build_discoverers 
 
 
 # reevaluate every combination
+echo "Starting the reprocessing of all the combinations"
 RAILS_ENV=production rake db:sort_combination
 
 # refresh the stats page on the website
+echo "Refreshing the stats"
 RAILS_ENV=production rake fbcache:refresh_stats
 
 touch tmp/restart.txt
