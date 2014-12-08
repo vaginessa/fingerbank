@@ -65,6 +65,44 @@ sub _incrementTableID {
 
 =cut
 
+=head2 create
+
+=cut
+sub create {
+    my ( $self, $args ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my $return = {};
+
+    my $entry_id = "L" . $self->_getTableID($className);    # Local entries IDs are prefixed by L
+
+    # Prepare arguments for entry creation
+    $args->{id} = $entry_id;    # We need to override the ID for a local one
+    $args->{created_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding created_at with current timestamp
+    $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding updated_at with current timestamp
+
+    my $db = fingerbank::DB->connect('Local');
+    my $resultset = $db->resultset($className)->create($args);
+
+    # Query doesn't returned any result
+    if ( !defined($resultset) ) {
+        my $status_msg = "Cannot create new '$className' entry with ID '$entry_id' in schema 'Local'.";
+        $logger->info($status_msg);
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    # Increment table ID after successful creation
+    $self->_incrementTableID($className);
+
+    # Building the newly created resultset to be returned
+    foreach my $column ( $resultset->result_source->columns ) {
+        $return->{$column} = $resultset->$column;
+    }
+
+    return ( $STATUS::OK, $return );
+}
+
 =head2 read
 
 =cut
@@ -135,116 +173,6 @@ sub read {
     }
 }
 
-=head2 list_paginated
-
-=cut
-sub list_paginated {
-    my ( $self, $query ) = @_;
-    my $logger = get_logger;
-
-    my $className = $self->_parseClassName;
-    my @return;
-
-    foreach my $schema ( @fingerbank::DB::schemas ) {
-        $logger->debug("Listing all '$className' entries in schema '$schema'");
-
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search({},
-            { offset => $query->{offset}, rows => $query->{nb_of_rows}, order_by => { -$query->{order} => $query->{order_field} } }
-        );
-
-        # Query doesn't returned any result
-        if ( $resultset eq 0 ) {
-            $logger->info("Listing of '$className' entries in schema '$schema' returned an empty set");
-            next;
-        }
-
-        $logger->info("Found entries in schema '$schema' for '$className' listing");
-
-        # Building the resultset to be returned
-        while ( my $row = $resultset->next ) {
-            my %array_row = ( $row->id => $row->value );
-            push ( @return, \%array_row );
-        }
-    }
-
-    return @return;
-}
-
-=head2 search
-
-=cut
-sub search {
-    my ( $self, $query ) = @_;
-    my $logger = get_logger;
-
-    my $className = $self->_parseClassName;
-    my $return = {};
-
-    $logger->debug("Searching for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'");
-
-    my $column = $query->{get_column};
-    foreach my $schema ( @fingerbank::DB::schemas )  {
-        $logger->debug("Searching in schema $schema");
-
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search({
-            $query->{search_for} => $query->{term},
-        })->first;
-
-        # Check if resultset contains data
-        if ( defined($resultset) ) {
-            $return = $resultset->$column;
-            $logger->info("Found a match ($column = $return) for $className " . $query->{search_for} . " '" . $query->{term} . "' in schema $schema");
-            return ( $STATUS::OK, $return );
-        }
-
-        $logger->debug("No match found in schema $schema");
-    }
-
-    my $status_msg = "No match found in schema(s) for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'";
-    $logger->warn($status_msg);
-    return ( $STATUS::NOT_FOUND, $status_msg );
-}
-
-=head2 create
-
-=cut
-sub create {
-    my ( $self, $args ) = @_;
-    my $logger = get_logger;
-
-    my $className = $self->_parseClassName;
-    my $return = {};
-
-    my $entry_id = "L" . $self->_getTableID($className);    # Local entries IDs are prefixed by L
-
-    # Prepare arguments for entry creation
-    $args->{id} = $entry_id;    # We need to override the ID for a local one
-    $args->{created_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding created_at with current timestamp
-    $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding updated_at with current timestamp
-
-    my $db = fingerbank::DB->connect('Local');
-    my $resultset = $db->resultset($className)->create($args);
-
-    # Query doesn't returned any result
-    if ( !defined($resultset) ) {
-        my $status_msg = "Cannot create new '$className' entry with ID '$entry_id' in schema 'Local'.";
-        $logger->info($status_msg);
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
-
-    # Increment table ID after successful creation
-    $self->_incrementTableID($className);
-
-    # Building the newly created resultset to be returned
-    foreach my $column ( $resultset->result_source->columns ) {
-        $return->{$column} = $resultset->$column;
-    }
-
-    return ( $STATUS::OK, $return );
-}
-
 =head2 update
 
 =cut
@@ -308,7 +236,96 @@ sub delete {
     return $STATUS::OK;
 }
 
-__PACKAGE__->meta->make_immutable;
+=head2 list_paginated
+
+=cut
+sub list_paginated {
+    my ( $self, $query ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my @return;
+
+    foreach my $schema ( @fingerbank::DB::schemas ) {
+        $logger->debug("Listing all '$className' entries in schema '$schema'");
+
+        my $db = fingerbank::DB->connect($schema);
+        my $resultset = $db->resultset($className)->search({},
+            { offset => $query->{offset}, rows => $query->{nb_of_rows}, order_by => { -$query->{order} => $query->{order_field} } }
+        );
+
+        # Query doesn't returned any result
+        if ( $resultset eq 0 ) {
+            $logger->info("Listing of '$className' entries in schema '$schema' returned an empty set");
+            next;
+        }
+
+        $logger->info("Found entries in schema '$schema' for '$className' listing");
+
+        # Building the resultset to be returned
+        while ( my $row = $resultset->next ) {
+            my %array_row = ( $row->id => $row->value );
+            push ( @return, \%array_row );
+        }
+    }
+
+    return @return;
+}
+
+=head2 count
+
+=cut
+sub count {
+    my ( $self, $query ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my $count;
+
+    foreach my $schema ( @fingerbank::DB::schemas ) {
+        my $db = fingerbank::DB->connect($schema);
+        my $nb_of_rows = $db->resultset($className)->search->count;
+        $count += $nb_of_rows;
+    }
+
+    return $count;
+}
+
+=head2 search
+
+=cut
+sub search {
+    my ( $self, $query ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my $return = {};
+
+    $logger->debug("Searching for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'");
+
+    my $column = $query->{get_column};
+    foreach my $schema ( @fingerbank::DB::schemas )  {
+        $logger->debug("Searching in schema $schema");
+
+        my $db = fingerbank::DB->connect($schema);
+        my $resultset = $db->resultset($className)->search({
+            $query->{search_for} => $query->{term},
+        })->first;
+
+        # Check if resultset contains data
+        if ( defined($resultset) ) {
+            $return = $resultset->$column;
+            $logger->info("Found a match ($column = $return) for $className " . $query->{search_for} . " '" . $query->{term} . "' in schema $schema");
+            return ( $STATUS::OK, $return );
+        }
+
+        $logger->debug("No match found in schema $schema");
+    }
+
+    my $status_msg = "No match found in schema(s) for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'";
+    $logger->warn($status_msg);
+    return ( $STATUS::NOT_FOUND, $status_msg );
+}
 
 
 =head1 AUTHOR
@@ -337,5 +354,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable;
 
 1;
