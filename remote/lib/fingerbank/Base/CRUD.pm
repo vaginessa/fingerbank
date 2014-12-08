@@ -251,7 +251,7 @@ sub list_paginated {
 
         my $db = fingerbank::DB->connect($schema);
         my $resultset = $db->resultset($className)->search({},
-            { offset => $query->{offset}, rows => $query->{nb_of_rows}, order_by => { -$query->{order} => $query->{order_field} } }
+            { offset => $query->{offset}, rows => $query->{nb_of_rows}, order_by => { -$query->{order} => $query->{order_by} } }
         );
 
         # Query doesn't returned any result
