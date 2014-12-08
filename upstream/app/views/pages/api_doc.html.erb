@@ -32,6 +32,25 @@
                 <p>None</p>
             </div>
         </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">Response code</div>
+            <div class="panel-body">
+                <table style="overflow:auto">
+                    <th>Code</th>
+                    <th>description</th>
+
+                    <tr>
+                        <td>200</td>
+                        <td>A device was found for the submitted combination and it's corresponding information is in the response body.</td>
+                    </tr>
+                    <tr>
+                        <td>401</td>
+                        <td>This request is unauthorized. Either your key is invalid or wasn't specified.</td>
+                    </tr>
+                </table>
+            </div>
+        </div>        
         
         <div class="panel panel-primary">
             <div class="panel-heading">Response body</div>
@@ -63,11 +82,6 @@
                         <td>URL</td>
                     </tr>
                     <tr>
-                        <td>wait</td>
-                        <td>Whether to wait for the combination to be parsed if no quick match is found. To activate use wait=wait</td>
-                        <td>URL</td>
-                    </tr>
-                    <tr>
                         <td>user_agent</td>
                         <td>The User Agent of the device</td>
                         <td>payload</td>
@@ -95,12 +109,35 @@
         <div class="panel panel-primary">
             <div class="panel-heading">Request body</div>
             <div class="panel-body">
-                <p>The request body need to contain a JSON payload</p>
+                <p>The request body needs to contain a JSON payload</p>
                 <pre>Example body :
 {"dhcp_fingerprint":"1,15,3,6,44,46,47,31,33,121,249,43"}</pre>
             </div>
         </div>
         
+        <div class="panel panel-primary">
+            <div class="panel-heading">Response code</div>
+            <div class="panel-body">
+                <table style="overflow:auto">
+                    <th>Code</th>
+                    <th>description</th>
+
+                    <tr>
+                        <td>200</td>
+                        <td>A device was found for the submitted combination and it's corresponding information is in the response body.</td>
+                    </tr>
+                    <tr>
+                        <td>401</td>
+                        <td>This request is unauthorized. Either your key is invalid or wasn't specified.</td>
+                    </tr>
+                    <tr>
+                        <td>404</td>
+                        <td>No device was found the the specified combination. It will be added to the unknown combinations list.</td>
+                    </tr>
+                </table>
+            </div>
+        </div>        
+
         <div class="panel panel-primary">
             <div class="panel-heading">Response body</div>
             <div class="panel-body">
@@ -108,7 +145,7 @@
                 <p>This will contain the information that was found about the specified device data.</p>
                 <pre>Example response:
 {
-    "created_at": "2014-09-10T12:11:48.000Z", 
+    "created_at": "2014-10-13T03:14:45.000Z", 
     "device": {
         "created_at": "2014-09-09T15:09:51.000Z", 
         "id": 33, 
@@ -132,12 +169,12 @@
         ], 
         "updated_at": "2014-09-09T15:09:52.000Z"
     }, 
-    "id": 1456, 
-    "updated_at": "2014-09-26T12:57:58.000Z", 
+    "id": 5733, 
+    "score": 50, 
+    "updated_at": "2014-11-13T17:39:36.000Z", 
     "version": null
 }</pre>
 
-                <p>In some cases, when absolutely no information can be found, the application will return a 404 not found with a message asking to retry in a few moments. This is because no quick match was found for the combination. It will be passed through the Fingerbank discoverers which can take up to 3 seconds. In order to wait for the combination to be parsed, supply the 'long' parameter. Retrying the same request a few seconds after will provide the information about the combination.</p> 
             </div>
         </div>
 
