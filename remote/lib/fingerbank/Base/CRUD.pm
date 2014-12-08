@@ -264,7 +264,7 @@ sub list_paginated {
 
         # Building the resultset to be returned
         while ( my $row = $resultset->next ) {
-            my %array_row = ( $row->id => $row->value );
+            my %array_row = ( 'id' => $row->id, 'value' => $row->value );
             push ( @return, \%array_row );
         }
     }
