@@ -48,7 +48,7 @@ sub search {
 
     if ( $query->{term} eq '' ) {
         $logger->debug("$className " . $query->{search_for} . " is empty. This is a special case and we are returning 'NULL' as " . $query->{get_column});
-        return ( $STATUS::OK, 'NULL' );
+        return ( $fingerbank::Status::OK, 'NULL' );
     }
 
     my $column = $query->{get_column};
@@ -64,7 +64,7 @@ sub search {
         if ( defined($resultset->first) ) {
             $return = $resultset->first->$column;
             $logger->info("Found a match ($column = $return) for $className " . $query->{search_for} . " '" . $query->{term} . "' in schema $schema");
-            return ( $STATUS::OK, $return );
+            return ( $fingerbank::Status::OK, $return );
         }
 
         $logger->debug("No match found in schema $schema");
@@ -72,7 +72,7 @@ sub search {
 
     my $status_msg = "No match found in schema(s) for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'";
     $logger->warn($status_msg);
-    return ( $STATUS::NOT_FOUND, $status_msg );
+    return ( $fingerbank::Status::NOT_FOUND, $status_msg );
 }
 
 

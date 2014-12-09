@@ -89,7 +89,7 @@ sub create {
     if ( !defined($resultset) ) {
         my $status_msg = "Cannot create new '$className' entry with ID '$entry_id' in schema 'Local'.";
         $logger->info($status_msg);
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     # Increment table ID after successful creation
@@ -100,7 +100,7 @@ sub create {
         $return->{$column} = $resultset->$column;
     }
 
-    return ( $STATUS::OK, $return );
+    return ( $fingerbank::Status::OK, $return );
 }
 
 =head2 read
@@ -128,7 +128,7 @@ sub read {
         if ( !defined($resultset) ) {
             my $status_msg = "Could not find ID '$id' in '$className' in schema '$schema'";
             $logger->info($status_msg);
-            return ( $STATUS::NOT_FOUND, $status_msg );
+            return ( $fingerbank::Status::NOT_FOUND, $status_msg );
         }
 
         $logger->info("Found result in schema '$schema' for '$className' ID '$id'");
@@ -137,7 +137,7 @@ sub read {
             $return->{$column} = $resultset->$column;
         }
 
-        return ( $STATUS::OK, $return );
+        return ( $fingerbank::Status::OK, $return );
     }
 
     # If no ID is specified, we are returning a list of all the entries (list)
@@ -166,10 +166,10 @@ sub read {
         if ( !%$return ) {
             my $status_msg = "Listing of '$className' entries in schema(s) returned an empty set";
             $logger->info($status_msg);
-            return ( $STATUS::NOT_FOUND, $status_msg );
+            return ( $fingerbank::Status::NOT_FOUND, $status_msg );
         }
 
-        return ( $STATUS::OK, $return );
+        return ( $fingerbank::Status::OK, $return );
     }
 }
 
@@ -194,7 +194,7 @@ sub update {
     if ( !defined($resultset) ) {
         my $status_msg = "Could not find ID '$id' for '$className' in schema 'Local'. Cannot update.";
         $logger->info($status_msg);
-        return ( $STATUS::NOT_FOUND, $status_msg );
+        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
 
     # Calling update on the resultset to update it with new data
@@ -206,7 +206,7 @@ sub update {
         $return->{$column} = $resultset->$column;
     }
 
-    return ( $STATUS::OK, $return );
+    return ( $fingerbank::Status::OK, $return );
 }
 
 =head2 delete
@@ -226,14 +226,14 @@ sub delete {
     if ( !defined($resultset) ) {
         my $status_msg = "Could not find ID '$id' for '$className' in schema 'Local'. Cannot delete.";
         $logger->info($status_msg);
-        return ( $STATUS::NOT_FOUND, $status_msg );
+        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
 
     # Calling delete on the resultset to delete it from the database
     $logger->info("Found result in schema 'Local' for '$className' ID '$id'. Deleting it.");
     $resultset->delete;
 
-    return $STATUS::OK;
+    return $fingerbank::Status::OK;
 }
 
 =head2 list_paginated
@@ -316,7 +316,7 @@ sub search {
         if ( defined($resultset) ) {
             $return = $resultset->$column;
             $logger->info("Found a match ($column = $return) for $className " . $query->{search_for} . " '" . $query->{term} . "' in schema $schema");
-            return ( $STATUS::OK, $return );
+            return ( $fingerbank::Status::OK, $return );
         }
 
         $logger->debug("No match found in schema $schema");
@@ -324,7 +324,7 @@ sub search {
 
     my $status_msg = "No match found in schema(s) for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'";
     $logger->warn($status_msg);
-    return ( $STATUS::NOT_FOUND, $status_msg );
+    return ( $fingerbank::Status::NOT_FOUND, $status_msg );
 }
 
 

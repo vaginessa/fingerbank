@@ -56,7 +56,7 @@ sub is_error {
 
 =cut
 
-package STATUS;
+package fingerbank::Status;
 
 =head1 Status codes
 

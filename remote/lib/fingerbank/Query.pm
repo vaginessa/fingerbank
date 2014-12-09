@@ -36,7 +36,7 @@ sub match {
 
     # Initialize status variables
     # We set the status_code to OK so we can proceed
-    my ( $status_code, $status_msg ) = $STATUS::OK;
+    my ( $status_code, $status_msg ) = $fingerbank::Status::OK;
 
     # We assign the value of each key to the corresponding object attribute (ie.: DHCP_Fingerprint_value)
     # Note: We must have all of the keys in the query, either with a value or with ''
@@ -98,14 +98,14 @@ sub getQueryKeyIDs {
             # We record the unmatched query key if configured to do so
             $self->_recordUnmatched($key, $self->$concatenated_key);
 
-            return ( $STATUS::PRECONDITION_FAILED, $status_msg );
+            return ( $fingerbank::Status::PRECONDITION_FAILED, $status_msg );
             last
         }
 
         $self->{$key . '_id'} = $result;
     }
 
-    return $STATUS::OK;
+    return $fingerbank::Status::OK;
 }
 
 =head2 getCombinationID
@@ -143,7 +143,7 @@ sub getCombinationID {
         $logger->debug("No match found in schema '$schema'");
     }
 
-    return $STATUS::OK;
+    return $fingerbank::Status::OK;
 }
 
 =head2 _buildResult
