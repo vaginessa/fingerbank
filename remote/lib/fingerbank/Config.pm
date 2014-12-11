@@ -26,7 +26,7 @@ BEGIN {
 }
 
 
-Readonly::Scalar our $INSTALL_PATH          => '/src/fingerbank/remote/';
+Readonly::Scalar our $INSTALL_PATH          => '/usr/local/fingerbank/';
 Readonly::Scalar our $UPSTREAM_DB_URL       => 'https://fingerbank.inverse.ca/api/v1/download?key=';
 Readonly::Scalar our $UPSTREAM_QUERY_URL    => 'https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=';
 Readonly::Scalar our $API_KEY               => '';
