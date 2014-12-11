@@ -271,7 +271,7 @@ sub list_GET {
 
     my $key = $c->stash->{key};
 
-    my ( $status_code, $entity ) = "fingerbank::Model::$key"->read;
+    my ( $status_code, $entity ) = "fingerbank::Model::$key"->list;
 
     if ( is_error($status_code) ) {
         $self->status_not_found(

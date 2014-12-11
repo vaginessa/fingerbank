@@ -113,64 +113,30 @@ sub read {
     my $className = $self->_parseClassName;
     my $return = {};
 
-    # If an ID is specified, we are returning the detailled result for that specific ID (read)
-    if ( defined($id) ) {
-        # Verify if the provided ID is part of the local or upstream schema to seach accordingly
-        # Local schema IDs are 'L' prefixed
-        my $schema = ( lc($id) =~ /^l/ ) ? 'Local' : 'Upstream';
+    # Verify if the provided ID is part of the local or upstream schema to seach accordingly
+    # Local schema IDs are 'L' prefixed
+    my $schema = ( lc($id) =~ /^l/ ) ? 'Local' : 'Upstream';
 
-        $logger->debug("Looking for '$className' ID '$id' in schema '$schema'");
+    $logger->debug("Looking for '$className' ID '$id' in schema '$schema'");
 
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->find($id);
+    my $db = fingerbank::DB->connect($schema);
+    my $resultset = $db->resultset($className)->find($id);
 
-        # Query doesn't return any result
-        if ( !defined($resultset) ) {
-            my $status_msg = "Could not find ID '$id' in '$className' in schema '$schema'";
-            $logger->info($status_msg);
-            return ( $fingerbank::Status::NOT_FOUND, $status_msg );
-        }
-
-        $logger->info("Found result in schema '$schema' for '$className' ID '$id'");
-        # Building the resultset to be returned
-        foreach my $column ( $resultset->result_source->columns ) {
-            $return->{$column} = $resultset->$column;
-        }
-
-        return ( $fingerbank::Status::OK, $return );
+    # Query doesn't return any result
+    if ( !defined($resultset) ) {
+        my $status_msg = "Could not find ID '$id' in '$className' in schema '$schema'";
+        $logger->info($status_msg);
+        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
 
-    # If no ID is specified, we are returning a list of all the entries (list)
-    else {
-        foreach my $schema ( @fingerbank::DB::schemas ) {
-            $logger->debug("Listing all '$className' entries in schema '$schema'");
+    $logger->info("Found result in schema '$schema' for '$className' ID '$id'");
 
-            my $db = fingerbank::DB->connect($schema);
-            my $resultset = $db->resultset($className)->search;
-
-            # Query doesn't return any result
-            if ( $resultset eq 0 ) {
-                $logger->info("Listing of '$className' entries in schema '$schema' returned an empty set");
-                next;
-            }
-
-            $logger->info("Found entries in schema '$schema' for '$className' listing");
-
-            # Building the resultset to be returned
-            while ( my $row = $resultset->next ) {
-                $return->{$row->id} = $row->value;
-            }
-        }
-
-        # Query doesn't return any result on any of the schema(s)
-        if ( !%$return ) {
-            my $status_msg = "Listing of '$className' entries in schema(s) returned an empty set";
-            $logger->info($status_msg);
-            return ( $fingerbank::Status::NOT_FOUND, $status_msg );
-        }
-
-        return ( $fingerbank::Status::OK, $return );
+    # Building the resultset to be returned
+    foreach my $column ( $resultset->result_source->columns ) {
+        $return->{$column} = $resultset->$column;
     }
+
+    return ( $fingerbank::Status::OK, $return );
 }
 
 =head2 update
@@ -234,6 +200,46 @@ sub delete {
     $resultset->delete;
 
     return $fingerbank::Status::OK;
+}
+
+=head2 list
+
+=cut
+sub list {
+    my ( $self ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my $return = {};
+
+    foreach my $schema ( @fingerbank::DB::schemas ) {
+        $logger->debug("Listing all '$className' entries in schema '$schema'");
+
+        my $db = fingerbank::DB->connect($schema);
+        my $resultset = $db->resultset($className)->search;
+
+        # Query doesn't return any result
+        if ( $resultset eq 0 ) {
+            $logger->info("Listing of '$className' entries in schema '$schema' returned an empty set");
+            next;
+        }
+
+        $logger->info("Found entries in schema '$schema' for '$className' listing");
+
+        # Building the resultset to be returned
+        while ( my $row = $resultset->next ) {
+          $return->{$row->id} = $row->value;
+        }
+    }
+
+    # Query doesn't return any result on any of the schema(s)
+    if ( !%$return ) {
+        my $status_msg = "Listing of '$className' entries in schema(s) returned an empty set";
+        $logger->info($status_msg);
+        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
+    }
+
+    return ( $fingerbank::Status::OK, $return );
 }
 
 =head2 list_paginated
