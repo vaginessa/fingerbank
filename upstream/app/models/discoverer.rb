@@ -7,6 +7,13 @@ class Discoverer < FingerbankModel
   validates_presence_of :description
   validates :priority, :numericality => {:only_integer => true}
 
+  def self.simple_search_joins
+    return {
+      :has => [],
+      :belongs_to => [:device]
+    }
+  end
+
   def version_finder
     if self.version.nil?
       return "''"

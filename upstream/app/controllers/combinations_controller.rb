@@ -9,11 +9,11 @@ class CombinationsController < ApplicationController
 
   def search_fields
     @search_fields = [
-      {:field => 'user_agent', :display => 'User Agent'},
-      {:field => 'dhcp_vendor', :display => 'DHCP Vendor'},
-      {:field => 'dhcp_fingerprint', :display => 'DhcpFingerprint'},
-      {:field => 'device', :display => 'Device'},
-      {:field => 'mac_vendor', :display => 'Mac vendor', :type => 'string'},
+      {:field => 'user_agents.value', :display => 'User Agent'},
+      {:field => 'dhcp_vendors.value', :display => 'DHCP Vendor'},
+      {:field => 'dhcp_fingerprints.value', :display => 'DhcpFingerprint'},
+      {:field => 'devices.value', :display => 'Device'},
+      {:field => 'mac_vendors.value', :display => 'Mac vendor', :type => 'string'},
     ]
   end
 
@@ -27,7 +27,7 @@ class CombinationsController < ApplicationController
   def base_search
     @selected_fields = params[:fields]
 
-    @search = Combination.search {paginate :page => params[:page], :per_page => 15}if @search.nil?
+    @search = Combination.simple_search {paginate :page => params[:page], :per_page => 15}if @search.nil?
     if escaped_search 
       @search.build do
         fulltext escaped_search do
@@ -43,7 +43,7 @@ class CombinationsController < ApplicationController
     if params[:search]
       @search = escaped_search
       @selected_fields = params[:fields]
-      @combinations = Combination.search(params[:search], @selected_fields).paginate(:page => params[:page]).order('created_at DESC')
+      @combinations = Combination.simple_search(params[:search], @selected_fields).paginate(:page => params[:page]).order('created_at DESC')
     else
       @combinations = Combination.paginate(:page => params[:page]) .order('created_at DESC')
     end
@@ -54,7 +54,7 @@ class CombinationsController < ApplicationController
     if params[:search]
       @search = escaped_search
       @selected_fields = params[:fields]
-      @combinations = Combination.search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page]).order('created_at DESC')
+      @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page]).order('created_at DESC')
     else
       @combinations = Combination.unknown.paginate(:page => params[:page]).order('created_at DESC') 
     end
@@ -66,7 +66,7 @@ class CombinationsController < ApplicationController
     if params[:search]
       @search = escaped_search
       @selected_fields = params[:fields]
-      @combinations = Combination.search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page]).order('created_at DESC')
+      @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page]).order('created_at DESC')
     else
       @combinations = Combination.unrated.paginate(:page => params[:page]).order('created_at DESC') 
     end

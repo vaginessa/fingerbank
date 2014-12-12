@@ -1,4 +1,4 @@
-class Combination < ActiveRecord::Base
+class Combination < FingerbankModel
   belongs_to :dhcp_fingerprint
   belongs_to :user_agent
   belongs_to :dhcp_vendor
@@ -13,85 +13,18 @@ class Combination < ActiveRecord::Base
   scope :unknown, -> {where(:device => nil)}   
   scope :unrated, -> {where('device_id is not null and score=0')}   
 
-#  searchable do
-#    text :dhcp_fingerprint do
-#      dhcp_fingerprint ? dhcp_fingerprint.value : nil
-#    end
-#    text :user_agent do
-#      user_agent ? user_agent.value : nil
-#    end
-#    text :dhcp_vendor do
-#      dhcp_vendor ? dhcp_vendor.value : nil
-#    end
-#    text :mac_vendor do
-#      mac_vendor ? mac_vendor.name : nil
-#    end
-#    text :device do
-#      device ? device.name : nil
-#    end 
-#
-#    integer :device_id
-#
-#    integer :score
-#
-#  end
-
-  def self.search(what, fields, add_query = "")
-    query = ""
-    default_fields = ['dhcp_fingerprint', 'user_agent', 'dhcp_vendor', 'mac_vendor', 'device']
-    fields = default_fields if fields.nil?
-    params = []
-    started = false
-    fields.each do |field|
-      if field == 'dhcp_fingerprint'
-        to_add, value = self.add_where 'dhcp_fingerprints.value', what, started
-      elsif field == 'user_agent'
-        to_add, value = self.add_where 'user_agents.value', what, started
-      elsif field == 'dhcp_vendor'
-        to_add, value = self.add_where 'dhcp_vendors.value', what, started
-      elsif field == 'mac_vendor'
-        to_add, value = self.add_where 'mac_vendors.name', what, started
-      elsif field == 'device'
-        to_add, value = self.add_where 'devices.name', what, started
-      else
-        break
-      end
-      query += to_add
-      params << value
-      started = true
-    end
-    
-    join = Combination.joins('left outer join dhcp_fingerprints on dhcp_fingerprints.id = combinations.dhcp_fingerprint_id')
-    join = join.joins('left outer join user_agents on user_agents.id = combinations.user_agent_id')
-    join = join.joins('left outer join dhcp_vendors on dhcp_vendors.id = combinations.dhcp_vendor_id')
-    join = join.joins('left outer join mac_vendors on mac_vendors.id = combinations.mac_vendor_id')
-    join = join.joins('left outer join devices on devices.id = combinations.device_id')
-    
-    results = join.where("(#{query}) #{add_query}", *params) 
-
+  def self.simple_search_joins
+    return {
+      :has => [],
+      :belongs_to => [
+        :dhcp_fingerprint,
+        :user_agent,
+        :dhcp_vendor,
+        :mac_vendor,
+        :device,
+      ]
+    }
   end
-
-  def self.add_where(field, what, started)
-    if what.end_with?('$')
-      what = what.chop
-    else
-      what = "#{what}%"
-    end
-
-    if what.start_with?('^')
-      what.slice!(0)
-    else
-      what = "%#{what}"
-    end
-
-    if started
-      return "or #{field} like ? ", what
-    else
-      return "#{field} like ? ", what
-    end
-  end
-
-
 
   def validate_combination_uniqueness
     existing = Combination.where(:dhcp_fingerprint_id => dhcp_fingerprint_id, :user_agent_id => user_agent_id, :dhcp_vendor_id => dhcp_vendor_id, :mac_vendor_id => mac_vendor_id).size
