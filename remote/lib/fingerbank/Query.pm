@@ -162,27 +162,9 @@ sub _buildResult {
     }
 
     # Get device info
-    my $device = fingerbank::Model::Device->read($combination->{device_id});
+    my $device = fingerbank::Model::Device->read($combination->{device_id}, 1);
     foreach my $key ( keys %$device ) {
         $result->{device}->{$key} = $device->{$key};
-    }
-
-    # Get parent(s)
-    if ( defined($device->{parent_id}) ) {
-        my $parent_exists = 1;
-        my $parent_id = $device->{parent_id};
-        my @parents;
-        my $iteration = 0;
-        while ( $parent_exists ) {
-            my $parent = fingerbank::Model::Device->read($parent_id);
-            foreach my $key ( keys %$parent ) {
-                $parents[$iteration]{$key} = $parent->{$key};
-            }
-            $iteration ++;
-            $parent_id = $parent->{parent_id} if ( defined($parent->{parent_id}) );
-            $parent_exists = 0 if ( !defined($parent->{parent_id}) );
-        }
-        $result->{device}->{parents} = \@parents;
     }
 
     return $result;
