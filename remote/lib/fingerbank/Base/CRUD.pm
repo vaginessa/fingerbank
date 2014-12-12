@@ -244,6 +244,20 @@ sub list {
 
 =head2 list_paginated
 
+Handing out a parameterized list of results.
+
+Query optionnal parameters:
+
+- offset: Where to being the listing from (I want 10 result starting after the sixth one). Don't forget that DBIx offset is zero based.
+
+- nb_of_rows: The number of results
+
+- order: asc or desc
+
+- order_by: The field on which we should order the results
+
+- schema: From which schema we want the results. Either 'Upstream' or 'Local'. Default to all
+
 =cut
 sub list_paginated {
     my ( $self, $query ) = @_;
@@ -252,7 +266,10 @@ sub list_paginated {
     my $className = $self->_parseClassName;
     my @return;
 
-    foreach my $schema ( @fingerbank::DB::schemas ) {
+    # From which schema do we want the results
+    my @schemas = ( defined($query->{schema}) ) ? ($query->{schema}) : @fingerbank::DB::schemas;
+
+    foreach my $schema ( @schemas ) {
         $logger->debug("Listing all '$className' entries in schema '$schema'");
 
         my $db = fingerbank::DB->connect($schema);
