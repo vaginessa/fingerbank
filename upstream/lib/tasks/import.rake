@@ -59,7 +59,7 @@ namespace :import do
             model_number = model_number.sub('\'', '\'\'') 
             model_number = ic.iconv(model_number + ' ')[0..-2]
             discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{name} from model # on User Agent".downcase).first
-            rule_value = "user_agents.value regexp '#{model_number}[\); ]{1}' and user_agents.value not regexp '[:word:]#{model_number}'"
+            rule_value = "user_agents.value regexp '#{model_number}[\); ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model_number}'"
             unless discoverer.nil?
               rule_already_in = false
               discoverer.device_rules.each do |rule|
@@ -302,13 +302,20 @@ namespace :import do
   end
 
 
+  task :wipe_android_rules => :environment do
+    android = Device.where(:name => "Generic Android").first
+    Discoverer.all.each do |d|
+      d.delete if d.device.parents.include?(android)
+    end
+  end
+
   task :rewrite_android_rules => :environment do 
     Rule.all.each do |rule|
-      model = rule.value.match /user_agents.value regexp ' (.*)\[\)\; \]\{1\}'/i
+      model = rule.value.match /.*user_agents.value not regexp '.:word:..*'/i
       if model
         puts model
         puts model[1] 
-        new_value = "user_agents.value regexp '#{model[1]}[\); ]{1}' and user_agents.value not regexp '[:word:]#{model[1]}'"
+        new_value = "user_agents.value regexp '#{model[1]}[\); ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model[1]}'"
         rule.value = new_value 
         rule.save!
       end
