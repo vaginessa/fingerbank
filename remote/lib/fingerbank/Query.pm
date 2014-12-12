@@ -55,8 +55,6 @@ sub match {
     # We were unable to fullfil a match locally
     # Most of the time, preconditions may have failed.
     else {
-        my $upstream_api_url = "https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=";
-        my $api_key = "";
         my $ua = LWP::UserAgent->new;
         my $query_args = encode_json($args);
 
