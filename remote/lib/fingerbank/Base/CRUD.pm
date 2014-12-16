@@ -299,13 +299,16 @@ sub list_paginated {
 
 =cut
 sub count {
-    my ( $self, $query ) = @_;
+    my ( $self, $schema ) = @_;
     my $logger = get_logger;
 
     my $className = $self->_parseClassName;
     my $count;
 
-    foreach my $schema ( @fingerbank::DB::schemas ) {
+    # From which schema do we want the results
+    my @schemas = ( defined($schema) ) ? ($schema) : @fingerbank::DB::schemas;
+
+    foreach my $schema ( @schemas ) {
         my $db = fingerbank::DB->connect($schema);
         my $nb_of_rows = $db->resultset($className)->search->count;
         $count += $nb_of_rows;
