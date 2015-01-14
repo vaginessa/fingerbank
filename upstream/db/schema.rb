@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150114160810) do
+ActiveRecord::Schema.define(version: 20150114163918) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -106,16 +106,17 @@ ActiveRecord::Schema.define(version: 20150114160810) do
   end
 
   create_table "users", force: true do |t|
-    t.string   "github_uid",               null: false
-    t.string   "name",                     null: false
+    t.string   "github_uid",                      null: false
+    t.string   "name",                            null: false
     t.string   "display_name"
-    t.integer  "level",        default: 0
+    t.integer  "level",               default: 0
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "key"
     t.integer  "requests"
     t.string   "email"
     t.boolean  "blocked"
+    t.integer  "timeframed_requests"
   end
 
 end

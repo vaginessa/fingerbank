@@ -22,8 +22,13 @@
   <%= @user.key %>
 </p>
 <p>
-  <strong>Number of requests:</strong>
-  <%= @user.requests %>
+  <strong>Total number of requests:</strong>
+  <%= @user.requests || 0 %>
+</p>
+<p>
+  <strong>Hourly requests:</strong>
+  <%= @user.timeframed_requests || 0 %>
+  <strong>(MAX : <%= User.MAX_TIMEFRAMED_REQUESTS %>)</strong>
 </p>
 
 <%= link_to "Generate key", generate_key_user_path(@user) %>

@@ -10,6 +10,10 @@ class User < ActiveRecord::Base
 
   after_create :generate_key
 
+  def self.MAX_TIMEFRAMED_REQUESTS
+     return ENV['MAX_TIMEFRAMED_REQUESTS'].to_i || 10000
+  end
+
   def generate_key
     require 'digest/sha1'
     self.key = Digest::SHA1.hexdigest "API-#{Time.now}-#{github_uid}"
@@ -19,11 +23,25 @@ class User < ActiveRecord::Base
   def add_request
     if self.requests.nil?
       self.requests = 1
-      save!
     else
       self.requests += 1
-      save!
     end
+
+    if self.timeframed_requests.nil?
+      self.timeframed_requests = 1
+    else
+      self.timeframed_requests += 1
+    end
+    
+    save!
+  end
+
+  def can_use_api
+    request_number = self.timeframed_requests || 0
+    if request_number < User.MAX_TIMEFRAMED_REQUESTS && !self.blocked 
+      return true
+    end
+    return false
   end
 
   def self.from_omniauth(auth)

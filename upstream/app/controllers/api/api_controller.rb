@@ -18,8 +18,9 @@ class Api::ApiController < ApplicationController
       return
     end
 
-    if user.blocked
-      render :json => "Account blocked", :status => :forbidden
+    if !user.can_use_api
+      render :json => "Account blocked or max hourly limit reached.", :status => :forbidden
+      return
     end
 
     user.add_request
