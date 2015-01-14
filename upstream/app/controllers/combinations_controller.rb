@@ -12,8 +12,8 @@ class CombinationsController < ApplicationController
       {:field => 'user_agents.value', :display => 'User Agent'},
       {:field => 'dhcp_vendors.value', :display => 'DHCP Vendor'},
       {:field => 'dhcp_fingerprints.value', :display => 'DhcpFingerprint'},
-      {:field => 'devices.value', :display => 'Device'},
-      {:field => 'mac_vendors.value', :display => 'Mac vendor', :type => 'string'},
+      {:field => 'devices.name', :display => 'Device name'},
+      {:field => 'mac_vendors.name', :display => 'Mac vendor name', :type => 'string'},
     ]
   end
 

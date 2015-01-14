@@ -21,6 +21,12 @@
     <% else%>
       <td><%= link_to 'Demote admin', demote_admin_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
     <% end %>
+    <% unless user.blocked %>
+      <td><%= link_to 'Block user', block_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+    <% else %>
+      <td><%= link_to 'Unblock user', unblock_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+    <% end %>
+
   </tr>
 <% end %>
 

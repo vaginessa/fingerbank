@@ -18,6 +18,10 @@ class Api::ApiController < ApplicationController
       return
     end
 
+    if user.blocked
+      render :json => "Account blocked", :status => :forbidden
+    end
+
     user.add_request
 
   end

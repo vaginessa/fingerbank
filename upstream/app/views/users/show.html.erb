@@ -1,3 +1,6 @@
+<% if @user.blocked %>
+<h4 class="alert alert-danger">User blocked</h4>
+<% end %>
 <p>
   <strong>Github user ID:</strong>
   <%= @user.github_uid %>

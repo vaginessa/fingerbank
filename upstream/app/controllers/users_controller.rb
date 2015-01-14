@@ -1,8 +1,9 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :promote_admin, :demote_admin, :generate_key]
+  before_action :set_user, only: [:show, :promote_admin, :demote_admin, :block, :unblock, :generate_key]
   
   skip_before_filter :ensure_admin
 
+  before_filter :ensure_admin, except: [:login, :show]
   before_filter :admin_or_current_user
   skip_before_filter :admin_or_current_user, :only => [:login]
 
@@ -41,7 +42,25 @@ class UsersController < ApplicationController
     redirect_to users_path
   end
 
-  def generate_key
+  def block
+    if @user.update(:blocked => true)
+      flash[:success] = "User blocked"
+    else
+      flash[:error] = "Couldn't block the user"
+    end 
+    redirect_to users_path
+  end
+
+  def unblock
+    if @user.update(:blocked => false)
+      flash[:success] = "User unblocked"
+    else
+      flash[:error] = "Couldn't unblock the user"
+    end 
+    redirect_to users_path
+  end
+
+def generate_key
     @user.generate_key
     if @user.save
       flash[:success] = "Generated key #{@user.key}"

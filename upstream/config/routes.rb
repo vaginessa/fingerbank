@@ -58,6 +58,8 @@ Rails.application.routes.draw do
     member do
       post 'promote_admin'
       post 'demote_admin'
+      post 'block'
+      post 'unblock'
       get 'generate_key'
     end
   end

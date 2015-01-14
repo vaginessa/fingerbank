@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
   end
 
   def ensure_community
-    unless @current_user
+    unless @current_user && !@current_user.blocked
       session[:previous_page] = request.url
       redirect_to login_path
     end
