@@ -16,7 +16,7 @@
     <td><%= user.name %></td>
     <td><%= user.display_name %></td>
     <td><%= user.email %></td>
-    <td><%= user.requests %></td>
+    <td><%= user.requests || 0 %></td>
     <td><%= user.timeframed_requests %></td>
     <% unless user.admin? %>
       <td><%= link_to 'Promote admin', promote_admin_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
