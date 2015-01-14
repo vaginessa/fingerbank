@@ -6,7 +6,12 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-ENV.update YAML.load_file('config/application.yml') rescue {}
+begin
+  ENV.update YAML.load_file('config/application.yml') 
+rescue => e 
+  puts "Failed to import app configuration"
+  puts e.message
+end
 
 module RailsFingerbank
   class Application < Rails::Application
