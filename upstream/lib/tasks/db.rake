@@ -252,12 +252,15 @@ namespace :db do
     success = system ('sed -i.bak s/\"mac_vendors\"/\"mac_vendor\"/g '+dump_fname.to_s)
     success = system ('sed -i.bak s/\"dhcp_vendors\"/\"dhcp_vendor\"/g '+dump_fname.to_s)
 
+    # replace quote escaping for sqlite3
+    success = system ("sed -i.bak \"s/\\\\\\\\'/''/g\" "+dump_fname.to_s)
+
     db_fname = Rails.root.join('db', 'package', "#{Time.now.to_i}.sqlite3")
     success = system ("sqlite3 #{db_fname} < #{dump_fname}")
 
-    File.delete dump_fname
+    #File.delete dump_fname
     # the sed stuff creates a backup file. we flush it too
-    File.delete bak_dump_fname
+    #File.delete bak_dump_fname
 
     FileUtils.cp db_fname, Rails.root.join('db', 'package', "packaged.sqlite3")
 
