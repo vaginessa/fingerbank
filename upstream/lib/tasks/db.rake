@@ -1,6 +1,10 @@
 require 'iconv'
 
 namespace :db do
+  task reset_timeframed_requests: :environment do
+    User.update_all(:timeframed_requests => 0)
+  end
+
   task pfmerge_affluents: :environment do
     orig = SQLite3::Database.open "db/to_merge_affluents.sqlite3"
 
