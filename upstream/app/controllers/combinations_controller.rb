@@ -175,7 +175,7 @@ class CombinationsController < ApplicationController
 
     def order_results
       @order = params[:order] || 'created_at'
-      @order_way = params[:order_way] || 'DESC'
+      @order_way = params[:order_way] || 'desc'
       @combinations = @combinations.order("#{@order} #{@order_way}")
     end
 
