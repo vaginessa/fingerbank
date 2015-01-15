@@ -56,8 +56,8 @@ Rails.application.routes.draw do
 
   resources :users do
     member do
-      post 'promote_admin'
-      post 'demote_admin'
+      post 'promote/:level', :to => 'users#promote', :as => 'promote'
+      post 'demote/:level', :to => 'users#demote', :as => 'demote'
       post 'block'
       post 'unblock'
       get 'generate_key'

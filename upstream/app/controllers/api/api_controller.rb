@@ -12,18 +12,18 @@ class Api::ApiController < ApplicationController
       return
     end
 
-    user = User.where(:key => params[:key]).first
-    if user.nil?
+    @current_user = User.where(:key => params[:key]).first
+    if @current_user.nil?
       render :json => "Invalid key", :status => :unauthorized
       return
     end
 
-    if !user.can_use_api
+    if !@current_user.can_use_api
       render :json => "Account blocked or max hourly limit reached.", :status => :forbidden
       return
     end
 
-    user.add_request
+    @current_user.add_request
 
   end
 

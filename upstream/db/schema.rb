@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150114163918) do
+ActiveRecord::Schema.define(version: 20150115151257) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"

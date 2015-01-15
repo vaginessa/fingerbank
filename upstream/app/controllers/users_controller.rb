@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :promote_admin, :demote_admin, :block, :unblock, :generate_key]
+  before_action :set_user, only: [:show, :promote, :demote, :block, :unblock, :generate_key]
   
   skip_before_filter :ensure_admin
 
@@ -24,8 +24,9 @@ class UsersController < ApplicationController
     redirect_to '/auth/github'
   end
 
-  def promote_admin
-    if @user.promote_admin
+  def promote
+    level = params[:level] || User.LEVELS[:community] 
+    if @user.promote_to(level)
       flash[:success] = "User promoted to admin"
     else
       flash[:error] = "Couldn't promote the user to an admin"
@@ -33,8 +34,9 @@ class UsersController < ApplicationController
     redirect_to users_path
   end
 
-  def demote_admin
-    if @user.demote_admin
+  def demote
+    level = params[:level] || User.LEVELS[:community] 
+    if @user.demote_to(level)
       flash[:success] = "User demoted"
     else
       flash[:error] = "Couldn't demote the user" 

@@ -18,10 +18,15 @@
     <td><%= user.email %></td>
     <td><%= user.requests || 0 %></td>
     <td><%= user.timeframed_requests %></td>
-    <% unless user.admin? %>
-      <td><%= link_to 'Promote admin', promote_admin_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-    <% else%>
-      <td><%= link_to 'Demote admin', demote_admin_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+    <% if user.admin? %>
+      <td><%= link_to 'Demote to api submitter', demote_user_path(user, User.LEVELS[:api_submitter]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+      <td><%= link_to 'Demote to community', demote_user_path(user, User.LEVELS[:community]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+    <% elsif user.api_submitter?%>
+      <td><%= link_to 'Promote to admin', promote_user_path(user, User.LEVELS[:admin]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+      <td><%= link_to 'Demote to community', demote_user_path(user, User.LEVELS[:community]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+    <% else %>
+      <td><%= link_to 'Promote to admin', promote_user_path(user, User.LEVELS[:admin]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
+      <td><%= link_to 'Promote to api submitter', promote_user_path(user, User.LEVELS[:api_submitter]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
     <% end %>
     <% unless user.blocked %>
       <td><%= link_to 'Block user', block_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>

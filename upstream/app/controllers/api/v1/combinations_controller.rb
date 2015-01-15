@@ -43,6 +43,7 @@ class Api::V1::CombinationsController < Api::ApiController
     if @combination.device.nil?
       logger.warn "Combination didn't yield any device."
       render json: @combination, :status => 404
+      @combination.delete unless @current_user.api_submitter?
     else
       logger.info "Combination processed correctly."
       render 'combinations/show.json'
