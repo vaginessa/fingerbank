@@ -1,5 +1,5 @@
 <div>
-  
+
   <%= render :partial => 'search' %>
 
   <div class="pull-right">
@@ -17,15 +17,15 @@
   <thead>
     <tr>
       <th></th>
-      <th>Device</th>
-      <th>Score</th>
-      <th>Version</th>
+      <th><%= sorting_link 'Device', 'devices.name' %></th>
+      <th><%= sorting_link 'Score', 'score' %></th>
+      <th><%= sorting_link 'Version', 'version' %></th>
       <th>Submitted by</th>
-      <th>MAC vendor</th>
-      <th>User agent</th>
-      <th>DhcpFingerprint</th>
-      <th>DHCP vendor</th>
-      <th>Discovered when</th>
+      <th><%= sorting_link 'Mac vendor', 'mac_vendors.name' %></th>
+      <th><%= sorting_link 'User agent', 'user_agents.value' %></th>
+      <th><%= sorting_link 'DHCP fingerprint', 'dhcp_fingerprints.value' %></th>
+      <th><%= sorting_link 'DHCP vendor', 'dhcp_vendors.value' %></th>
+      <th><%= sorting_link 'Discovered when', 'created_at' %></th>
     </tr>
   </thead>
 
