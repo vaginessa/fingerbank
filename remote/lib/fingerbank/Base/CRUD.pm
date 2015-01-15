@@ -374,7 +374,7 @@ sub search {
     my $className = $self->_parseClassName;
     my $return = {};
 
-    $logger->debug("Searching for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'");
+    $logger->debug("Searching for '$className' with " . $query->{search_for} . "' '" . $query->{term} . "'");
 
     # From which schema do we want the results
     my @schemas = ( defined($query->{schema}) ) ? ($query->{schema}) : @fingerbank::DB::schemas;
@@ -402,8 +402,7 @@ sub search {
 
     # Query doesn't return any result on any of the schema(s)
     if ( !%$return ) {
-        my $status_msg = "Searching for '$className' '" . $query->{get_column} . "' with '" . $que
-ry->{search_for} . "' '" . $query->{term} . "' entries in schema(s) returned an empty set";
+        my $status_msg = "Searching for '$className' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "' entries in schema(s) returned an empty set";
         $logger->info($status_msg);
         return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
