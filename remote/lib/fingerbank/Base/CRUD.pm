@@ -13,13 +13,12 @@ use fingerbank::Log qw(get_logger);
 
 Helper methods used in this class and the inherited ones
 
-=cut
-
-=head1 _parseClassName
+=head2 _parseClassName
 
 Parse the class name based on the caller package name
 
 =cut
+
 sub _parseClassName {
     my ( $self ) = @_;
 
@@ -32,6 +31,7 @@ sub _parseClassName {
 =head2 _getTableID
 
 =cut
+
 sub _getTableID {
     my ( $self, $table ) = @_;
 
@@ -45,6 +45,7 @@ sub _getTableID {
 =head2 _incrementTableID
 
 =cut
+
 sub _incrementTableID {
     my ( $self, $table ) = @_;
 
@@ -63,11 +64,10 @@ sub _incrementTableID {
 
 =head1 METHODS
 
-=cut
-
 =head2 create
 
 =cut
+
 sub create {
     my ( $self, $args ) = @_;
     my $logger = get_logger;
@@ -106,6 +106,7 @@ sub create {
 =head2 read
 
 =cut
+
 sub read {
     my ( $self, $id ) = @_;
     my $logger = get_logger;
@@ -142,6 +143,7 @@ sub read {
 =head2 update
 
 =cut
+
 sub update {
     my ( $self, $id, $args ) = @_;
     my $logger = get_logger;
@@ -178,6 +180,7 @@ sub update {
 =head2 delete
 
 =cut
+
 sub delete {
     my ( $self, $id ) = @_;
     my $logger = get_logger;
@@ -205,6 +208,7 @@ sub delete {
 =head2 list
 
 =cut
+
 sub list {
     my ( $self ) = @_;
     my $logger = get_logger;
@@ -259,6 +263,7 @@ Query optionnal parameters:
 - schema: From which schema we want the results. Either 'Upstream' or 'Local'. Default to all
 
 =cut
+
 sub list_paginated {
     my ( $self, $query ) = @_;
     my $logger = get_logger;
@@ -298,6 +303,7 @@ sub list_paginated {
 =head2 count
 
 =cut
+
 sub count {
     my ( $self, $schema ) = @_;
     my $logger = get_logger;
@@ -320,6 +326,7 @@ sub count {
 =head2 find
 
 =cut
+
 sub find {
     my ( $self, $query ) = @_;
     my $logger = get_logger;
@@ -359,6 +366,7 @@ sub find {
 =head2 search
 
 =cut
+
 sub search {
     my ( $self, $query ) = @_;
     my $logger = get_logger;
@@ -406,6 +414,7 @@ ry->{search_for} . "' '" . $query->{term} . "' entries in schema(s) returned an 
 =head2 clone
 
 =cut
+
 sub clone {
     my ( $self, $id ) = @_;
     my $logger = get_logger;
