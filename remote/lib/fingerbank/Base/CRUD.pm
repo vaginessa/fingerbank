@@ -423,7 +423,7 @@ sub search_schemas {
         $logger->debug("Searching in schema $schema");
 
         my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search(@$args);
+        my $resultset = $db->resultset($className)->search(@$search_args);
 
         # Check if resultset contains data
         if ( $resultset eq 0 ) {
