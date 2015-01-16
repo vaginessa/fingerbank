@@ -86,4 +86,6 @@ Rails.application.configure do
   #config.dependency_loading = true if $rails_rake_task
   #config.active_record.observers = :device_observer
 
+  config.action_mailer.default_url_options = { :host => "fingerbank.inverse.ca", :protocol => "https" }
+
 end

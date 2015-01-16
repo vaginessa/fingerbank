@@ -42,13 +42,14 @@ module RailsFingerbank
       address:              ENV["SMTP_HOST"],
       port:                 ENV["SMTP_PORT"].to_i,
       domain:               ENV["SMTP_DOMAIN"], 
+      enable_starttls_auto: true, 
+      openssl_verify_mode: 'none',
     }
 
     if ENV["SMTP_AUTH"]
       config.action_mailer.smtp_settings["user_name"] = ENV["SMTP_USERNAME"]
       config.action_mailer.smtp_settings["password"] = ENV["SMTP_PASSWORD"]
       config.action_mailer.smtp_settings["authentication"] = ENV["SMTP_AUTH"]
-      config.action_mailer.smtp_settings["enable_starttls_auto"] = ENV["SMTP_STARTTLS_AUTO"] == "true" ? true : false
     end
 
     puts config.action_mailer.smtp_settings.inspect
