@@ -34,5 +34,24 @@ module RailsFingerbank
     config.matching_discoverers = nil
     config.instance_cache = {}
 
+    config.action_mailer.raise_delivery_errors = true
+
+    config.action_mailer.delivery_method = :smtp
+
+    config.action_mailer.smtp_settings = {
+      address:              ENV["SMTP_HOST"],
+      port:                 ENV["SMTP_PORT"].to_i,
+      domain:               ENV["SMTP_DOMAIN"], 
+    }
+
+    if ENV["SMTP_AUTH"]
+      config.action_mailer.smtp_settings["user_name"] = ENV["SMTP_USERNAME"]
+      config.action_mailer.smtp_settings["password"] = ENV["SMTP_PASSWORD"]
+      config.action_mailer.smtp_settings["authentication"] = ENV["SMTP_AUTH"]
+      config.action_mailer.smtp_settings["enable_starttls_auto"] = ENV["SMTP_STARTTLS_AUTO"] == "true" ? true : false
+    end
+
+    puts config.action_mailer.smtp_settings.inspect
+
   end
 end

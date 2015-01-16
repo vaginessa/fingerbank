@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :promote, :demote, :block, :unblock, :generate_key]
+  before_action :set_user, only: [:show, :promote, :demote, :block, :unblock, :request_api, :generate_key]
   
   skip_before_filter :ensure_admin
 
@@ -62,7 +62,16 @@ class UsersController < ApplicationController
     redirect_to users_path
   end
 
-def generate_key
+  def request_api
+    if UserMailer.request_api_submission(@user).deliver
+      flash[:success] = "Request has been sent. You will be notified if this is accepted."
+    else
+      flash[:error] = "Could not send the request. Please try again later."
+    end
+    redirect_to user_path @user
+  end
+
+  def generate_key
     @user.generate_key
     if @user.save
       flash[:success] = "Generated key #{@user.key}"

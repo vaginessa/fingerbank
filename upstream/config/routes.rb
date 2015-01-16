@@ -60,6 +60,7 @@ Rails.application.routes.draw do
       post 'demote/:level', :to => 'users#demote', :as => 'demote'
       post 'block'
       post 'unblock'
+      post 'request_api'
       get 'generate_key'
     end
   end
