@@ -6,4 +6,9 @@ class UserMailer < ActionMailer::Base
     @user = user
     mail(subject: "Request to submit to the fingerbank API")
   end
+
+  def user_blocked(user)
+    @user = user
+    mail(to: @user.email, reply_to: "support@inverse.ca", subject: "Your fingerbank account has been blocked.")
+  end
 end

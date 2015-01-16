@@ -47,6 +47,7 @@ class UsersController < ApplicationController
   def block
     if @user.update(:blocked => true)
       flash[:success] = "User blocked"
+      UserMailer.user_blocked(@user).deliver
     else
       flash[:error] = "Couldn't block the user"
     end 
