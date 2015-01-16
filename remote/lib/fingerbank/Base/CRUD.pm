@@ -375,39 +375,72 @@ sub search {
     my $return = {};
 
     $logger->debug("Searching for '$className' with " . $query->{search_for} . "' '" . $query->{term} . "'");
-
-    # From which schema do we want the results
     my @schemas = ( defined($query->{schema}) ) ? ($query->{schema}) : @fingerbank::DB::schemas;
 
-    my $column = $query->{get_column};
-    foreach my $schema ( @schemas ) {
-        $logger->debug("Searching in schema $schema");
+    my ($status, $results) = $self->search_schemas([{$query->{search_for} => $query->{term}}], @schemas);
+    if ($status != $fingerbank::Status::OK ) {
+        my $status_msg = "Searching for '$className' in schema(s) returned an empty set";
+        $logger->info($status_msg);
+        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
+    }
 
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search({
-            $query->{search_for} => $query->{term},
-        });
-
-        # Check if resultset contains data
-        if ( $resultset eq 0 ) {
-            $logger->info("Searching for '$className' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "' in schema '$schema' returned an empty set");
-            next;
-        }
-
+    foreach my $resultset ( @$results ) {
         # Building the resultset to be returned
         while ( my $row = $resultset->next ) {
             $return->{$row->id} = $row->value;
         }
     }
 
+    return ( $fingerbank::Status::OK, $return );
+}
+
+=head2 search_schemas
+
+Search multiple schemas
+
+First arguement is an array ref of the arguments expected by the L<DBIx::Class::ResultSet> search function
+
+Followed by the schema you wish to search
+
+Returns a fingerbank::Status code and an array ref of the result set or status message
+If the status is not OK the results is a status message
+
+my ($status, $results_or_msg) = $m->search_schemas([{ col1 => val1}], @schemas);
+
+=cut
+
+sub search_schemas {
+    my ( $self, $search_args, @schemas ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my @resultSets;
+
+    @schemas = @fingerbank::DB::schemas unless @schemas;
+
+    # From which schema do we want the results
+    foreach my $schema ( @schemas ) {
+        $logger->debug("Searching in schema $schema");
+
+        my $db = fingerbank::DB->connect($schema);
+        my $resultset = $db->resultset($className)->search(@$args);
+
+        # Check if resultset contains data
+        if ( $resultset eq 0 ) {
+            $logger->info("Searching for '$className' in schema '$schema' returned an empty set");
+            next;
+        }
+        push @resultSets,$resultset;
+    }
+
     # Query doesn't return any result on any of the schema(s)
-    if ( !%$return ) {
-        my $status_msg = "Searching for '$className' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "' entries in schema(s) returned an empty set";
+    unless ( @resultSets ) {
+        my $status_msg = "Searching for '$className' entries in schema(s) returned an empty set";
         $logger->info($status_msg);
         return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
 
-    return ( $fingerbank::Status::OK, $return );
+    return ( $fingerbank::Status::OK, \@resultSets );
 }
 
 =head2 clone
