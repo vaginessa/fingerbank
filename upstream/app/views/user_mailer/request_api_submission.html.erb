@@ -1,6 +1,11 @@
-Hello,
+<html>
 
-User @user.name has requested access to submit to the Fingerbank API.
+  <body>
+    Hello,<br/>
 
-Unless you are Zammit, you can grant the user access.
+    User <%= @user.name %> has requested access to submit to the Fingerbank API.<br/>
 
+    Unless you are Zammit, you can grant the user access on this page <%= "#{request.protocol}#{request.host_with_port}/#{users_path}" %>.<br/>
+
+  </body>
+</html>
