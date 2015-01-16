@@ -1,9 +1,9 @@
 class UserMailer < ActionMailer::Base
-  default from: "jsemaan@inverse.ca"
-  default to: "jsemaan@inverse.ca"
+  default from: "fingerbank@inverse.ca"
+  default to: "support@inverse.ca"
 
   def request_api_submission(user)
     @user = user
-    mail(subject: "Request to submit to the API")
+    mail(subject: "Request to submit to the fingerbank API")
   end
 end
