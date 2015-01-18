@@ -4,12 +4,12 @@ use base qw/DBIx::Class::Core/;
 
 __PACKAGE__->table('unmatched');
 __PACKAGE__->add_columns(
-    id,
-    type,
-    value,
-    occurence,
-    created_at,
-    updated_at,
+   "id",
+   "type",
+   "value",
+   "occurence",
+   "created_at",
+   "updated_at",
 );
 __PACKAGE__->set_primary_key('id');
 

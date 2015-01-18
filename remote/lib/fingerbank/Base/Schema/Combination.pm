@@ -4,17 +4,17 @@ use base qw/DBIx::Class::Core/;
 
 __PACKAGE__->table('combination');
 __PACKAGE__->add_columns(
-    id,
-    dhcp_fingerprint_id,
-    user_agent_id,
-    created_at,
-    updated_at,
-    device_id,
-    version,
-    dhcp_vendor_id,
-    score,
-    mac_vendor_id,
-    submitter_id,
+    "id",
+    "dhcp_fingerprint_id",
+    "user_agent_id",
+    "created_at",
+    "updated_at",
+    "device_id",
+    "version",
+    "dhcp_vendor_id",
+    "score",
+    "mac_vendor_id",
+    "submitter_id",
 );
 __PACKAGE__->set_primary_key('id');
 
@@ -33,8 +33,8 @@ use base qw/DBIx::Class::Core/;
 __PACKAGE__->table_class('DBIx::Class::ResultSource::View');
 __PACKAGE__->table('combinationmatch');
 __PACKAGE__->add_columns(
-    id,
-    score,
+    "id",
+    "score",
 );
 __PACKAGE__->set_primary_key('id');
 __PACKAGE__->result_source_instance->is_virtual(1);
