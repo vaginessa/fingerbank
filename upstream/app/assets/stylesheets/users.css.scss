@@ -1,0 +1,37 @@
+@mixin rounded-corners($radius) {
+  border-radius: $radius;
+  -moz-border-radius: $radius;
+  -webkit-border-radius: $radius;
+}
+
+div.user_menu {
+  border: 1px solid rgb(225, 225, 232);
+  background-color: rgb(247, 247, 249);
+  @include rounded-corners(10px);
+}
+
+div.user_api_stats {
+  text-align:center;
+  div {
+    font-size:115%;
+    margin-top: 5px;
+    display:inline-block;
+  } 
+  /*.label {
+    font-size:130%;
+    display: inline-block;
+  }*/
+}
+
+div.user_info {
+  @include rounded-corners(5px);
+}
+
+div.api_key {
+  padding:1em;
+  margin-top:3em;
+  @include rounded-corners(5px);
+  pre {
+    font-size:110%;
+  }
+}
