@@ -398,14 +398,26 @@ sub search {
 
 Search multiple schemas
 
+=head3 Usage
+
 First arguement is an array ref of the arguments expected by the L<DBIx::Class::ResultSet> search function
 
 Followed by the schema you wish to search
 
+    my ($status, $resultSets_or_errormsg) = $obj->search_schemas($arr_ref_of_search_option);
+
+    my ($status, $resultSets_or_errormsg) = $obj->search_schemas($arr_ref_of_search_option,@optional_schemas);
+
+    my ($status, $resultSets_or_errormsg) = $obj->search_schemas([{ col1 => val1}], 'Local');
+
+=head3 Return
+
 Returns a fingerbank::Status code and an array ref of the result set or status message
 If the status is not OK the results is a status message
 
-my ($status, $results_or_msg) = $m->search_schemas([{ col1 => val1}], @schemas);
+    status code - fingerbank::Status
+
+    array ref of result sets or error message
 
 =cut
 
@@ -425,11 +437,6 @@ sub search_schemas {
         my $db = fingerbank::DB->connect($schema);
         my $resultset = $db->resultset($className)->search(@$search_args);
 
-        # Check if resultset contains data
-        if ( $resultset eq 0 ) {
-            $logger->info("Searching for '$className' in schema '$schema' returned an empty set");
-            next;
-        }
         push @resultSets,$resultset;
     }
 
