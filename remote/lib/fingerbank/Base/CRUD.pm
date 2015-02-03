@@ -1,5 +1,20 @@
 package fingerbank::Base::CRUD;
 
+=head1 NAME
+
+fingerbank::Base::CRUD
+
+=head1 DESCRIPTION
+
+Basic CRUD methods related to manipulating different fingerbank data.
+
+Stuff in this class is meant to be overridden on a class basis if there's need for it.
+
+=cut
+
+use strict;
+use warnings;
+
 use Moose;
 use namespace::autoclean;
 use POSIX;
@@ -8,10 +23,7 @@ use fingerbank::DB;
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::Log qw(get_logger);
 
-
 =head1 HELPERS
-
-Helper methods used in this class and the inherited ones
 
 =head2 _parseClassName
 
@@ -65,6 +77,8 @@ sub _incrementTableID {
 =head1 METHODS
 
 =head2 create
+
+Create a new local entry.
 
 =cut
 
