@@ -78,7 +78,15 @@ sub _incrementTableID {
 
 =head2 create
 
-Create a new local entry.
+Create a new entry in the 'Local' database.
+
+ID will be automatically generated since we need to manage them by prefixing L.
+
+Expects an hashref as args.
+
+HTTP 200 OK status code is returned along with the newly created entry in case of success.
+
+HTTP 500 INTERNAL SERVER ERROR status code is returned along with a status message in case of failure (unable to create).
 
 =cut
 
@@ -91,6 +99,8 @@ sub create {
 
     my $entry_id = "L" . $self->_getTableID($className);    # Local entries IDs are prefixed by L
 
+    $logger->debug("Attempting to create a new '$className' entry with ID '$entry_id' in schema 'Local'");
+
     # Prepare arguments for entry creation
     $args->{id} = $entry_id;    # We need to override the ID for a local one
     $args->{created_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding created_at with current timestamp
@@ -99,10 +109,10 @@ sub create {
     my $db = fingerbank::DB->connect('Local');
     my $resultset = $db->resultset($className)->create($args);
 
-    # Query doesn't returned any result
+    # Query doesn't returned any result which means failure in this case
     if ( !defined($resultset) ) {
-        my $status_msg = "Cannot create new '$className' entry with ID '$entry_id' in schema 'Local'.";
-        $logger->info($status_msg);
+        my $status_msg = "Cannot create new '$className' entry with ID '$entry_id' in schema 'Local'";
+        $logger->warn($status_msg);
         return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
@@ -114,10 +124,20 @@ sub create {
         $return->{$column} = $resultset->$column;
     }
 
+    $logger->info("Created new '$className' entry with ID '$entry_id' in schema 'Local'");
+
     return ( $fingerbank::Status::OK, $return );
 }
 
 =head2 read
+
+Read a single entry by using his ID.
+
+Expects the entry ID to be readed.
+
+HTTP 200 OK status code is returned along with the requested entry in case of success.
+
+HTTP 404 NOT FOUND status code is returned along with a status message in case of failure (non-existant entry).
 
 =cut
 
@@ -132,29 +152,37 @@ sub read {
     # Local schema IDs are 'L' prefixed
     my $schema = ( lc($id) =~ /^l/ ) ? 'Local' : 'Upstream';
 
-    $logger->debug("Looking for '$className' ID '$id' in schema '$schema'");
+    $logger->debug("Looking for '$className' entry with ID '$id' in schema '$schema'");
 
     my $db = fingerbank::DB->connect($schema);
     my $resultset = $db->resultset($className)->find($id);
 
     # Query doesn't return any result
     if ( !defined($resultset) ) {
-        my $status_msg = "Could not find ID '$id' in '$className' in schema '$schema'";
+        my $status_msg = "Could not find any '$className' entry with ID '$id' in schema '$schema'";
         $logger->info($status_msg);
         return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
-
-    $logger->info("Found result in schema '$schema' for '$className' ID '$id'");
 
     # Building the resultset to be returned
     foreach my $column ( $resultset->result_source->columns ) {
         $return->{$column} = $resultset->$column;
     }
 
+    $logger->info("Found '$className' entry with ID '$id' in schema '$schema'");
+
     return ( $fingerbank::Status::OK, $return );
 }
 
 =head2 update
+
+Update an existing entry in the 'Local' database.
+
+Expects the entry ID to be updated and an hashref as args.
+
+HTTP 200 OK status code is returned along with the updated entry in case of success.
+
+HTTP 404 NOT FOUND status code is returned along with a status message in case of failure (non-existant entry).
 
 =cut
 
@@ -165,6 +193,8 @@ sub update {
     my $className = $self->_parseClassName;
     my $return = {};
 
+    $logger->debug("Attempting to update '$className' entry with ID '$id' in schema 'Local'");
+
     # We need to update the 'updated_at' timestamp
     $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));
 
@@ -174,24 +204,37 @@ sub update {
 
     # Query doesn't returned any result
     if ( !defined($resultset) ) {
-        my $status_msg = "Could not find ID '$id' for '$className' in schema 'Local'. Cannot update.";
+        my $status_msg = "Could not find any '$className' entry with ID '$id' in schema 'Local'. Cannot update";
         $logger->info($status_msg);
         return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
 
     # Calling update on the resultset to update it with new data
-    $logger->info("Found result in schema 'Local' for '$className' ID '$id'. Updating it.");
+    $logger->debug("Found '$className' entry with ID '$id' in schema 'Local'. Proceed with update");
     $resultset->update($args);
+
+    # TODO: Add validation on wheter update worked or not ?
+    # TODO: Logging statement should we WARN
 
     # Building the updated resultset to be returned
     foreach my $column ( $resultset->result_source->columns ) {
         $return->{$column} = $resultset->$column;
     }
 
+    $logger->info("Updated '$className' entry with ID '$id' in schema 'Local'");
+
     return ( $fingerbank::Status::OK, $return );
 }
 
 =head2 delete
+
+Delete an existing entry in the 'Local' database.
+
+Expects the entry ID to be deleted.
+
+HTTP 200 OK status code is returned in case of success.
+
+HTTP 404 NOT FOUND status code is returned along with a status message in case of failure (non-existant entry).
 
 =cut
 
@@ -201,20 +244,27 @@ sub delete {
 
     my $className = $self->_parseClassName;
 
+    $logger->debug("Attempting to delete '$className' entry with ID '$id' from schema 'Local'");
+
     # Fetching current data to build the resultset from which we will delete
     my $db = fingerbank::DB->connect('Local');
     my $resultset = $db->resultset($className)->find($id);
 
     # Query doesn't returned any result
     if ( !defined($resultset) ) {
-        my $status_msg = "Could not find ID '$id' for '$className' in schema 'Local'. Cannot delete.";
+        my $status_msg = "Could not find any '$className' entry with ID '$id' in schema 'Local'. Cannot delete";
         $logger->info($status_msg);
         return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
 
     # Calling delete on the resultset to delete it from the database
-    $logger->info("Found result in schema 'Local' for '$className' ID '$id'. Deleting it.");
+    $logger->debug("Found '$className' entry with ID '$id' in schema 'Local'. Proceed with delete");
     $resultset->delete;
+
+    # TODO: Add validation on wheter delete worked or not ?
+    # TODO: Logging statement should we WARN
+
+    $logger->info("Deleted '$className' entry with ID '$id' in schema 'Local'");
 
     return $fingerbank::Status::OK;
 }
