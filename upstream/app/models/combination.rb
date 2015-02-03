@@ -51,7 +51,7 @@ class Combination < FingerbankModel
     end
   end
 
-  def process(options = {:with_version => false})
+  def process(options = {:with_version => false, :save => true})
     discoverer_detected_device = nil
     new_score = nil
     discoverers_match = Discoverer.device_matching_discoverers[id]
@@ -74,13 +74,14 @@ class Combination < FingerbankModel
         # no choice really
         # leave as is 
       else
+        save!
         find_version
         logger.debug self.device.nil? ? "Unknown device" : "Detected device "+self.device.full_path  
         logger.debug "Score "+score.to_s
         logger.debug version ? "Version "+version : "Unknown version"
       end
     end
-    save!
+    save! if options[:save]
   end
 
   def matches_discoverer?(discoverer)
@@ -121,15 +122,24 @@ class Combination < FingerbankModel
 
   def find_matching_discoverers
     valid_discoverers = []
-    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
 
+    beginning_time = Time.now
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+    end_time = Time.now
+    logger.info "Time elapsed for temp creation #{(end_time - beginning_time)*1000} milliseconds"  
+  
     ifs, conditions = Discoverer.discoverers_ifs
 
     matches = []
     unless ifs.empty?
       sql = "SELECT #{ifs} from temp_combinations 
               WHERE (id=#{temp_combination.id});"
+
+      beginning_time = Time.now
       records = ActiveRecord::Base.connection.execute(sql)
+      end_time = Time.now
+      logger.info "Time elapsed for big SQL query #{(end_time - beginning_time)*1000} milliseconds"  
+
       count = 0 
       records.each do |record|
         while !record[count].nil?
