@@ -322,6 +322,103 @@ namespace :import do
     end
   end
 
+  task :merge_from_dhcp_email, [:file_path] => [:environment] do |t, args|
+    if args[:file_path].nil?
+      puts "No file path specified. Exiting"
+      next
+    end
+    text=File.open(args[:file_path]).read
+    text.gsub!(/\r\n?/, "\n")
+    state = 'searching_fingerprint'
+
+    user_agent_value = nil  
+    fingerprint_value = nil
+
+    text.each_line do |line|
+
+      line.gsub!(/\n?/, "")
+
+      data = line.scan(/^User Agent: (.*)/)
+
+      if state == 'searching_fingerprint' && !line.empty?
+        #puts "Found value #{line}"
+        fingerprint_value = line
+        fingerprint_value.gsub!(/^[ ]?/, '')
+        fingerprint_value.gsub!(/[ ]?$/, '')
+        state = "searching_ua"
+      elsif state == 'searching_ua' && !data.empty?
+        user_agent_value = data.last.first
+        user_agent_value.gsub!(/^[ ]?/, '')
+        user_agent_value.gsub!(/[ ]?$/, '')
+        #puts "Found fingerprint #{fingerprint}"
+        state = 'searching_end'
+      elsif state == 'searching_end' && line.empty?
+        #puts "Done processing"
+        puts "ua : '#{user_agent_value}', fingerprint : '#{fingerprint_value}'"
+        UserAgent.create(:value => user_agent_value)
+        user_agent = UserAgent.where(:value => user_agent_value).first
+        DhcpFingerprint.create(:value => fingerprint_value)
+        dhcp_fingerprint = DhcpFingerprint.where(:value => fingerprint_value).first
+        
+        dhcp_vendor = DhcpVendor.where(:value => '').first
+        mac_vendor = MacVendor.from_mac(nil)
+      
+
+        Combination.create(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor)
+
+        state = 'searching_ua'
+      end
+    end
+  end
+
+  task :merge_from_ua_email, [:file_path] => [:environment] do |t, args|
+    if args[:file_path].nil?
+      puts "No file path specified. Exiting"
+      next
+    end
+    text=File.open(args[:file_path]).read
+    text.gsub!(/\r\n?/, "\n")
+    state = 'searching_ua'
+
+    user_agent_value = nil  
+    fingerprint_value = nil
+
+    text.each_line do |line|
+      data = line.scan(/^DHCP Fingerprint: (.*)/)
+
+      line.gsub!(/\n?/, "")
+
+      if state == 'searching_ua' && !line.empty?
+        #puts "Found value #{line}"
+        user_agent_value = line
+        user_agent_value.gsub!(/^[ ]?/, '')
+        user_agent_value.gsub!(/[ ]?$/, '')
+        state = "searching_fingerprint"
+      elsif state == 'searching_fingerprint' && !data.empty?
+        fingerprint_value = data.last.first
+        fingerprint_value.gsub!(/^[ ]?/, '')
+        fingerprint_value.gsub!(/[ ]?$/, '')
+        #puts "Found fingerprint #{fingerprint}"
+        state = 'searching_end'
+      elsif state == 'searching_end' && line.empty?
+        #puts "Done processing"
+        puts "ua : #{user_agent_value}, fingerprint : #{fingerprint_value}"
+        UserAgent.create(:value => user_agent_value)
+        user_agent = UserAgent.where(:value => user_agent_value).first
+        DhcpFingerprint.create(:value => fingerprint_value)
+        dhcp_fingerprint = DhcpFingerprint.where(:value => fingerprint_value).first
+        
+        dhcp_vendor = DhcpVendor.where(:value => '').first
+        mac_vendor = MacVendor.from_mac(nil)
+      
+
+        Combination.create(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor)
+
+        state = 'searching_ua'
+      end
+    end
+  end
+
   task :cfnetwork, [:file_path] => [:environment] do |t, args|
     if args[:file_path].nil?
       puts "No file path specified. Exiting"
