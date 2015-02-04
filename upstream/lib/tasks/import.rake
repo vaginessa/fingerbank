@@ -491,6 +491,7 @@ namespace :import do
       browser = Browser.new(:ua => user_agent.value)
       device = user_agent.combinations.first.device unless user_agent.combinations.first.nil?
       orphan_user_agents << user_agent if user_agent.combinations.first.nil?
+      next if device.nil?
       mobiles <<  device if browser.mobile? and !mobiles.include?(device)
       tablets << device if browser.tablet? and !tablets.include?(device)
     end
