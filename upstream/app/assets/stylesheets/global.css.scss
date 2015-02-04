@@ -28,11 +28,22 @@ td.options{
 
 td{
   max-width:300px;
-  /*white-space:nowrap;*/
+  white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
   padding:0 1em;
 
+  .details{
+    @include rounded(5px);
+    padding:0.5em;
+    border: 1px solid black;
+    white-space:normal;
+    background-color:white;
+    display:inline-block;
+    * {
+      width:400px;
+    }
+  }
 /*
   a, a:visited, a:link, a:hover, a:active{
     color:white;

@@ -16,3 +16,39 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require_tree .
+
+$(function(){
+  $("td").mousemove(function(e){
+    console.log("move")
+    var jthis = $(this);
+    var info = jthis.find('.details') ;
+    if(info.length == 0){
+        var data = $('<p>'+jthis.html()+'</p>');
+       info =  $("<div class='details'></div>");
+       jthis.append(info);
+        info.append(data);
+    }
+    info.css('position', 'fixed');
+    info.css('left', e.clientX+15);
+    info.css('top', e.clientY+15);
+    info.show();
+  });
+  $("td").hover(function(){
+    var jthis = $(this);
+    var info = jthis.find('.details');
+    info.hide();
+  })
+});
+
+/*
+li.hover(function(e){
+}, function(e){
+  info.hide();
+})
+li.mousemove(function(e){
+  info.css('position', 'fixed');
+  info.css('left', e.clientX+15);
+  info.css('top', e.clientY+15);
+  info.show();
+})
+*/
