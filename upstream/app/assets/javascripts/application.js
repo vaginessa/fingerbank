@@ -17,13 +17,13 @@
 //= require turbolinks
 //= require_tree .
 
-$(function(){
+$(document).bind("DOMSubtreeModified", function(){
   $(".hover-popup").mousemove(function(e){
-    console.log("move")
     var jthis = $(this);
     var info = jthis.find('.details') ;
     if(info.length == 0){
-        var data = $('<p>'+jthis.html()+'</p>');
+       var details = jthis.attr('data-details') || jthis.html();
+       var data = $('<p>'+details+'</p>');
        info =  $("<div class='details'></div>");
        jthis.append(info);
         info.append(data);

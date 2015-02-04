@@ -38,10 +38,10 @@
           <%= link_to '', combination, method: :delete, data: { confirm: 'Are you sure?' }, :class => 'btn-delete' if current_user_admin? %>
           <%= link_to '', calculate_combination_path(combination), :class => "btn-refresh" if current_user_admin? %>
         </td>
-        <td class="hover-popup"><%= combination.device ? combination.device.full_path : "Unknown" %></td>
-        <td class="hover-popup"><%= combination.score %>
-        <td class="hover-popup"><%= combination.version %></td>
-        <td class="hover-popup"><%= combination.submitter ? combination.submitter.name : '' %></td>
+        <td class="hover-popup" data-details="<%= combination.device ? combination.device.full_path : "Unknown" %>"><%= combination.device ? combination.device.name : "Unknown" %></td>
+        <td><%= combination.score %>
+        <td><%= combination.version %></td>
+        <td><%= combination.submitter ? combination.submitter.name : '' %></td>
         <td class="hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
         <td class="hover-popup"><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
         <td class="hover-popup"><%= combination.dhcp_fingerprint ? combination.dhcp_fingerprint.value : "Unknown" %></td>
