@@ -29,7 +29,7 @@ namespace :import do
         manufacturer = Device.where('lower(name) = ?',  "#{line} Android".downcase).first
         if manufacturer.nil?
           Rails.logger.debug "Manufacturer #{line} Android doesn't exists"
-          manufacturer = Device.create!(:name => "#{line} Android", :parent => generic_android, :inherit => true)
+          manufacturer = Device.create!(:name => "#{line} Android", :parent => generic_android)
           Rails.logger.info "Created manufacturer #{manufacturer.name}"
         else
           Rails.logger.debug "Manufacturer #{manufacturer.name} exists"
@@ -47,7 +47,7 @@ namespace :import do
         device = Device.where('lower(name) = ?', name.downcase).first
         if device.nil?
           Rails.logger.warn "Device #{name} doesn't exist yet. Creating it"
-          device = Device.create!(:name => name, :parent => manufacturer, :inherit => true)
+          device = Device.create!(:name => name, :parent => manufacturer)
         else
           Rails.logger.debug "Device #{name} exists"
         end
@@ -103,14 +103,14 @@ namespace :import do
         manufacturer = Device.where('lower(name) = ?',  "#{manufacturer_name} Windows Phone".downcase).first
         if manufacturer.nil?
           Rails.logger.warn "Manufacturer #{manufacturer_name} Windows Phone doesn't exists"
-          manufacturer = Device.create!(:name => "#{manufacturer_name} Windows Phone", :parent => windows_phone, :inherit => true)
+          manufacturer = Device.create!(:name => "#{manufacturer_name} Windows Phone", :parent => windows_phone)
           Rails.logger.info "Created manufacturer #{manufacturer.name}"
         end
 
         Rails.logger.debug "Discoverered #{model}"
         device = Device.where("lower(name) = ?", model.downcase).first
         if device.nil?
-          device = Device.create!(:name => model, :parent => manufacturer, :inherit => true)
+          device = Device.create!(:name => model, :parent => manufacturer)
           Rails.logger.warn "Created device #{model}"
         else
           Rails.logger.debug "Device #{model} exists"
@@ -161,7 +161,7 @@ namespace :import do
         Rails.logger.debug "Discoverered #{model}"
         device = Device.where("lower(name) = ?", model.downcase).first
         if device.nil?
-          device = Device.create!(:name => model, :parent => blackberry, :inherit => true)
+          device = Device.create!(:name => model, :parent => blackberry)
           Rails.logger.warn "Created device #{model}"
         else
           Rails.logger.debug "Device #{model} exists"
@@ -479,6 +479,33 @@ namespace :import do
 
       end
     end
+  end
+
+  
+  task :detect_device_metadata => :environment do
+    require "browser"
+    mobiles = []
+    tablets = []
+    orphan_user_agents = []
+    UserAgent.all.each do |user_agent|
+      browser = Browser.new(:ua => user_agent.value)
+      device = user_agent.combinations.first.device unless user_agent.combinations.first.nil?
+      orphan_user_agents << user_agent if user_agent.combinations.first.nil?
+      mobiles <<  device if browser.mobile? and !mobiles.include?(device)
+      tablets << device if browser.tablet? and !tablets.include?(device)
+    end
+    puts "Found #{orphan_user_agents.size} orphan user agents"
+    puts "Found #{mobiles.size} mobile devices"
+    puts "Found #{tablets.size} tablet devices"
+
+    mobiles.each do |device|
+      device.update!(:mobile => true)
+    end
+
+    tablets.each do |device|
+      device.update!(:tablet => true)
+    end
+
   end
 
 end

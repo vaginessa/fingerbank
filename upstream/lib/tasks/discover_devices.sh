@@ -36,10 +36,13 @@ RAILS_ENV=production rake fbcache:clear_discoverers
 echo "Starting discoverers cache build"
 RAILS_ENV=production rake fbcache:build_discoverers 
 
-
 # reevaluate every combination
 echo "Starting the reprocessing of all the combinations"
 RAILS_ENV=production rake db:sort_combination
+
+# find the mobile + tablets in what we have
+echo "Finding the mobiles + tablets"
+RAILS_ENV=production rake import:detect_device_metadata
 
 # refresh the stats page on the website
 echo "Refreshing the stats"
