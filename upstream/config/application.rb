@@ -52,7 +52,7 @@ module RailsFingerbank
       config.action_mailer.smtp_settings["authentication"] = ENV["SMTP_AUTH"]
     end
 
-    puts config.action_mailer.smtp_settings.inspect
+    #puts config.action_mailer.smtp_settings.inspect
 
   end
 end
