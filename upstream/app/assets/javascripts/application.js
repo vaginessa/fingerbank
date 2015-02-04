@@ -18,7 +18,7 @@
 //= require_tree .
 
 $(function(){
-  $("td").mousemove(function(e){
+  $(".hover-popup").mousemove(function(e){
     console.log("move")
     var jthis = $(this);
     var info = jthis.find('.details') ;
@@ -33,7 +33,7 @@ $(function(){
     info.css('top', e.clientY+15);
     info.show();
   });
-  $("td").hover(function(){
+  $(".hover-popup").hover(function(){
     var jthis = $(this);
     var info = jthis.find('.details');
     info.hide();
