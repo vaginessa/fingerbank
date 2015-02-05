@@ -269,45 +269,114 @@ sub delete {
     return $fingerbank::Status::OK;
 }
 
+=head2 search
+
+Advanced search
+
+=head3 Usage
+
+First arguement is an array ref of the arguments expected by the L<DBIx::Class::ResultSet> search function
+
+Followed by the schema you wish to search
+
+    my ($status, $resultSets_or_errormsg) = $obj->search($arr_ref_of_search_option);
+
+    my ($status, $resultSets_or_errormsg) = $obj->search($arr_ref_of_search_option, $optional_schema);
+
+    my ($status, $resultSets_or_errormsg) = $obj->search([{ col1 => val1}], 'Local');
+
+=head3 Return
+
+Returns a fingerbank::Status code and an array ref of the result set or status message
+
+If the status is not OK the results is a status message
+
+    status code - fingerbank::Status
+
+    array ref of result sets or error message
+
+=cut
+
+sub search {
+    my ( $self, $search_args, $schema ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my @resultSets;
+
+    # From which schema do we want the results
+    my @schemas = ( defined($schema) ) ? ($schema) : @fingerbank::DB::schemas;
+
+    foreach my $schema ( @schemas ) {
+        $logger->debug("Searching '$className' entries in schema $schema");
+
+        my $db = fingerbank::DB->connect($schema);
+        my $resultset = $db->resultset($className)->search(@$search_args);
+
+        # Empty resultset should not be pushed into the result array
+        next if $resultset eq 0;
+
+        push @resultSets,$resultset;
+    }
+
+    # Query doesn't return any result on any of the schema(s)
+    unless ( @resultSets ) {
+        my $status_msg = "Searching for '$className' entries in schema(s) returned an empty set";
+        $logger->info($status_msg);
+        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
+    }
+
+    return ( $fingerbank::Status::OK, \@resultSets );
+}
+
+=head2 find
+
+=cut
+
+sub find {
+    my ( $self, $search_args, $schema ) = @_;
+    my $logger = get_logger;
+
+    my $className = $self->_parseClassName;
+    my $return;
+
+    my ($status, $result) = $self->search($search_args, $schema);
+
+    # There was an 'error' in the search.
+    return ($status, $result) if ( is_error($status) );
+
+    foreach my $resultset ( @$result ) {
+        $return = $resultset->first;
+        last if defined $return;
+    }
+
+    return ( $fingerbank::Status::OK, $return );
+}
+
 =head2 list
 
 =cut
 
 sub list {
-    my ( $self ) = @_;
+    my ( $self, $schema ) = @_;
     my $logger = get_logger;
 
     my $className = $self->_parseClassName;
     my $return = {};
 
-    foreach my $schema ( @fingerbank::DB::schemas ) {
-        $logger->debug("Listing all '$className' entries in schema '$schema'");
+    my ($status, $result) = $self->search([], $schema);
 
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search;
+    # There was an 'error' in the search.
+    return ($status, $result) if ( is_error($status) );
 
-        # Query doesn't return any result
-        if ( $resultset eq 0 ) {
-            $logger->info("Listing of '$className' entries in schema '$schema' returned an empty set");
-            next;
-        }
-
-        $logger->info("Found entries in schema '$schema' for '$className' listing");
-
-        # Building the resultset to be returned
+    # Building the resultset to be returned
+    foreach my $resultset ( @$result ) {
         while ( my $row = $resultset->next ) {
-          $return->{$row->id} = $row->value;
+            $return->{$row->id} = $row->value;
         }
     }
 
-    # Query doesn't return any result on any of the schema(s)
-    if ( !%$return ) {
-        my $status_msg = "Listing of '$className' entries in schema(s) returned an empty set";
-        $logger->info($status_msg);
-        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
-    }
-
-    return ( $fingerbank::Status::OK, $return );
+    return ($fingerbank::Status::OK, $return);
 }
 
 =head2 list_paginated
@@ -335,33 +404,22 @@ sub list_paginated {
     my $className = $self->_parseClassName;
     my @return;
 
-    # From which schema do we want the results
-    my @schemas = ( defined($query->{schema}) ) ? ($query->{schema}) : @fingerbank::DB::schemas;
+    my ($status, $result) = $self->search([{},
+        { offset => $query->{offset}, rows => $query->{nb_of_rows}, order_by => { -$query->{order} => $query->{order_by} } }], 
+        $query->{schema});
 
-    foreach my $schema ( @schemas ) {
-        $logger->debug("Listing all '$className' entries in schema '$schema'");
+    # There was an 'error' in the search.
+    return ($status, $result) if ( is_error($status) );
 
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search({},
-            { offset => $query->{offset}, rows => $query->{nb_of_rows}, order_by => { -$query->{order} => $query->{order_by} } }
-        );
-
-        # Query doesn't returned any result
-        if ( $resultset eq 0 ) {
-            $logger->info("Listing of '$className' entries in schema '$schema' returned an empty set");
-            next;
-        }
-
-        $logger->info("Found entries in schema '$schema' for '$className' listing");
-
-        # Building the resultset to be returned
+    # Building the resultset to be returned
+    foreach my $resultset ( @$result ) {
         while ( my $row = $resultset->next ) {
             my %array_row = ( 'id' => $row->id, 'value' => $row->value );
             push ( @return, \%array_row );
         }
     }
 
-    return @return;
+    return ($fingerbank::Status::OK, \@return);
 }
 
 =head2 count
@@ -387,133 +445,6 @@ sub count {
     return $count;
 }
 
-=head2 find
-
-=cut
-
-sub find {
-    my ( $self, $query ) = @_;
-    my $logger = get_logger;
-
-    my $className = $self->_parseClassName;
-    my $return = {};
-
-    $logger->debug("Searching for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'");
-
-    # From which schema do we want the results
-    my @schemas = ( defined($query->{schema}) ) ? ($query->{schema}) : @fingerbank::DB::schemas;
-
-    my $column = $query->{get_column};
-    foreach my $schema ( @schemas ) {
-        $logger->debug("Searching in schema $schema");
-
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search({
-            $query->{search_for} => $query->{term},
-        })->first;
-
-        # Check if resultset contains data
-        if ( defined($resultset) ) {
-            $return = $resultset->$column;
-            $logger->info("Found a match ($column = $return) for $className " . $query->{search_for} . " '" . $query->{term} . "' in schema $schema");
-            return ( $fingerbank::Status::OK, $return );
-        }
-
-        $logger->debug("No match found in schema $schema");
-    }
-
-    my $status_msg = "No match found in schema(s) for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'";
-    $logger->warn($status_msg);
-    return ( $fingerbank::Status::NOT_FOUND, $status_msg );
-}
-
-=head2 search
-
-=cut
-
-sub search {
-    my ( $self, $query ) = @_;
-    my $logger = get_logger;
-
-    my $className = $self->_parseClassName;
-    my $return = {};
-
-    $logger->debug("Searching for '$className' with " . $query->{search_for} . "' '" . $query->{term} . "'");
-    my @schemas = ( defined($query->{schema}) ) ? ($query->{schema}) : @fingerbank::DB::schemas;
-
-    my ($status, $results) = $self->search_schemas([{$query->{search_for} => $query->{term}}], @schemas);
-    if ($status != $fingerbank::Status::OK ) {
-        my $status_msg = "Searching for '$className' in schema(s) returned an empty set";
-        $logger->info($status_msg);
-        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
-    }
-
-    foreach my $resultset ( @$results ) {
-        # Building the resultset to be returned
-        while ( my $row = $resultset->next ) {
-            $return->{$row->id} = $row->value;
-        }
-    }
-
-    return ( $fingerbank::Status::OK, $return );
-}
-
-=head2 search_schemas
-
-Search multiple schemas
-
-=head3 Usage
-
-First arguement is an array ref of the arguments expected by the L<DBIx::Class::ResultSet> search function
-
-Followed by the schema you wish to search
-
-    my ($status, $resultSets_or_errormsg) = $obj->search_schemas($arr_ref_of_search_option);
-
-    my ($status, $resultSets_or_errormsg) = $obj->search_schemas($arr_ref_of_search_option,@optional_schemas);
-
-    my ($status, $resultSets_or_errormsg) = $obj->search_schemas([{ col1 => val1}], 'Local');
-
-=head3 Return
-
-Returns a fingerbank::Status code and an array ref of the result set or status message
-If the status is not OK the results is a status message
-
-    status code - fingerbank::Status
-
-    array ref of result sets or error message
-
-=cut
-
-sub search_schemas {
-    my ( $self, $search_args, @schemas ) = @_;
-    my $logger = get_logger;
-
-    my $className = $self->_parseClassName;
-    my @resultSets;
-
-    @schemas = @fingerbank::DB::schemas unless @schemas;
-
-    # From which schema do we want the results
-    foreach my $schema ( @schemas ) {
-        $logger->debug("Searching in schema $schema");
-
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search(@$search_args);
-
-        push @resultSets,$resultset;
-    }
-
-    # Query doesn't return any result on any of the schema(s)
-    unless ( @resultSets ) {
-        my $status_msg = "Searching for '$className' entries in schema(s) returned an empty set";
-        $logger->info($status_msg);
-        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
-    }
-
-    return ( $fingerbank::Status::OK, \@resultSets );
-}
-
 =head2 clone
 
 =cut
@@ -523,6 +454,9 @@ sub clone {
     my $logger = get_logger;
 
     my $className = $self->_parseClassName;
+
+    $logger->debug("Attempting to clone '$className' entry ID '$id' in schema 'Local'");
+
     my $return = {};
 
     my $original_item = $self->read($id);
@@ -535,7 +469,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

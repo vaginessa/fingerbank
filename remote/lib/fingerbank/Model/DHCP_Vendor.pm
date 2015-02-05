@@ -15,14 +15,13 @@ use namespace::autoclean;
 
 extends 'fingerbank::Base::CRUD';
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

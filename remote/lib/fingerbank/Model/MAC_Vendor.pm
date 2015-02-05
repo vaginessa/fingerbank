@@ -13,68 +13,7 @@ Handling 'MAC_Vendor' related stuff
 use Moose;
 use namespace::autoclean;
 
-use fingerbank::DB;
-use fingerbank::Error qw(is_error is_success);
-use fingerbank::Log qw(get_logger);
-
 extends 'fingerbank::Base::CRUD';
-
-
-=head1 METHODS
-
-=cut
-
-=head2 search
-
-=cut
-sub search {
-    my ( $self, $query ) = @_;
-    my $logger = get_logger;
-
-    my $className = $self->_parseClassName;
-    my $return = {};
-
-    # We need to modify the MAC format before the search to make sure it fits what we have in database
-    my $mac = $query->{term};
-    $mac =~ s/[:|\s|-]//g;      # Removing separators
-    $mac = lc($mac);            # Lowercasing
-    $mac = substr($mac, 0, 6);  # Only keep first 6 characters (OUI)
-
-    # Updating the query
-    $query->{search_for} = 'mac'; # MAC_Vendor table is different from the others. The 'value' column is the 'mac' column in this specific case
-    $query->{term} = $mac;        # Using the 'sanitized' MAC as search term
-
-    $logger->debug("Searching for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'");
-
-    if ( $query->{term} eq '' ) {
-        $logger->debug("$className " . $query->{search_for} . " is empty. This is a special case and we are returning 'NULL' as " . $query->{get_column});
-        return ( $fingerbank::Status::OK, 'NULL' );
-    }
-
-    my $column = $query->{get_column};
-    foreach my $schema ( @fingerbank::DB::schemas )  {
-        $logger->debug("Searching in schema $schema");
-
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search({
-            $query->{search_for} => $query->{term},
-        });
-
-        # Check if resultset contains data
-        if ( defined($resultset->first) ) {
-            $return = $resultset->first->$column;
-            $logger->info("Found a match ($column = $return) for $className " . $query->{search_for} . " '" . $query->{term} . "' in schema $schema");
-            return ( $fingerbank::Status::OK, $return );
-        }
-
-        $logger->debug("No match found in schema $schema");
-    }
-
-    my $status_msg = "No match found in schema(s) for '" . $className . "' '" . $query->{get_column} . "' with '" . $query->{search_for} . "' '" . $query->{term} . "'";
-    $logger->warn($status_msg);
-    return ( $fingerbank::Status::NOT_FOUND, $status_msg );
-}
-
 
 =head1 AUTHOR
 
@@ -82,7 +21,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
