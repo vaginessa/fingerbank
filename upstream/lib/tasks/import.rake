@@ -504,7 +504,11 @@ namespace :import do
     end
 
     tablets.each do |device|
-      device.update!(:tablet => true)
+      unless device.mobile?
+        device.update!(:tablet => true)
+      else
+        device.update!(:tablet => false)
+      end 
     end
 
   end
