@@ -308,7 +308,7 @@ sub search {
     my @schemas = ( defined($schema) ) ? ($schema) : @fingerbank::DB::schemas;
 
     foreach my $schema ( @schemas ) {
-        $logger->debug("Searching '$className' entries in schema $schema");
+        $logger->debug("Searching '$className' entries in schema '$schema'");
 
         my $db = fingerbank::DB->connect($schema);
         my $resultset = $db->resultset($className)->search(@$search_args);
