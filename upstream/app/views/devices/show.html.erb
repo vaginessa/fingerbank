@@ -34,9 +34,9 @@ Full path : <%= @device.full_path %> <br/>
 <table>
 <% @device.combinations.each do |combination| %>
   <tr>
-    <td><%= combination.dhcp_fingerprint.value %></td>
-    <td><%= combination.user_agent.value %></td>
-    <td><%= combination.dhcp_vendor.value %></td>
+    <td class="hover-popup"><%= combination.dhcp_fingerprint.value %></td>
+    <td class="hover-popup"><%= combination.user_agent.value %></td>
+    <td class="hover-popup"><%= combination.dhcp_vendor.value %></td>
   </tr>
 <% end %>
 </table>
