@@ -14,6 +14,7 @@ use Moose;
 use namespace::autoclean;
 
 use fingerbank::Log qw(get_logger);
+use fingerbank::Error qw(is_error is_success);
 
 extends 'fingerbank::Base::CRUD';
 
@@ -28,7 +29,7 @@ sub read {
     my ( $self, $id, $with_parents ) = @_;
     my $logger = get_logger;
 
-    my ($status, $return) = $self->SUPER::read;
+    my ($status, $return) = $self->SUPER::read($id);
 
     # There was an 'error' during the read
     return ($status, $return) if ( is_error($status) );
