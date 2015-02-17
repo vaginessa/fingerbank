@@ -9,7 +9,7 @@ BEGIN {
 
 use fingerbank::DB;
 
-fingerbank::DB::initialize_local;
+#fingerbank::DB::initialize_local;
 fingerbank::DB::fetch_upstream;
 
 1;

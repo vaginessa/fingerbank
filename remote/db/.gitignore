@@ -3,3 +3,4 @@
 # Except theses files
 !.gitignore
 !schema_Local.sql
+!init_databases.pl
