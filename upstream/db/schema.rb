@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150126181454) do
+ActiveRecord::Schema.define(version: 20150218141819) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -123,6 +123,13 @@ ActiveRecord::Schema.define(version: 20150126181454) do
     t.string   "email"
     t.boolean  "blocked"
     t.integer  "timeframed_requests"
+  end
+
+  create_table "watched_combinations", force: true do |t|
+    t.integer  "combination_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
 end

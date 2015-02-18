@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :github_uid, :display_name
 
   has_many :combinations, :foreign_key => "submitter_id"
+  has_many :watched_combinations
   has_many :devices, :foreign_key => "submitter_id"
 
   scope :admins, -> {where(:level => 10)}

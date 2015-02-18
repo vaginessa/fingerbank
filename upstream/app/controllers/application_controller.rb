@@ -27,4 +27,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def admin_or_current_user
+    unless @current_user == @user || @current_user.admin? 
+      flash[:error] = "Your do not have access to this resource. Only the owner and the admins have right to it."
+      redirect_to root_path
+    end
+  end
+
 end

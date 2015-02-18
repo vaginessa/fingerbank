@@ -91,6 +91,26 @@ td{
   color:white;
 }
 
+.btn-watch{
+  @extend .btn;
+  @extend .btn-success;
+  @extend .glyphicon;
+  @extend .glyphicon-eye-open;
+  margin:0.1em;
+  padding:0.1em;
+  color:white;
+}
+
+.btn-unwatch{
+  @extend .btn;
+  @extend .btn-warning;
+  @extend .glyphicon;
+  @extend .glyphicon-eye-close;
+  margin:0.1em;
+  padding:0.1em;
+  color:white;
+}
+
 input[type='text']{
   width:500px;
 }

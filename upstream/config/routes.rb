@@ -63,6 +63,7 @@ Rails.application.routes.draw do
       post 'request_api'
       get 'generate_key'
     end
+    resources :watched_combinations
   end
 
   get '/login', :to => 'users#login'
