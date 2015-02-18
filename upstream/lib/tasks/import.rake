@@ -152,13 +152,17 @@ namespace :import do
     blackberry = Device.where(:name => "RIM BlackBerry").first
     UserAgent.all.each do |user_agent|
       value = user_agent.value.nil? ? '' : user_agent.value
-      matchdata = value.match(/ (BlackBerry[; ][0-9]+)/)
+      matchdata = value.match(/(BlackBerry[; ]{0,1}[0-9]+)/)
       model = matchdata.nil? ? nil : matchdata[0]
       if model
         model = model.gsub(/^ /, '')
         model_untouched = model
         model = model.gsub(';', ' ')
-        Rails.logger.debug "Discoverered #{model}"
+
+        # insert a space between BlackBerry + model if there's none
+        model = model.insert(10, ' ') if model[10] != ' '
+
+        Rails.logger.info "Discoverered #{model}"
         device = Device.where("lower(name) = ?", model.downcase).first
         if device.nil?
           device = Device.create!(:name => model, :parent => blackberry)
