@@ -262,6 +262,8 @@ namespace :db do
     db_fname = Rails.root.join('db', 'package', "#{Time.now.to_i}.sqlite3")
     success = system ("sqlite3 #{db_fname} < #{dump_fname}")
 
+    Rake::Task["db:add_devices_mac_vendors"].invoke(db_fname)
+
     #File.delete dump_fname
     # the sed stuff creates a backup file. we flush it too
     #File.delete bak_dump_fname
@@ -347,6 +349,22 @@ namespace :db do
     end
   
 
+  end
+
+  task :add_devices_mac_vendors, [:db_path] => [:environment] do |t, args|
+    if args[:db_path].nil?
+      next
+    end
+
+    packaged = SQLite3::Database.open args[:db_path]
+    packaged.execute("create table devices_mac_vendors(device_id int(11), mac_vendor varchar(6))")
+    Combination.all.each do | combination | 
+      device_id = combination.device.id if combination.device
+      mac_vendor = combination.mac_vendor.mac if combination.mac_vendor
+      if device_id && mac_vendor
+        packaged.execute("insert into devices_mac_vendors(device_id, mac_vendor) VALUES(?, ?)", device_id, mac_vendor)   
+      end
+    end
   end
 
 end
