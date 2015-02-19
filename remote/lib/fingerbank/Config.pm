@@ -13,31 +13,51 @@ File paths and configuration parameters
 use strict;
 use warnings;
 
+use Config::IniFiles;
 use Readonly;
 
 use fingerbank::FilePaths;
+use fingerbank::Log qw(get_logger);
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(
-        $INSTALL_PATH $UPSTREAM_DB_URL $UPSTREAM_QUERY_URL $API_KEY
-        $QUERY_UPSTREAM $RECORD_UNMATCHED
-    );
+    @EXPORT_OK = qw(%Config);
 }
 
+our %Config;
 
-Readonly::Scalar our $UPSTREAM_DB_URL       => 'https://fingerbank.inverse.ca/api/v1/download?key=';
-Readonly::Scalar our $UPSTREAM_QUERY_URL    => 'https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=';
-Readonly::Scalar our $API_KEY               => '';
+read_config();
 
+sub read_config {
+    my $logger = get_logger;
 
-# Should we query upstream Fingerbank API if no result found
-Readonly::Scalar our $QUERY_UPSTREAM        => '1';
+    if ( ! -e $INSTALL_PATH . $DEFAULT_CONF_FILE ) {
+        $logger->warn("Fingerbank default configuration file '$DEFAULT_CONF_FILE' has not been found. Cannot continue");
+        return;
+    }
 
-# Should we keep track of the unmatched query keys
-Readonly::Scalar our $RECORD_UNMATCHED      => '1';
+    # If a configuration file exists, load both the defaults and override using the existing configuration file
+    # We allow empty file in the case a fingerbank.conf file is modified to reflect all the defaults parameters (which will lead to an empty fingerbank.conf file) and that file has not been deleted.
+    if ( (-e $INSTALL_PATH . $DEFAULT_CONF_FILE) && (-e $INSTALL_PATH . $CONF_FILE) ) {
+        tie %Config, 'Config::IniFiles', (
+            -file       => $INSTALL_PATH . $CONF_FILE,
+            -import     => Config::IniFiles->new( -file => $INSTALL_PATH . $DEFAULT_CONF_FILE ),
+            -allowempty => 1,
+        ) or die "Invalid Fingerbank configuration file: $!\n";
+        $logger->debug("Existing Fingerbank configuration file. Loading it with defaults");
+    }
+
+    #
+    else {
+        tie %Config, 'Config::IniFiles', ( 
+            -import => Config::IniFiles->new( -file => $INSTALL_PATH . $DEFAULT_CONF_FILE )
+        ) or die "Invalid Fingerbank default configuration file: $!\n";
+        tied(%Config)->SetFileName($INSTALL_PATH . $CONF_FILE);
+        $logger->debug("No existing Fingerbank configuration file. Loading defaults");
+    }
+}
 
 
 =back

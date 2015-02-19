@@ -5,7 +5,7 @@ use warnings;
 
 use LWP::Simple qw(getstore);    # Required in fetch_upstream (getstore)
 
-use fingerbank::Config;
+use fingerbank::Config qw(%Config);
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::FilePaths;
 use fingerbank::Log qw(get_logger);
@@ -41,11 +41,19 @@ sub fetch_upstream {
     my ( $self ) = @_;
     my $logger = get_logger;
 
+    if ( !defined($Config{'upstream'}{'api_key'}) || $Config{'upstream'}{'api_key'} eq "" ) {
+        $logger->warn("Can't communicate with upstream without a valid API key.");
+        return;
+    }
+
     my $database_file = $INSTALL_PATH . "db/fingerbank_Upstream.db";
+    my $download_url = $Config{'upstream'}{'db_url'} . $Config{'upstream'}{'api_key'};
 
-    $logger->info("Downloading the latest version of upstream database");
+    $logger->info("Downloading the latest version of upstream database from '$download_url'");
 
-    getstore($UPSTREAM_DB_URL.$API_KEY, $database_file);
+    my $status = getstore($download_url, $database_file);
+
+    $logger->warn("Failed to download latest version of upstream database with the following return code: $status") if is_error($status);
 }
 
 =head2 initialize_local
