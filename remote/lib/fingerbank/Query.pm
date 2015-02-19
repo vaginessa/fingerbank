@@ -10,6 +10,7 @@ use POSIX;
 
 use fingerbank::Config;
 use fingerbank::Error qw(is_error is_success);
+use fingerbank::FilePaths;
 use fingerbank::Log qw(get_logger);
 use fingerbank::Model::Combination;
 use fingerbank::Model::Device;

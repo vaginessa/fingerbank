@@ -1,48 +1,38 @@
-package fingerbank::Log;
+package fingerbank::FilePaths;
 
 =head1 NAME
 
-fingerbank::Log
+fingerbank::FilePaths
 
 =head1 DESCRIPTION
 
-Logging framework that will take care of returning a logging instance depending on caller and
-will also handle the initiation and watching of log configuration files.
+File paths and static parameters
 
 =cut
 
 use strict;
 use warnings;
 
-use Log::Log4perl;
-
-use fingerbank::FilePaths;
+use Readonly;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(get_logger);
+    @EXPORT = qw(
+        $INSTALL_PATH
+        $CONF_FILE
+        $DEFAULT_CONF_FILE
+        $LOG_CONF_FILE
+        $LOG_FILE
+    );
 }
 
-# Initiate the logger and check config every 10 seconds in case level changes
-Log::Log4perl::init_and_watch($INSTALL_PATH . $LOG_CONF_FILE, 10);
-
-
-=head1 METHODS
-
-=cut
-
-=head2 get_logger
-
-Return a logger instance for the caller package
-
-=cut
-sub get_logger {
-    my ( $package, $filename, $line ) = caller;
-    return Log::Log4perl->get_logger($package);
-}
-
+Readonly::Scalar our $INSTALL_PATH          => '/usr/local/fingerbank/';
+Readonly::Scalar our $CONF_FILE             => 'conf/fingerbank.conf';
+Readonly::Scalar our $DEFAULT_CONF_FILE     => 'conf/fingerbank.conf.defaults';
+Readonly::Scalar our $LOG_CONF_FILE         => 'conf/log.conf';
+Readonly::Scalar our $LOG_FILE              => 'logs/fingerbank.log';
 
 =back
 

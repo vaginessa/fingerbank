@@ -7,6 +7,7 @@ use LWP::Simple qw(getstore);    # Required in fetch_upstream (getstore)
 
 use fingerbank::Config;
 use fingerbank::Error qw(is_error is_success);
+use fingerbank::FilePaths;
 use fingerbank::Log qw(get_logger);
 use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
