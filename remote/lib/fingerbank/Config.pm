@@ -26,6 +26,7 @@ BEGIN {
     @EXPORT_OK = qw(%Config);
 }
 
+# MAKE IT SINGLETON ?
 our %Config;
 
 read_config();
@@ -49,7 +50,8 @@ sub read_config {
         $logger->debug("Existing Fingerbank configuration file. Loading it with defaults");
     }
 
-    #
+    # No configuration file found. Loading the defaults
+    # SetFileName allow the saving of the tied hash later with the accurate file name
     else {
         tie %Config, 'Config::IniFiles', ( 
             -import => Config::IniFiles->new( -file => $INSTALL_PATH . $DEFAULT_CONF_FILE )
