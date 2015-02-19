@@ -1,8 +1,8 @@
 [upstream]
+api_key =
 db_url = https://fingerbank.inverse.ca/api/v1/download?key=
-query_url = https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=
-api_key = 
 interrogate = true
+interrogate_url = https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=
 
 [query]
 record_unmatched = true

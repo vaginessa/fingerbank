@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 BEGIN {
-    use lib "../lib";
+    use lib "/usr/local/fingerbank/lib";
 }
 
 use fingerbank::DB;

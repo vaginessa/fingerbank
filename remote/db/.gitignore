@@ -1,6 +1,2 @@
-# Ignore everything in this directory
-*
-# Except theses files
-!.gitignore
-!schema_Local.sql
-!init_databases.pl
+fingerbank_Local.db
+fingerbank_Upstream.db
