@@ -34,17 +34,17 @@ read_config();
 sub read_config {
     my $logger = get_logger;
 
-    if ( ! -e $INSTALL_PATH . $DEFAULT_CONF_FILE ) {
+    if ( ! -e $DEFAULT_CONF_FILE ) {
         $logger->warn("Fingerbank default configuration file '$DEFAULT_CONF_FILE' has not been found. Cannot continue");
         return;
     }
 
     # If a configuration file exists, load both the defaults and override using the existing configuration file
     # We allow empty file in the case a fingerbank.conf file is modified to reflect all the defaults parameters (which will lead to an empty fingerbank.conf file) and that file has not been deleted.
-    if ( (-e $INSTALL_PATH . $DEFAULT_CONF_FILE) && (-e $INSTALL_PATH . $CONF_FILE) ) {
+    if ( (-e $DEFAULT_CONF_FILE) && (-e $CONF_FILE) ) {
         tie %Config, 'Config::IniFiles', (
-            -file       => $INSTALL_PATH . $CONF_FILE,
-            -import     => Config::IniFiles->new( -file => $INSTALL_PATH . $DEFAULT_CONF_FILE ),
+            -file       => $CONF_FILE,
+            -import     => Config::IniFiles->new( -file => $DEFAULT_CONF_FILE ),
             -allowempty => 1,
         ) or die "Invalid Fingerbank configuration file: $!\n";
         $logger->debug("Existing Fingerbank configuration file. Loading it with defaults");
@@ -54,9 +54,9 @@ sub read_config {
     # SetFileName allow the saving of the tied hash later with the accurate file name
     else {
         tie %Config, 'Config::IniFiles', ( 
-            -import => Config::IniFiles->new( -file => $INSTALL_PATH . $DEFAULT_CONF_FILE )
+            -import => Config::IniFiles->new( -file => $DEFAULT_CONF_FILE )
         ) or die "Invalid Fingerbank default configuration file: $!\n";
-        tied(%Config)->SetFileName($INSTALL_PATH . $CONF_FILE);
+        tied(%Config)->SetFileName($CONF_FILE);
         $logger->debug("No existing Fingerbank configuration file. Loading defaults");
     }
 }

@@ -13,6 +13,7 @@ File paths and static parameters
 use strict;
 use warnings;
 
+use File::Spec::Functions;
 use Readonly;
 
 BEGIN {
@@ -29,10 +30,10 @@ BEGIN {
 }
 
 Readonly::Scalar our $INSTALL_PATH          => '/usr/local/fingerbank/';
-Readonly::Scalar our $CONF_FILE             => 'conf/fingerbank.conf';
-Readonly::Scalar our $DEFAULT_CONF_FILE     => 'conf/fingerbank.conf.defaults';
-Readonly::Scalar our $LOG_CONF_FILE         => 'conf/log.conf';
-Readonly::Scalar our $LOG_FILE              => 'logs/fingerbank.log';
+Readonly::Scalar our $CONF_FILE             => catfile($INSTALL_PATH, 'conf/fingerbank.conf');
+Readonly::Scalar our $DEFAULT_CONF_FILE     => catfile($INSTALL_PATH, 'conf/fingerbank.conf.defaults');
+Readonly::Scalar our $LOG_CONF_FILE         => catfile($INSTALL_PATH, 'conf/log.conf');
+Readonly::Scalar our $LOG_FILE              => catfile($INSTALL_PATH, 'logs/fingerbank.log');
 
 =back
 
