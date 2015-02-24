@@ -79,3 +79,17 @@ CREATE TABLE "unmatched" (
   "created_at" datetime DEFAULT NULL,
   "updated_at" datetime DEFAULT NULL
 );
+
+CREATE TABLE "users" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "username" varchar(255) NOT NULL,
+  "password" varchar(255) NOT NULL,
+  "encryption" varchar(255) NOT NULL DEFAULT "plain",
+  "firstname" varchar(255) DEFAULT NULL,
+  "lastname" varchar(255) DEFAULT NULL,
+  "email" varchar(255) DEFAULT NULL,
+  "notes" varchar(1000) DEFAULT NULL,
+  "created_at" datetime DEFAULT NULL,
+  "updated_at" datetime DEFAULT NULL,
+  "created_by" varchar(255) DEFAULT NULL
+);

@@ -12,6 +12,7 @@ __PACKAGE__->load_classes(
     "User_Agent",
     "Unmatched",
     "TablesIDs",
+    "LocalUsers",
 );
 
 1;
