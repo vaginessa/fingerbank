@@ -26,9 +26,7 @@ BEGIN {
     @EXPORT_OK = qw(%Config);
 }
 
-# MAKE IT SINGLETON ?
 our %Config;
-
 read_config();
 
 sub read_config {
@@ -39,8 +37,8 @@ sub read_config {
         return;
     }
 
-    # If a configuration file exists, load both the defaults and override using the existing configuration file
-    # We allow empty file in the case a fingerbank.conf file is modified to reflect all the defaults parameters (which will lead to an empty fingerbank.conf file) and that file has not been deleted.
+    # If a configuration file exists, load the defaults and override using the existing configuration file
+    # We allow empty file in the case a 'fingerbank.conf' file is modified to reflect all the defaults parameters (which will lead to an empty 'fingerbank.conf' file) and that file is not being deleted.
     if ( (-e $DEFAULT_CONF_FILE) && (-e $CONF_FILE) ) {
         tie %Config, 'Config::IniFiles', (
             -file       => $CONF_FILE,
@@ -59,6 +57,54 @@ sub read_config {
         tied(%Config)->SetFileName($CONF_FILE);
         $logger->debug("No existing Fingerbank configuration file. Loading defaults");
     }
+}
+
+sub write_config {
+    my $logger = get_logger;
+
+    # Loading the defaults to compare and delete configuration parameters that are equals to their defaults.
+    my %defaultConfig;
+    tie %defaultConfig, 'Config::IniFiles', (
+        -import => Config::IniFiles->new( -file => $DEFAULT_CONF_FILE )
+    ) or die "Invalid Fingerbank default configuration file: $!\n";
+    $logger->debug("Loading default configuration to compare before write.");
+
+    # Sanitizing before writing
+    $logger->debug("Sanitizing configuration hash before writing it");
+    foreach my $section ( tied(%Config)->Sections ) {
+        # Delete keys equals to their defaults
+        next if ( !exists($defaultConfig{$section}) );
+        foreach my $key ( keys(%{$defaultConfig{$section}}) ) {
+            next if ( !exists($defaultConfig{$section}{$key}) );
+            if ( $Config{$section}{$key} eq $defaultConfig{$section}{$key} ) {
+                $logger->debug("'$section'-'$key' is equals to it's default value. Removing it before write");
+                $logger->debug("Defaut: {$section}{$key}=" . $defaultConfig{$section}{$key});
+                $logger->debug("Config: {$section}{$key}=" . $Config{$section}{$key});
+                delete $Config{$section}{$key};
+                tied(%Config)->DeleteParameterComment($section, $key);
+            }
+        }
+
+        # Delete empty sections
+        if ( scalar(keys(%{$Config{$section}})) == 0 ) {
+            $logger->debug("'$section' is empty after sanitization. Removing it before write");
+            delete $Config{$section};
+        }
+    }
+
+    # Writing the config hash to flat file
+    tied(%Config)->WriteConfig($CONF_FILE) or die "Error writing Fingerbank configuration file '$CONF_FILE'";
+    $logger->debug("Writing current config hash to file '$CONF_FILE'");
+
+    # Invalidate current config hash to force a re-read of flat file
+    invalidate_config();
+}
+
+sub invalidate_config {
+    my $logger = get_logger;
+
+    $logger->debug("Invalidating current config hash to force a reload of flat file");
+    read_config();
 }
 
 
