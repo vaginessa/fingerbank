@@ -22,12 +22,13 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(get_logger);
+    @EXPORT_OK = qw(init_logger get_logger);
 }
 
 # Initiate the logger and check config every 10 seconds in case level changes
-Log::Log4perl::init_and_watch($LOG_CONF_FILE, 10);
-
+sub init_logger {
+    Log::Log4perl::init_and_watch($LOG_CONF_FILE, 10);
+}
 
 =head1 METHODS
 
