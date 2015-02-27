@@ -13,11 +13,16 @@ Rails.application.routes.draw do
       get 'calculate'
     end
   end
+
+  # dumb dumb did a typo so we're adding this as another call
+  # so this way previous libs are not affected
+
   namespace :api do
     namespace :v1 do
       resources :combinations do
         collection do 
           get 'interogate'
+          get 'interrogate', :to => 'combinations#interogate', :as => 'interrogate'
         end
       end
       get 'download', :to => 'static#download'
