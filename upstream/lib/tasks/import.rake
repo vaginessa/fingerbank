@@ -59,7 +59,7 @@ namespace :import do
             model_number = model_number.sub('\'', '\'\'') 
             model_number = ic.iconv(model_number + ' ')[0..-2]
             discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{name} from model # on User Agent".downcase).first
-            rule_value = "user_agents.value regexp '#{model_number}[\); ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model_number}'"
+            rule_value = "user_agents.value regexp '#{model_number}[\);/ ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model_number}'"
             unless discoverer.nil?
               rule_already_in = false
               discoverer.device_rules.each do |rule|
@@ -108,9 +108,9 @@ namespace :import do
         end
 
         Rails.logger.debug "Discoverered #{model}"
-        device = Device.where("lower(name) = ?", model.downcase).first
+        device = Device.where("lower(name) = ?", "Windows phone - #{model.downcase}".downcase).first
         if device.nil?
-          device = Device.create!(:name => model, :parent => manufacturer)
+          device = Device.create!(:name => "Windows phone - #{model}", :parent => manufacturer)
           Rails.logger.warn "Created device #{model}"
         else
           Rails.logger.debug "Device #{model} exists"
@@ -118,7 +118,7 @@ namespace :import do
 
         rule_value = "user_agents.value regexp '.*Windows Phone.*;[ ]{0,1}#{manufacturer_name};[ ]{0,1}#{model}[);].*'"
 
-        discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{model} from model # on User Agent".downcase).first
+        discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "Windows phone - #{model} from model # on User Agent".downcase).first
         unless discoverer.nil?
           rule_already_in = false
           discoverer.device_rules.each do |rule|
@@ -133,7 +133,7 @@ namespace :import do
             rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
           end
         else
-          discoverer = Discoverer.create!(:description => "#{model} from model # on User Agent", :priority => 5, :device => device)
+          discoverer = Discoverer.create!(:description => "Windows phone - #{model} from model # on User Agent", :priority => 5, :device => device)
           Rails.logger.warn "Adding rule for model # #{model} to device #{device.name}"
           rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
         end
@@ -314,15 +314,30 @@ namespace :import do
   end
 
   task :rewrite_android_rules => :environment do 
+    android = Device.where(:name => "Generic Android").first
     Rule.all.each do |rule|
-      model = rule.value.match /.*user_agents.value not regexp '.:word:..*'/i
-      if model
-        puts model
-        puts model[1] 
-        new_value = "user_agents.value regexp '#{model[1]}[\); ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model[1]}'"
-        rule.value = new_value 
+      unless rule.device_discoverer && rule.device_discoverer.device
+        next
+      end
+      description_match = rule.device_discoverer.description.match(/from model # on User Agent/)
+      device_match = rule.device_discoverer.device.parents.include?(android)
+      model = rule.value.match(/\].*\](.*)\'/)
+      if description_match && device_match && model.captures[0]
+        model_number = model.captures[0]
+        puts "found #{rule.id} : #{model_number}"
+        new_value = "user_agents.value regexp '#{model[1]}[\);/ ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model_number}'"
+        puts new_value
+        rule.value = new_value
         rule.save!
       end
+      #if model
+      #  puts model
+      #  puts model[1] 
+      #  break
+      #  new_value = "user_agents.value regexp '#{model[1]}[\);/ ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model[1]}'"
+      #  rule.value = new_value 
+      #  rule.save!
+      #end
     end
   end
 
@@ -515,6 +530,30 @@ namespace :import do
       end 
     end
 
+  end
+
+  task :rename_windows_phone_discoverers => :environment do
+    windows_phone = Device.find(5474)
+    Discoverer.all.each do |discoverer|
+      if discoverer.description.match(/from model # on User Agent/)
+        if discoverer.device.parents.include? windows_phone
+          puts "Will rename #{discoverer.description}"
+          discoverer.description = "Windows phone - #{discoverer.description}"
+          puts discoverer.description
+          discoverer.save
+        end 
+      end
+    end 
+  end
+
+  task :rename_windows_phones => :environment do 
+    windows_phone = Device.find(5474)
+    windows_phone.childs.flatten.each do |device|
+      unless device.name.match /Windows phone/i
+        device.name = "Windows phone - #{device.name}"
+        device.save!
+      end
+    end
   end
 
 end

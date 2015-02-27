@@ -89,7 +89,7 @@ class CombinationsController < ApplicationController
 
   def calculate 
     begin
-      @combination.process(:with_version => true)
+      @combination.process(:with_version => true, :save => true)
       flash[:success] = "Combination was processed sucessfully. Yielded (Device='#{@combination.device.nil? ? "Unknown" : @combination.device.full_path}', Version='#{@combination.version}')"
       redirect_to :back
     rescue Exception => e

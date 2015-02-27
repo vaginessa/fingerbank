@@ -82,7 +82,7 @@ namespace :db do
     end
 
     combinations.each do |combination| 
-      combination.process(:with_version => true)
+      combination.process(:with_version => true, :save => true)
     end
   end
 
@@ -94,7 +94,7 @@ namespace :db do
     end
 
     combinations.each do |combination| 
-      combination.process(:with_version => false)
+      combination.process(:with_version => false, :save => true)
     end
   end
 
@@ -109,7 +109,7 @@ namespace :db do
     Combination.all.each do |combination|
       if combination.matches_discoverer?(discoverer)
         puts "Combination #{combination.id} matches. Reprocessing"
-        combination.process
+        combination.process(:with_version => true, :save => true)
       end
     end
     
@@ -262,7 +262,7 @@ namespace :db do
     db_fname = Rails.root.join('db', 'package', "#{Time.now.to_i}.sqlite3")
     success = system ("sqlite3 #{db_fname} < #{dump_fname}")
 
-    Rake::Task["db:add_devices_mac_vendors"].invoke(db_fname)
+    Rake::Task["db:add_devices_mac_vendors"].invoke(db_fname.to_s)
 
     #File.delete dump_fname
     # the sed stuff creates a backup file. we flush it too
