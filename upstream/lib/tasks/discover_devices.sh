@@ -39,7 +39,7 @@ RAILS_ENV=production bundle exec rake fbcache:build_discoverers
 
 # reevaluate every combination
 echo "Starting the reprocessing of all the combinations"
-RAILS_ENV=production bundle exec rake fdb:sort_combination
+RAILS_ENV=production bundle exec rake fdb:process_combination
 
 # find the mobile + tablets in what we have
 echo "Finding the mobiles + tablets"

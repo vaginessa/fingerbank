@@ -10,7 +10,7 @@ namespace :fdb do |ns|
     User.update_all(:timeframed_requests => 0)
   end
 
-  task :sort_combination, [:combination_id] => [:environment] do |t, args|
+  task :process_combination, [:combination_id] => [:environment] do |t, args|
     if args[:combination_id].nil?
       combinations = Combination.all
     else
@@ -22,7 +22,7 @@ namespace :fdb do |ns|
     end
   end
 
-  task :sort_combination_no_version, [:combination_id] => [:environment] do |t, args|
+  task :process_combination_no_version, [:combination_id] => [:environment] do |t, args|
     if args[:combination_id].nil?
       combinations = Combination.all
     else
@@ -34,7 +34,7 @@ namespace :fdb do |ns|
     end
   end
 
-  task :reevaluate_for_discoverer, [:discoverer_id] => [:environment] do |t, args|
+  task :process_for_discoverer, [:discoverer_id] => [:environment] do |t, args|
     if args[:discoverer_id].nil?
       puts "Missing discoverer id"
       next
