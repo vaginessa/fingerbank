@@ -34,6 +34,13 @@ namespace :fdb do |ns|
     end
   end
 
+  task process_unknown: :environment do
+    combinations = Combination.where(:device => nil)
+    combinations.each do |combination|
+      combination.process(:with_version => true, :save => true)
+    end
+  end
+
   task :process_for_discoverer, [:discoverer_id] => [:environment] do |t, args|
     if args[:discoverer_id].nil?
       puts "Missing discoverer id"
@@ -48,7 +55,6 @@ namespace :fdb do |ns|
         combination.process(:with_version => true, :save => true)
       end
     end
-    
   end
 
   task package: :environment do
