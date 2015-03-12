@@ -1,5 +1,10 @@
 
-namespace :mts do
+namespace :mts do |ns|
+  task :list do
+    puts 'All tasks:'
+    puts ns.tasks
+  end
+
   task merge_uas: :environment do
     text=File.open('nodes.csv').read
     text.gsub!(/\r\n?/, "\n")

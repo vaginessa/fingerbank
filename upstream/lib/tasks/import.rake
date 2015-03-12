@@ -1,6 +1,10 @@
 require 'iconv'
 
-namespace :import do
+namespace :import do |ns|
+  task :list do
+    puts 'All tasks:'
+    puts ns.tasks
+  end
 
   task :android_models, [:file_path] => [:environment] do |t, args|
     ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')

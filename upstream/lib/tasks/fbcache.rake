@@ -1,6 +1,11 @@
 require 'net/http'
 
-namespace :fbcache do
+namespace :fbcache do |ns|
+  task :list do
+    puts 'All tasks:'
+    puts ns.tasks
+  end
+
   task clear_discoverers: :environment do
     FingerbankCache.delete("device_matching_discoverers")
     FingerbankCache.delete("ifs_for_discoverers")

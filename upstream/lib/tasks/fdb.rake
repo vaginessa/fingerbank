@@ -1,6 +1,11 @@
 require 'iconv'
 
-namespace :db do
+namespace :fdb do |ns|
+  task :list do
+    puts 'All tasks:'
+    puts ns.tasks
+  end
+
   task reset_timeframed_requests: :environment do
     User.update_all(:timeframed_requests => 0)
   end
@@ -193,15 +198,15 @@ namespace :db do
   end
 
   task tout_le_bousin: :environment do
-    Rake::Task["db:import_pf_os"].invoke
-    Rake::Task["db:import_pf_mappings"].invoke
-    Rake::Task["db:import_pf_dhcp_fingerprints"].invoke
-    Rake::Task["db:import_pf_oui"].invoke
-    Rake::Task["db:pfmerge_affluents"].invoke
+    Rake::Task["fdb:import_pf_os"].invoke
+    Rake::Task["fdb:import_pf_mappings"].invoke
+    Rake::Task["fdb:import_pf_dhcp_fingerprints"].invoke
+    Rake::Task["fdb:import_pf_oui"].invoke
+    Rake::Task["fdb:pfmerge_affluents"].invoke
     #Rake::Task["db:pfmerge_mts"].invoke
-    Rake::Task["db:reorganize_tree"].invoke
-    Rake::Task["db:sample_rules"].invoke
-    Rake::Task["db:create_base_admin"].invoke
+    Rake::Task["fdb:reorganize_tree"].invoke
+    Rake::Task["fdb:sample_rules"].invoke
+    Rake::Task["fdb:create_base_admin"].invoke
   end
 
   task reorganize_tree: :environment do
