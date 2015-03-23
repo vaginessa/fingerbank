@@ -17,7 +17,7 @@ use Config::IniFiles;
 use Readonly;
 
 use fingerbank::FilePaths;
-use fingerbank::Log qw(get_logger);
+use fingerbank::Log;
 
 BEGIN {
     use Exporter ();
@@ -30,7 +30,7 @@ our %Config;
 read_config();
 
 sub read_config {
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     if ( ! -e $DEFAULT_CONF_FILE ) {
         $logger->warn("Fingerbank default configuration file '$DEFAULT_CONF_FILE' has not been found. Cannot continue");
@@ -60,7 +60,7 @@ sub read_config {
 }
 
 sub write_config {
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     # Loading the defaults to compare and delete configuration parameters that are equals to their defaults.
     my %defaultConfig;
@@ -101,7 +101,7 @@ sub write_config {
 }
 
 sub invalidate_config {
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     $logger->debug("Invalidating current config hash to force a reload of flat file");
     read_config();

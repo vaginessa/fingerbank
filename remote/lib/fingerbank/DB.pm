@@ -8,7 +8,7 @@ use LWP::Simple qw(getstore);    # Required in fetch_upstream (getstore)
 use fingerbank::Config qw(%Config);
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::FilePaths;
-use fingerbank::Log qw(get_logger);
+use fingerbank::Log;
 use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
 
@@ -16,7 +16,7 @@ our @schemas = ('Local', 'Upstream');
 
 sub connect {
     my ( $self, $schema ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $status_msg;
     $logger->debug("Requested connection to database schema '$schema'");
@@ -39,7 +39,7 @@ Download the latest version of the upstream Fingerbank database
 =cut
 sub fetch_upstream {
     my ( $self ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     if ( !defined($Config{'upstream'}{'api_key'}) || $Config{'upstream'}{'api_key'} eq "" ) {
         $logger->warn("Can't communicate with upstream without a valid API key.");
@@ -65,7 +65,7 @@ Will also make sure a local instance doesn't already exists.
 =cut
 sub initialize_local {
     my ( $self ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $database_file   = $INSTALL_PATH . "db/fingerbank_Local.db";
     my $schema_file     = $INSTALL_PATH . "db/schema_Local.sql";

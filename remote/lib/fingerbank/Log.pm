@@ -18,12 +18,7 @@ use Log::Log4perl;
 
 use fingerbank::FilePaths;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT_OK = qw(init_logger get_logger);
-}
+=head1 METHODS
 
 # Initiate the logger and check config every 10 seconds in case level changes
 sub init_logger {

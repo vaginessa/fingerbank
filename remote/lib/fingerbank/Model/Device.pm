@@ -13,7 +13,7 @@ Handling 'Device' related stuff
 use Moose;
 use namespace::autoclean;
 
-use fingerbank::Log qw(get_logger);
+use fingerbank::Log;
 use fingerbank::Error qw(is_error is_success);
 
 extends 'fingerbank::Base::CRUD';
@@ -27,7 +27,7 @@ Defined '$with_parents' parameter will build parent, undef will simply return th
 =cut
 sub read {
     my ( $self, $id, $with_parents ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my ($status, $return) = $self->SUPER::read($id);
 

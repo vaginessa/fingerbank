@@ -21,7 +21,7 @@ use POSIX;
 
 use fingerbank::DB;
 use fingerbank::Error qw(is_error is_success);
-use fingerbank::Log qw(get_logger);
+use fingerbank::Log;
 
 =head1 HELPERS
 
@@ -92,7 +92,7 @@ HTTP 500 INTERNAL SERVER ERROR status code is returned along with a status messa
 
 sub create {
     my ( $self, $args ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my $return = {};
@@ -143,7 +143,7 @@ HTTP 404 NOT FOUND status code is returned along with a status message in case o
 
 sub read {
     my ( $self, $id ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my $return = {};
@@ -188,7 +188,7 @@ HTTP 404 NOT FOUND status code is returned along with a status message in case o
 
 sub update {
     my ( $self, $id, $args ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my $return = {};
@@ -240,7 +240,7 @@ HTTP 404 NOT FOUND status code is returned along with a status message in case o
 
 sub delete {
     my ( $self, $id ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
 
@@ -299,7 +299,7 @@ If the status is not OK the results is a status message
 
 sub search {
     my ( $self, $search_args, $schema ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my @resultSets;
@@ -335,7 +335,7 @@ sub search {
 
 sub find {
     my ( $self, $search_args, $schema ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my $return;
@@ -359,7 +359,7 @@ sub find {
 
 sub list {
     my ( $self, $schema ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my $return = {};
@@ -399,7 +399,7 @@ Query optionnal parameters:
 
 sub list_paginated {
     my ( $self, $query ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my @return;
@@ -428,7 +428,7 @@ sub list_paginated {
 
 sub count {
     my ( $self, $schema ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
     my $count;
@@ -451,7 +451,7 @@ sub count {
 
 sub clone {
     my ( $self, $id ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $className = $self->_parseClassName;
 
