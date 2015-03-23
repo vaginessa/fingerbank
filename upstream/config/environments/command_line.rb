@@ -21,6 +21,6 @@ Rails.application.configure do
   # config.action_dispatch.rack_cache = true
 
   # Set to :debug to see everything in the log.
-  config.log_level = :debug
+  config.log_level = ENV["COMMAND_LINE_LOG_LEVEL"]
 
 end
