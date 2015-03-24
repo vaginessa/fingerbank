@@ -510,11 +510,18 @@ namespace :import do |ns|
     mobiles = []
     tablets = []
     orphan_user_agents = []
+
+    whitelisted = []
+    whitelisted << Device.where(:name => 'Windows').first.self_and_childs
+    whitelisted << Device.where(:name => 'Macintosh').first.self_and_childs
+    whitelisted << Device.where(:name => 'Linux').first.self_and_childs
+    whitelisted = whitelisted.flatten
+
     UserAgent.all.each do |user_agent|
       browser = Browser.new(:ua => user_agent.value)
       device = user_agent.combinations.first.device unless user_agent.combinations.first.nil?
       orphan_user_agents << user_agent if user_agent.combinations.first.nil?
-      next if device.nil?
+      next if device.nil? || whitelisted.include?(device)
       mobiles <<  device if browser.mobile? and !mobiles.include?(device)
       tablets << device if browser.tablet? and !tablets.include?(device)
     end
@@ -532,6 +539,10 @@ namespace :import do |ns|
       else
         device.update!(:tablet => false)
       end 
+    end
+
+    whitelisted.each do |device|
+      device.update(:mobile => false, :tablet => false)
     end
 
   end
