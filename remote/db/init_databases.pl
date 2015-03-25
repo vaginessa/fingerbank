@@ -5,6 +5,8 @@ use warnings;
 
 BEGIN {
     use lib "/usr/local/fingerbank/lib";
+    use fingerbank::Log;
+    fingerbank::Log::init_logger;
 }
 
 use fingerbank::DB;

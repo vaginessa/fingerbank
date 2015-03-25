@@ -1,13 +1,26 @@
 package fingerbank::DB;
 
+=head1 NAME
+
+fingerbank::DB
+
+=head1 DESCRIPTION
+
+Databases related interaction class
+
+=cut
+
 use strict;
 use warnings;
 
-use LWP::Simple qw(getstore);    # Required in fetch_upstream (getstore)
+use File::Copy;
+use LWP::Simple qw(getstore);
+use POSIX qw(strftime);
 
 use fingerbank::Config qw(%Config);
+use fingerbank::Constants qw($TRUE);
 use fingerbank::Error qw(is_error is_success);
-use fingerbank::FilePaths qw($INSTALL_PATH);
+use fingerbank::FilePaths qw($INSTALL_PATH $LOCAL_DB_FILE $LOCAL_DB_SCHEMA $UPSTREAM_DB_FILE);
 use fingerbank::Log;
 use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
@@ -37,8 +50,9 @@ sub connect {
 Download the latest version of the upstream Fingerbank database
 
 =cut
+
 sub fetch_upstream {
-    my ( $self ) = @_;
+    my ( $self, $is_updating ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
     if ( !defined($Config{'upstream'}{'api_key'}) || $Config{'upstream'}{'api_key'} eq "" ) {
@@ -46,14 +60,17 @@ sub fetch_upstream {
         return;
     }
 
-    my $database_file = $INSTALL_PATH . "db/fingerbank_Upstream.db";
+    my $database_file = $UPSTREAM_DB_FILE;
+    $database_file = $database_file . ".new" if ( defined($is_updating) && $is_updating );
     my $download_url = $Config{'upstream'}{'db_url'} . $Config{'upstream'}{'api_key'};
 
-    $logger->info("Downloading the latest version of upstream database from '$download_url'");
+    $logger->debug("Downloading the latest version of upstream database from '$download_url' to '$database_file'");
 
     my $status = getstore($download_url, $database_file);
 
     $logger->warn("Failed to download latest version of upstream database with the following return code: $status") if is_error($status);
+
+    return $status;
 }
 
 =head2 initialize_local
@@ -63,12 +80,13 @@ Create with the appropriate schema, the local version of the Fingerbank database
 Will also make sure a local instance doesn't already exists.
 
 =cut
+
 sub initialize_local {
     my ( $self ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-    my $database_file   = $INSTALL_PATH . "db/fingerbank_Local.db";
-    my $schema_file     = $INSTALL_PATH . "db/schema_Local.sql";
+    my $database_file   = $LOCAL_DB_FILE;
+    my $schema_file     = $LOCAL_DB_SCHEMA;
 
     if ( -f $database_file ) {
         $logger->warn("Tried to initialize 'Local' database by applying default schema on an existing database. Exiting");
@@ -85,6 +103,45 @@ sub initialize_local {
     }
 }
 
+=head2
+
+=cut
+
+sub update_upstream {
+    my ( $self ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my ( $status, $status_msg );
+
+    my $date                    = POSIX::strftime( "%Y%m%d_%H%M%S", localtime );
+    my $database_file           = $UPSTREAM_DB_FILE;
+    my $database_file_backup    = $database_file . "_$date";
+    my $database_file_new       = $database_file . ".new";
+
+    # Fetching the latest version of upstream database from Fingerbank project
+    # $TRUE is for "we are updating". See fingerbank::DB::fetch_upstream
+    $status = fetch_upstream($self, $TRUE);
+
+    if ( is_success($status) ) {
+        # We create a backup of the actual upstream database file
+        $logger->debug("Backing up actual 'upstream' database file to '$database_file_backup'");
+        copy($database_file, $database_file_backup);
+
+        # We move the newly downloaded upstream database file to the existing one
+        $logger->debug("Moving new 'upstream' database file to existing one");
+        move($database_file_new, $database_file);
+
+        $status_msg = "Successfully updated Fingerbank 'upstream' database file";
+        $logger->info($status_msg);
+
+        return ( $status, $status_msg );
+    }
+
+    $status_msg = "An error occured while updating Fingerbank 'upstream' database file";
+    $logger->warn($status_msg);
+
+    return ( $status, $status_msg )
+}
 
 =head1 AUTHOR
 
@@ -92,7 +149,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
