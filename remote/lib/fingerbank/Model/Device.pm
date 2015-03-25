@@ -13,6 +13,7 @@ Handling 'Device' related stuff
 use Moose;
 use namespace::autoclean;
 
+use fingerbank::Constants qw($TRUE);
 use fingerbank::Log;
 use fingerbank::Error qw(is_error is_success);
 
@@ -35,7 +36,7 @@ sub read {
     return ($status, $return) if ( is_error($status) );
 
     # If parents are requested, we build them
-    if ( defined($with_parents) && defined($return->{parent_id}) ) {
+    if ( (defined($with_parents) && $with_parents eq $TRUE) && defined($return->{parent_id}) ) {
         $logger->info("Device ID '$id' have at least 1 parent. Building parent(s) list");
 
         my $parent_id = $return->{parent_id};
