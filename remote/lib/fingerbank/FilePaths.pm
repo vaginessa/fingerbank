@@ -18,9 +18,9 @@ use Readonly;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         $INSTALL_PATH
         $CONF_FILE
         $DEFAULT_CONF_FILE

@@ -16,7 +16,7 @@ use warnings;
 use Config::IniFiles;
 use Readonly;
 
-use fingerbank::FilePaths;
+use fingerbank::FilePaths qw($DEFAULT_CONF_FILE $CONF_FILE);
 use fingerbank::Log;
 
 BEGIN {
