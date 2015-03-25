@@ -31,7 +31,6 @@
 <script>
   $('#new_device').submit(function(e){
     e.preventDefault()
-    alert("youpi")
 
     $.post('<%= community_new_device_path %>.json', $('#new_device').serialize(), function(response){
       console.log(response)

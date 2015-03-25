@@ -29,17 +29,6 @@ Full path : <%= @device.full_path %> <br/>
 </table>
 </div> 
 
-<h3>Matching combinations</h3>
-<div  style="height:300px;overflow-y:scroll">
-<table>
-<% @device.combinations.each do |combination| %>
-  <tr>
-    <td class="hover-popup"><%= combination.dhcp_fingerprint.value %></td>
-    <td class="hover-popup"><%= combination.user_agent.value %></td>
-    <td class="hover-popup"><%= combination.dhcp_vendor.value %></td>
-  </tr>
-<% end %>
-</table>
 </div>
 
 
