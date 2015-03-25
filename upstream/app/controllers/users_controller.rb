@@ -3,16 +3,24 @@ class UsersController < ApplicationController
   
   skip_before_filter :ensure_admin
 
-  before_filter :ensure_admin, except: [:login, :show]
+  before_filter :ensure_admin, except: [:login, :show, :register]
   before_filter :admin_or_current_user
-  skip_before_filter :admin_or_current_user, :only => [:login]
+  skip_before_filter :admin_or_current_user, :only => [:login, :register]
+
+  def register
+  end
 
   def show
   end
 
+  def my_account
+    @user = @current_user
+    render 'show'
+  end
+
   def login
     unless session[:previous_page]
-      session[:previous_page] = request.referer 
+      session[:previous_page] = params[:redirect_url] || request.referer 
     end
     redirect_to '/auth/github'
   end

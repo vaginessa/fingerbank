@@ -31,3 +31,18 @@ div.api_key {
     font-size:110%;
   }
 }
+
+div.register_container {
+  border:1px solid black;
+  @include rounded-corners(5px);
+  color:#777777;
+  width:420px;
+  padding:10px;
+  text-align:center;
+  margin:auto;
+
+  h1 {
+    font-weight:bold;
+  }
+
+}

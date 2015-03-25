@@ -69,6 +69,8 @@ Rails.application.routes.draw do
       get 'generate_key'
     end
     collection do
+      get 'register'
+      get 'my_account'
       get 'anonymous_users'
     end
     resources :watched_combinations
