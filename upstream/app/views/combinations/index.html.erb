@@ -39,14 +39,14 @@
           <%= link_to '', calculate_combination_path(combination), :class => "btn-refresh" if current_user_admin? %>
           <%= link_to '', user_watched_combinations_path(@current_user, combination_id: combination.id), method: :post, :class => "btn-watch" unless @current_user.nil? %>
         </td>
-        <td class="hover-popup" data-details="<%= combination.device ? combination.device.full_path : "Unknown" %>"><%= combination.device ? combination.device.name : "Unknown" %></td>
+        <td class="shortened hover-popup" data-details="<%= combination.device ? combination.device.full_path : "Unknown" %>"><%= combination.device ? combination.device.name : "Unknown" %></td>
         <td><%= combination.score %>
         <td><%= combination.version %></td>
         <td><%= combination.submitter ? combination.submitter.name : '' %></td>
-        <td class="hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
-        <td class="hover-popup"><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
-        <td class="hover-popup"><%= combination.dhcp_fingerprint ? combination.dhcp_fingerprint.value : "Unknown" %></td>
-        <td class="hover-popup"><%= combination.dhcp_vendor ? combination.dhcp_vendor.value : "Unknown" %></td>
+        <td class="shortened hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
+        <td class="shortened hover-popup"><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
+        <td class="shortened hover-popup"><%= combination.dhcp_fingerprint ? combination.dhcp_fingerprint.value : "Unknown" %></td>
+        <td class="shortened hover-popup"><%= combination.dhcp_vendor ? combination.dhcp_vendor.value : "Unknown" %></td>
         <td><%= time_ago_in_words(combination.created_at) %> ago</td>
       </tr>
     <% end %>

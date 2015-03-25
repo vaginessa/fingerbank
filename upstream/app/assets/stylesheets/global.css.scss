@@ -28,10 +28,8 @@ td.options{
 
 td{
   max-width:300px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
   padding:0 1em;
+  white-space:nowrap;
 
   .details{
     @include rounded(5px);
@@ -49,6 +47,11 @@ td{
     color:white;
   }
 */
+}
+
+td.shortened {
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .btn-show{
