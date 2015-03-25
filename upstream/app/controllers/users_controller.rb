@@ -79,6 +79,25 @@ class UsersController < ApplicationController
     @users = User.all
   end
 
+  def anonymous_users
+    @users = {} 
+    open(ENV['ANONYMOUS_STATS_FILE'], 'r') do |f|
+      while (line = f.gets)
+        info = line.split(',')
+        next unless info.size == 4
+        date = info[0] 
+        user = info[1]
+        action = info[2]
+        ip = info[3]
+        ip.gsub!(/\n/, '')
+        @users[user] = @users[user].nil? ? {} : @users[user]
+        @users[user][ip] = @users[user][ip].nil? ? [] : @users[user][ip]
+        @users[user][ip] << {:action => action, :date => date}
+      end
+    end
+#    render json: accesses
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user

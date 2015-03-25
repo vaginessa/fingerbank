@@ -68,6 +68,9 @@ Rails.application.routes.draw do
       post 'request_api'
       get 'generate_key'
     end
+    collection do
+      get 'anonymous_users'
+    end
     resources :watched_combinations
   end
 
