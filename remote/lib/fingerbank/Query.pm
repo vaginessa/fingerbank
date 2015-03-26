@@ -9,11 +9,13 @@ use Module::Load;
 use POSIX;
 
 use fingerbank::Config;
+use fingerbank::Constants qw($TRUE);
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::FilePaths;
-use fingerbank::Log qw(get_logger);
+use fingerbank::Log;
 use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
+use fingerbank::Utils qw(is_enabled is_disabled);
 
 # The query keys required to fullfil a match
 # - We load the appropriate module for each of the different query keys based on their name
@@ -31,115 +33,161 @@ has 'combination_id' => (is => 'rw', isa => 'Str');
 =head2 match
 
 =cut
+
 sub match {
     my ( $self, $args ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
-    # Initialize status variables
-    # We set the status_code to OK so we can proceed
-    my ( $status_code, $status_msg ) = $fingerbank::Status::OK;
-
-    # We assign the value of each key to the corresponding object attribute (ie.: DHCP_Fingerprint_value)
-    # Note: We must have all of the keys in the query, either with a value or with ''
-    foreach my $key ( @query_keys ) {
-        my $concatenated_key = $key . '_value';
-        $self->$concatenated_key($args->{lc($key)}) if ( defined($args->{lc($key)}) );
-    }
-
-    ( $status_code, $status_msg ) = $self->getQueryKeyIDs;
-    ( $status_code, $status_msg ) = $self->getCombinationID if ( is_success($status_code) );
-
-    # All preconditions succeed, we build  the device resultset and returns it
-    if ( is_success($status_code) ) {
-        return $self->_buildResult;
-    }
-    # We were unable to fullfil a match locally
+# We were unable to fullfil a match locally
     # Most of the time, preconditions may have failed.
-    else {
+    my $Config = fingerbank::Config::get_config;
+    my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
+    if ( is_enabled($interrogate_upstream) ) {
         my $ua = LWP::UserAgent->new;
         my $query_args = encode_json($args);
 
-        my $req = HTTP::Request->new( GET => $UPSTREAM_QUERY_URL.$API_KEY);
+        my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});
         $req->content_type('application/json');
         $req->content($query_args);
 
         my $res = $ua->request($req);
-        return (decode_json($res->content));
+        my $result = decode_json($res->content);
+
+        $self->{device_id} = $result->{device}->{id};
+        return ($result);
+    }
+
+    # Initialize status variables
+    # We set the status_code to OK so we can proceed
+    my ($status_code, $status_msg) = $fingerbank::Status::OK;
+
+    # We assign the value of each key to the corresponding object attribute (ie.: DHCP_Fingerprint_value)
+    # Note: We must have all of the keys in the query, either with a value or with ''
+    $logger->debug("Attempting to match a device with the following attributes:");
+    foreach my $key ( @query_keys ) {
+        my $concatenated_key = $key . '_value';
+        $self->$concatenated_key($args->{lc($key)}) if ( defined($args->{lc($key)}) );
+        $logger->debug("- $concatenated_key: '" . $self->$concatenated_key . "'");
+    }
+
+    ($status_code, $status_msg) = $self->_getQueryKeyIDs;
+    ($status_code, $status_msg) = $self->_getCombinationID if ( is_success($status_code) );
+
+#### RETURN MY STATUS_MSG IN CASE OF FAILURE
+
+    # All preconditions succeed, we build the device resultset and returns it
+    if ( is_success($status_code) ) {
+        return $self->_buildResult;
+    }
+
+    # We were unable to fullfil a match locally
+    # Most of the time, preconditions may have failed.
+    my $Config = fingerbank::Config::get_config;
+    my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
+    if ( is_enabled($interrogate_upstream) ) {
+        my $ua = LWP::UserAgent->new;
+        my $query_args = encode_json($args);
+
+        my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});
+        $req->content_type('application/json');
+        $req->content($query_args);
+
+        my $res = $ua->request($req);
+        my $result = decode_json($res->content);
+
+        $self->{device_id} = $result->{device}->{id};
+        return ($result);
     }
 }
 
-=head2 getQueryKeyIDs
+=head2 _getQueryKeyIDs
+
+Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
 
 =cut
-sub getQueryKeyIDs {
+
+sub _getQueryKeyIDs {
     my ( $self ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     foreach my $key ( @query_keys ) {
         my $concatenated_key = $key . '_value';
+        $logger->debug("Attempting to find an ID for '$key' with value '" . $self->$concatenated_key . "'");
 
-        # We build the search query
-        # ie: SELECT get_column FROM schema WHERE search_for = term;
-        # Schema is handled on the CRUD side. See L<fingerbank::Base::CRUD::search>
-        my %query = (
-            search_for  =>  'value',                    # From which column we want to search
-            term        =>  $self->$concatenated_key,   # The value we are searching from
-            get_column  =>  'id',                       # The value of which column do we want
-        );
+        my $query = {};
+        $query->{'value'} = $self->$concatenated_key;
 
-        my ( $status_code, $result ) = "fingerbank::Model::$key"->search(\%query);
+        # MAC_Vendor key is different in the way we store the values in the database. Need to handle it
+        if ( $key eq 'MAC_Vendor' ) {
+            $query->{'mac'} = delete $query->{'value'}; # The 'value' column is the 'mac' column in this specific case
+            my $mac = $query->{'mac'};
+            $mac =~ s/[:|\s|-]//g;      # Removing separators
+            $mac = lc($mac);            # Lowercasing
+            $mac = substr($mac, 0, 6);  # Only keep first 6 characters (OUI)
+            $query->{'mac'} = $mac;
+            $logger->debug("Attempting to find an ID for '$key'. This is a special case. Using mangled value '$mac'");
+        }
 
-        # If we cannot find any ID for a key, we need to return an error code since it is a precondition and we cannot continue
-        if ( is_error($status_code) ) {
-            my $status_msg = "Cannot find any ID for $key in " . (caller(0))[3];
-            $logger->error($status_msg);
+        my ($status, $result) = "fingerbank::Model::$key"->find([$query, { columns => ['id'] }]);
+       
+        if ( is_error($status) ) {
+            my $status_msg = "Cannot find any ID for '$key' with value '" . $self->$concatenated_key . "'";
+            $logger->warn($status_msg);
 
             # We record the unmatched query key if configured to do so
-            $self->_recordUnmatched($key, $self->$concatenated_key);
+            my $record_unmatched = fingerbank::Config::get_config('query', 'record_unmatched');
+            $self->_recordUnmatched($key, $self->$concatenated_key) if is_enabled($record_unmatched);
 
-            return ( $fingerbank::Status::PRECONDITION_FAILED, $status_msg );
+            return ( $fingerbank::Status::NOT_FOUND, $status_msg );
             last
         }
 
-        $self->{$key . '_id'} = $result;
+        $self->{$key . '_id'} = $result->id;
+        $logger->debug("Found ID '" . $self->{$key . '_id'} . "' for '$key' with value '" . $self->$concatenated_key . "'");
     }
 
     return $fingerbank::Status::OK;
 }
 
-=head2 getCombinationID
+=head2 _getCombinationID
 
-Something
+Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
 
 =cut
-sub getCombinationID {
+
+sub _getCombinationID {
     my ( $self ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     # Building the query bindings
     # Those are the IDs for each query keys. Order is important since the SQL query is dependant
     # See L<fingerbank::Base::Schema::CombinationMatch>
+    $logger->debug("Attempting to find a combination with the following ID(s):");
     my @bindings = ();
     foreach my $key ( @query_keys ) {
         my $concatenated_key = $key . '_id';
         push @bindings, $self->$concatenated_key;
+        $logger->debug("- $concatenated_key: '" . $self->$concatenated_key . "'");
     }
 
     # Looking for best matching combination in schemas
     # Sorting by match is handled by the SQL query itself. See L<fingerbank::Base::Schema::CombinationMatch>
     foreach my $schema ( @fingerbank::DB::schemas ) {
         my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset('CombinationMatch')->search( {},
-            { bind => [ @bindings, @bindings ] }
-        )->first;
-
+        my $resultset = $db->resultset('CombinationMatch')->search({}, { bind => [ @bindings, @bindings, $self->MAC_Vendor_id ] })->first;
         if ( defined($resultset) ) {
             $self->combination_id($resultset->id);
             $logger->info("Found combination ID '" . $self->combination_id . "' in schema '$schema'");
-            next;
+            last;
         }
 
-        $logger->debug("No match found in schema '$schema'");
+        $logger->debug("No combination ID found in schema '$schema'");
+    }
+
+    if ( !defined($self->combination_id) ) {
+        my $status_msg = "Cannot find any combination ID in any schemas";
+        $logger->warn($status_msg);
+        return ( $fingerbank::Status::NOT_FOUND, $status_msg );
     }
 
     return $fingerbank::Status::OK;
@@ -147,10 +195,13 @@ sub getCombinationID {
 
 =head2 _buildResult
 
+Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
+
 =cut
+
 sub _buildResult {
     my ( $self ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     my $result = {};
 
@@ -159,9 +210,10 @@ sub _buildResult {
     foreach my $key ( keys %$combination ) {
         $result->{$key} = $combination->{$key};
     }
+    $self->device_id($combination->{device_id});
 
     # Get device info
-    my $device = fingerbank::Model::Device->read($combination->{device_id}, 1);
+    my $device = fingerbank::Model::Device->read($self->device_id, $TRUE);
     foreach my $key ( keys %$device ) {
         $result->{device}->{$key} = $device->{$key};
     }
@@ -171,18 +223,22 @@ sub _buildResult {
 
 =head2 _recordUnmatched
 
+Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
+
 =cut
+
 sub _recordUnmatched {
     my ( $self, $key, $value ) = @_;
-    my $logger = get_logger;
+    my $logger = fingerbank::Log::get_logger;
 
     # Are we configured to do so ?
-    if ( !$RECORD_UNMATCHED ) {
+    my $record_unmatched = fingerbank::Config::get_config('query', 'record_unmatched');
+    if ( is_disabled($record_unmatched) ) {
         $logger->debug("Not configured to keep track of unmatched query keys. Skipping");
         return;
     }
 
-    $logger->debug("Record the unmatched query key '$key' with value " . $value . " in the 'unmatched' table of 'Local' database");
+    $logger->debug("Attempting to record the unmatched query key '$key' with value '$value' in the 'unmatched' table of 'Local' database");
 
     # We first check if we already have the entry, if so we simply increment the occurence number
     my $db = fingerbank::DB->connect('Local');
@@ -214,8 +270,33 @@ sub _recordUnmatched {
         );
         my $unmatched_key = $db->resultset('Unmatched')->update(\%args);
     }
-
 }
+
+=head2 isAndroid
+
+=cut
+sub isAndroid {
+#    my ( $self ) = @_;
+#    my $logger = fingerbank::Log::get_logger;
+#
+#    my $ANDROID_PARENT_ID = 202;
+#    $logger->debug("Testing if device ID '" . $self->device_id . "' is an Android device");
+#
+#    my $result = fingerbank::Model::Device->test($self->device_id, $ANDROID_PARENT_ID);
+#
+#    if ( $result ) {
+#        $logger->info("Device ID '" . $self->device_id . "' is an Android device");
+#    }
+#
+#    return $result;
+}
+
+=head2 isIOS
+
+=cut
+sub isIOS {
+}
+
 
 
 =head1 AUTHOR
