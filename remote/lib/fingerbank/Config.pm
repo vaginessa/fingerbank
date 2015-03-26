@@ -15,11 +15,14 @@ use warnings;
 
 use Config::IniFiles;
 
-use fingerbank::Constants qw($TRUE $FALSE);
-use fingerbank::FilePaths qw($DEFAULT_CONF_FILE $CONF_FILE);
+use fingerbank::Constant qw($TRUE $FALSE);
+use fingerbank::FilePath qw($DEFAULT_CONF_FILE $CONF_FILE);
 use fingerbank::Log;
+use fingerbank::Status;
 
 our %Config;
+
+=head1 METHODS
 
 =head2 read_config
 
@@ -31,29 +34,40 @@ sub read_config {
     my $logger = fingerbank::Log::get_logger;
 
     if ( ! -e $DEFAULT_CONF_FILE ) {
-        $logger->warn("Fingerbank default configuration file '$DEFAULT_CONF_FILE' has not been found. Cannot continue");
+        $logger->error("Fingerbank default configuration file '$DEFAULT_CONF_FILE' has not been found. Cannot continue");
         return;
     }
 
     # If a configuration file exists, load the defaults and override using the existing configuration file
     # We allow empty file in the case a 'fingerbank.conf' file is modified to reflect all the defaults parameters (which will lead to an empty 'fingerbank.conf' file) and that file is not being deleted.
     if ( (-e $DEFAULT_CONF_FILE) && (-e $CONF_FILE) ) {
+        $logger->debug("Existing Fingerbank configuration file. Loading it with defaults");
         tie %Config, 'Config::IniFiles', (
             -file       => $CONF_FILE,
             -import     => Config::IniFiles->new( -file => $DEFAULT_CONF_FILE ),
             -allowempty => 1,
-        ) or die "Invalid Fingerbank configuration file: $!\n";
-        $logger->debug("Existing Fingerbank configuration file. Loading it with defaults");
+        ) or $logger->error("Invalid Fingerbank configuration file: $!");
+
+        if ( !%Config ) {
+            $logger->error("Error while reading Fingerbank configuration file. Cannot continue");
+            return;
+        }
     }
 
     # No configuration file found. Loading the defaults
     # SetFileName allow the saving of the tied hash later with the accurate file name
     else {
+        $logger->debug("No existing Fingerbank configuration file. Loading defaults");
         tie %Config, 'Config::IniFiles', ( 
             -import => Config::IniFiles->new( -file => $DEFAULT_CONF_FILE )
-        ) or die "Invalid Fingerbank default configuration file: $!\n";
+        ) or $logger->error("Invalid Fingerbank default configuration file: $!");
+
+        if ( !%Config ) {
+            $logger->error("Error while reading Fingerbank default configuration file. Cannot continue");
+            return;
+        }
+
         tied(%Config)->SetFileName($CONF_FILE);
-        $logger->debug("No existing Fingerbank configuration file. Loading defaults");
     }
 }
 
@@ -64,14 +78,30 @@ Write content of config hash to flat file
 =cut
 
 sub write_config {
+    my ( $params ) = @_;
     my $logger = fingerbank::Log::get_logger;
+
+    my ( $status, $status_msg );
+
+    read_config();
 
     # Loading the defaults to compare and delete configuration parameters that are equals to their defaults.
     my %defaultConfig;
+    $logger->debug("Loading default configuration to compare before write.");
     tie %defaultConfig, 'Config::IniFiles', (
         -import => Config::IniFiles->new( -file => $DEFAULT_CONF_FILE )
-    ) or die "Invalid Fingerbank default configuration file: $!\n";
-    $logger->debug("Loading default configuration to compare before write.");
+    ) or $logger->error("Invalid Fingerbank default configuration file: $!");
+    
+    if ( !%defaultConfig ) {
+        $status_msg = "Error while reading Fingerbank default configuration file. Cannot continue";
+        $logger->error($status_msg);
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    foreach my $parameter ( keys %$params ) {
+        my ( $section, $key ) = split(/\./, $parameter);
+        $Config{$section}{$key} = $params->{$parameter};
+    }
 
     # Sanitizing before writing
     $logger->debug("Sanitizing configuration hash before writing it");
@@ -97,11 +127,17 @@ sub write_config {
     }
 
     # Writing the config hash to flat file
-    tied(%Config)->WriteConfig($CONF_FILE) or die "Error writing Fingerbank configuration file '$CONF_FILE'";
     $logger->debug("Writing current config hash to file '$CONF_FILE'");
+    tied(%Config)->WriteConfig($CONF_FILE) or $logger->error("Error writing Fingerbank configuration file '$CONF_FILE'");
+
+    $status_msg = "Successfully written Fingerbank configuration file";
+    $logger->info($status_msg);
+    return ( $fingerbank::Status::OK, $status_msg );
 }
 
 =head2 get_config
+
+Returns either the complete config hash or only part of it depending on the parameters
 
 =cut
 
@@ -126,6 +162,8 @@ sub get_config {
 }
 
 =head2 is_api_key_configured
+
+Return TRUE or FALSE whether if the Fingerbank API key is configured or not
 
 =cut
 

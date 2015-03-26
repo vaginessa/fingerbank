@@ -1,56 +1,47 @@
-package fingerbank::Utils;
+package fingerbank::Constant;
 
 =head1 NAME
 
-fingerbank::Utils
+fingerbank::Constant
 
 =head1 DESCRIPTION
 
-Methods that helps simplify code reading
+Constants used in the code to make it more readable.
 
 =cut
 
 use strict;
 use warnings;
 
-use fingerbank::Constants qw($TRUE $FALSE);
+use Readonly;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(is_enabled is_disabled);
+    @EXPORT_OK = qw($FALSE $TRUE $YES $NO);
 }
 
-=head2 is_enabled
+=head1 CONSTANTS
 
-Is the given configuration parameter considered enabled? y, yes, true, enable and enabled are all positive values for PacketFence.
+=over
+
+=item $FALSE
+
+=item $TRUE
+
+=item $YES
+
+=item $NO
 
 =cut
 
-sub is_enabled {
-    my ($enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
-        return $TRUE;
-    } else {
-        return $FALSE;
-    }
-}
+Readonly::Scalar our $FALSE     => 0;
+Readonly::Scalar our $TRUE      => 1;
+Readonly::Scalar our $YES       => 'yes';
+Readonly::Scalar our $NO        => 'no';
 
-=head2 is_disabled
-
-Is the given configuration parameter considered disabled? n, no, false, disable and disabled are all negative values for PacketFence.
-
-=cut
-
-sub is_disabled {
-    my ($disabled) = @_;
-    if ( !defined ($disabled) || $disabled =~ /^\s*(n|no|false|disable|disabled|0)\s*$/i ) {
-        return $TRUE;
-    } else {
-        return $FALSE;
-    }
-}
+=back
 
 =head1 AUTHOR
 

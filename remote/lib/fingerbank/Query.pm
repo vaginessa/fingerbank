@@ -9,13 +9,11 @@ use Module::Load;
 use POSIX;
 
 use fingerbank::Config;
-use fingerbank::Constants qw($TRUE);
-use fingerbank::Error qw(is_error is_success);
-use fingerbank::FilePaths;
+use fingerbank::Constant qw($TRUE);
 use fingerbank::Log;
 use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
-use fingerbank::Utils qw(is_enabled is_disabled);
+use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 
 # The query keys required to fullfil a match
 # - We load the appropriate module for each of the different query keys based on their name
@@ -38,25 +36,6 @@ sub match {
     my ( $self, $args ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-# We were unable to fullfil a match locally
-    # Most of the time, preconditions may have failed.
-    my $Config = fingerbank::Config::get_config;
-    my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
-    if ( is_enabled($interrogate_upstream) ) {
-        my $ua = LWP::UserAgent->new;
-        my $query_args = encode_json($args);
-
-        my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});
-        $req->content_type('application/json');
-        $req->content($query_args);
-
-        my $res = $ua->request($req);
-        my $result = decode_json($res->content);
-
-        $self->{device_id} = $result->{device}->{id};
-        return ($result);
-    }
-
     # Initialize status variables
     # We set the status_code to OK so we can proceed
     my ($status_code, $status_msg) = $fingerbank::Status::OK;
@@ -72,8 +51,6 @@ sub match {
 
     ($status_code, $status_msg) = $self->_getQueryKeyIDs;
     ($status_code, $status_msg) = $self->_getCombinationID if ( is_success($status_code) );
-
-#### RETURN MY STATUS_MSG IN CASE OF FAILURE
 
     # All preconditions succeed, we build the device resultset and returns it
     if ( is_success($status_code) ) {

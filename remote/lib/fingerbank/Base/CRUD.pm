@@ -20,7 +20,7 @@ use namespace::autoclean;
 use POSIX;
 
 use fingerbank::DB;
-use fingerbank::Error qw(is_error is_success);
+use fingerbank::Util qw(is_error is_success);
 use fingerbank::Log;
 
 =head1 HELPERS

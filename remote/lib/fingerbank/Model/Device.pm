@@ -13,7 +13,7 @@ Handling 'Device' related stuff
 use Moose;
 use namespace::autoclean;
 
-use fingerbank::Error qw(is_error);
+use fingerbank::Util qw(is_error);
 use fingerbank::Log;
 
 extends 'fingerbank::Base::CRUD';

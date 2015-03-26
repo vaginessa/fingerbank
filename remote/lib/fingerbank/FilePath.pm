@@ -1,8 +1,8 @@
-package fingerbank::FilePaths;
+package fingerbank::FilePath;
 
 =head1 NAME
 
-fingerbank::FilePaths
+fingerbank::FilePath
 
 =head1 DESCRIPTION
 
@@ -32,9 +32,9 @@ BEGIN {
     );
 }
 
-=over
+=head1 FILE PATHS
 
-=cut
+=over
 
 =item $INSTALL_PATH
 

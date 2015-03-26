@@ -13,26 +13,33 @@ Databases related interaction class
 use strict;
 use warnings;
 
-use File::Copy;
+use File::Copy qw(copy move);
 use LWP::Simple qw(getstore);
 use POSIX qw(strftime);
 
 use fingerbank::Config;
-use fingerbank::Constants qw($TRUE);
-use fingerbank::Error qw(is_error is_success);
-use fingerbank::FilePaths qw($INSTALL_PATH $LOCAL_DB_FILE $LOCAL_DB_SCHEMA $UPSTREAM_DB_FILE);
+use fingerbank::Constant qw($TRUE $FALSE);
+use fingerbank::FilePath qw($INSTALL_PATH $LOCAL_DB_FILE $LOCAL_DB_SCHEMA $UPSTREAM_DB_FILE);
 use fingerbank::Log;
 use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
+use fingerbank::Util qw(is_success);
 
 our @schemas = ('Local', 'Upstream');
+
+=head1 METHODS
+
+=head2 connect
+
+Returns the db handle for the requested schema
+
+=cut
 
 sub connect {
     my ( $self, $schema ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-    my $status_msg;
-    $logger->debug("Requested connection to database schema '$schema'");
+    $logger->debug("Requested schema '$schema' db handle");
 
     # Check if the requested schema is a valid one
     my %schemas = map { $_ => 1 } @schemas;
@@ -41,7 +48,7 @@ sub connect {
         return;
     }
 
-    # Establishing connection to the requested database schema
+    # Returning the requested schema db handle
     return "fingerbank::Schema::$schema"->connect("dbi:SQLite:" . $INSTALL_PATH . "db/fingerbank_$schema.db");
 }
 
@@ -57,8 +64,8 @@ sub fetch_upstream {
 
     my $Config = fingerbank::Config::get_config;
 
-    if ( !defined($Config->{'upstream'}{'api_key'}) || $Config->{'upstream'}{'api_key'} eq "" ) {
-        $logger->warn("Can't communicate with upstream without a valid API key.");
+    if ( !fingerbank::Config::is_api_key_configured ) {
+        $logger->warn("Can't communicate with Fingerbank project without a valid API key.");
         return;
     }
 
@@ -70,7 +77,11 @@ sub fetch_upstream {
 
     my $status = getstore($download_url, $database_file);
 
-    $logger->warn("Failed to download latest version of upstream database with the following return code: $status") if is_error($status);
+    if ( is_success($status) ) {
+        $logger->info("Successfully fetched 'Upstream' database from Fingerbank project");
+    } else {
+        $logger->warn("Failed to download latest version of 'Upstream' database with the following return code: $status");
+    }
 
     return $status;
 }
@@ -105,7 +116,9 @@ sub initialize_local {
     }
 }
 
-=head2
+=head2 update_upstream
+
+Update the existing 'upstream' database by taking care of backing up the current one
 
 =cut
 
@@ -115,17 +128,21 @@ sub update_upstream {
 
     my ( $status, $status_msg );
 
-    my $date                    = POSIX::strftime( "%Y%m%d_%H%M%S", localtime );
-    my $database_file           = $UPSTREAM_DB_FILE;
-    my $database_file_backup    = $database_file . "_$date";
-    my $database_file_new       = $database_file . ".new";
+    my $database_file = $UPSTREAM_DB_FILE;
 
-    # Fetching the latest version of upstream database from Fingerbank project
-    # $TRUE is for "we are updating". See fingerbank::DB::fetch_upstream
-    my $is_an_update = $TRUE;
+    my $is_an_update;
+    if ( -f $database_file ) {
+        $is_an_update = $TRUE;
+    } else {
+        $is_an_update = $FALSE;
+    }
     $status = fetch_upstream($self, $is_an_update);
 
-    if ( is_success($status) ) {
+    if ( is_success($status) && $is_an_update ) {
+        my $date                    = POSIX::strftime( "%Y%m%d_%H%M%S", localtime );
+        my $database_file_backup    = $database_file . "_$date";
+        my $database_file_new       = $database_file . ".new";
+
         # We create a backup of the actual upstream database file
         $logger->debug("Backing up actual 'upstream' database file to '$database_file_backup'");
         copy($database_file, $database_file_backup);
@@ -133,7 +150,9 @@ sub update_upstream {
         # We move the newly downloaded upstream database file to the existing one
         $logger->debug("Moving new 'upstream' database file to existing one");
         move($database_file_new, $database_file);
+    }
 
+    if ( is_success($status) ) {
         $status_msg = "Successfully updated Fingerbank 'upstream' database file";
         $logger->info($status_msg);
 
@@ -146,7 +165,9 @@ sub update_upstream {
     return ( $status, $status_msg )
 }
 
-=head2
+=head2 submit_unknown
+
+Not yet implemented
 
 =cut
 

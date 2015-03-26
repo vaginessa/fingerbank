@@ -16,7 +16,7 @@ use warnings;
 
 use Log::Log4perl;
 
-use fingerbank::FilePaths qw($LOG_CONF_FILE);
+use fingerbank::FilePath qw($LOG_CONF_FILE);
 
 =head1 METHODS
 
