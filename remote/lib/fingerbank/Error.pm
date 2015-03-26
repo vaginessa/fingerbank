@@ -15,6 +15,8 @@ use warnings;
 
 use Readonly;
 
+use fingerbank::Constants qw($TRUE $FALSE);
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
@@ -22,39 +24,34 @@ BEGIN {
     @EXPORT_OK = qw(is_success is_error);
 }
 
-
 =head1 METHODS
 
-=over
-
-=item is_success
+=head2 is_success
 
 Returns a true or false value based on if given error code is considered
 a success or not.
 
 =cut
+
 sub is_success {
     my ($code) = @_;
-    return 1 if ($code >= 200 && $code < 300);
-    return 0;
+    return $TRUE if ($code >= 200 && $code < 300);
+    return $FALSE;
 }
 
-=item is_error
+=head2 is_error
 
 Returns a true or false value based on if given error code is considered
 an error or not.
 
 =cut
+
 sub is_error {
     my ($code) = @_;
-    return 1 if ($code >= 400 && $code < 600);
-    return 0;
+    return $TRUE if ($code >= 400 && $code < 600);
+    return $FALSE;
 }
 
-
-=back
-
-=cut
 
 package fingerbank::Status;
 
@@ -150,7 +147,6 @@ Readonly::Scalar our $NOT_IMPLEMENTED                  => 501;
 #Readonly::Scalar our $NOT_EXTENDED                     => 510;
 #Readonly::Scalar our $NETWORK_AUTHENTICATION_REQUIRED  => 511;
 
-
 =back
 
 =head1 AUTHOR
@@ -159,7 +155,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

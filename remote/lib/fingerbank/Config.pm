@@ -6,7 +6,7 @@ fingerbank::Config
 
 =head1 DESCRIPTION
 
-File paths and configuration parameters
+Reading and writing configuration parameters
 
 =cut
 
@@ -14,20 +14,18 @@ use strict;
 use warnings;
 
 use Config::IniFiles;
-use Readonly;
 
+use fingerbank::Constants qw($TRUE $FALSE);
 use fingerbank::FilePaths qw($DEFAULT_CONF_FILE $CONF_FILE);
 use fingerbank::Log;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT_OK = qw(%Config);
-}
-
 our %Config;
-read_config();
+
+=head2 read_config
+
+Read content of flat file into the config hash
+
+=cut
 
 sub read_config {
     my $logger = fingerbank::Log::get_logger;
@@ -58,6 +56,12 @@ sub read_config {
         $logger->debug("No existing Fingerbank configuration file. Loading defaults");
     }
 }
+
+=head2 write_config
+
+Write content of config hash to flat file
+
+=cut
 
 sub write_config {
     my $logger = fingerbank::Log::get_logger;
@@ -95,20 +99,40 @@ sub write_config {
     # Writing the config hash to flat file
     tied(%Config)->WriteConfig($CONF_FILE) or die "Error writing Fingerbank configuration file '$CONF_FILE'";
     $logger->debug("Writing current config hash to file '$CONF_FILE'");
-
-    # Invalidate current config hash to force a re-read of flat file
-    invalidate_config();
 }
 
-sub invalidate_config {
+=head2 get_config
+
+=cut
+
+sub get_config {
+    my ( $section, $parameter ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-    $logger->debug("Invalidating current config hash to force a reload of flat file");
     read_config();
+
+    if ( defined($parameter) && $parameter ne "" ) {
+        $logger->debug("Requested Fingerbank configuration parameter '$parameter' of section '$section'");
+        return $Config{$section}{$parameter};
+    }
+
+    if ( defined($section) && $section ne "" ) {
+        $logger->debug("Requested Fingerbank configuration for section '$section'");
+        return $Config{$section};
+    }
+
+    $logger->debug("Requested Fingerbank configuration");
+    return \%Config;
 }
 
+=head2 is_api_key_configured
 
-=back
+=cut
+
+sub is_api_key_configured {
+    my $api_key = get_config('upstream', 'api_key');
+    ( defined($api_key) && $api_key ne "" ) ? return $TRUE : return $FALSE;
+}
 
 =head1 AUTHOR
 
@@ -116,7 +140,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

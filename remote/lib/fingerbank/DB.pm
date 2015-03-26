@@ -17,7 +17,7 @@ use File::Copy;
 use LWP::Simple qw(getstore);
 use POSIX qw(strftime);
 
-use fingerbank::Config qw(%Config);
+use fingerbank::Config;
 use fingerbank::Constants qw($TRUE);
 use fingerbank::Error qw(is_error is_success);
 use fingerbank::FilePaths qw($INSTALL_PATH $LOCAL_DB_FILE $LOCAL_DB_SCHEMA $UPSTREAM_DB_FILE);
@@ -55,14 +55,16 @@ sub fetch_upstream {
     my ( $self, $is_updating ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-    if ( !defined($Config{'upstream'}{'api_key'}) || $Config{'upstream'}{'api_key'} eq "" ) {
+    my $Config = fingerbank::Config::get_config;
+
+    if ( !defined($Config->{'upstream'}{'api_key'}) || $Config->{'upstream'}{'api_key'} eq "" ) {
         $logger->warn("Can't communicate with upstream without a valid API key.");
         return;
     }
 
     my $database_file = $UPSTREAM_DB_FILE;
     $database_file = $database_file . ".new" if ( defined($is_updating) && $is_updating );
-    my $download_url = $Config{'upstream'}{'db_url'} . $Config{'upstream'}{'api_key'};
+    my $download_url = $Config->{'upstream'}{'db_url'} . $Config->{'upstream'}{'api_key'};
 
     $logger->debug("Downloading the latest version of upstream database from '$download_url' to '$database_file'");
 
@@ -141,6 +143,23 @@ sub update_upstream {
     $logger->warn($status_msg);
 
     return ( $status, $status_msg )
+}
+
+=head2
+
+=cut
+
+sub submit_unknown {
+    my ( $self ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my ( $status, $status_msg );
+
+    $status = $fingerbank::Status::NOT_IMPLEMENTED; 
+    $status_msg = "Not yet implemented";
+    $logger->debug($status_msg);
+
+    return ( $status, $status_msg );
 }
 
 =head1 AUTHOR

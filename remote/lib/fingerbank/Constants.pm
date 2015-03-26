@@ -6,7 +6,7 @@ fingerbank::Constants
 
 =head1 DESCRIPTION
 
-Constants used in to code to make it more readable.
+Constants used in the code to make it more readable.
 
 =cut
 
@@ -22,10 +22,10 @@ BEGIN {
     @EXPORT_OK = qw($FALSE $TRUE $YES $NO);
 }
 
-Readonly::Scalar our $FALSE => 0;
-Readonly::Scalar our $TRUE => 1;
-Readonly::Scalar our $YES => 'yes';
-Readonly::Scalar our $NO => 'no';
+Readonly::Scalar our $FALSE     => 0;
+Readonly::Scalar our $TRUE      => 1;
+Readonly::Scalar our $YES       => 'yes';
+Readonly::Scalar our $NO        => 'no';
 
 =head1 AUTHOR
 

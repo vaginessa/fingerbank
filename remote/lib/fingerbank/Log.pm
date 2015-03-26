@@ -20,27 +20,26 @@ use fingerbank::FilePaths qw($LOG_CONF_FILE);
 
 =head1 METHODS
 
-# Initiate the logger and check config every 10 seconds in case level changes
+=head2 init_logger
+
+Initiate the logging facility
+
+=cut
+
 sub init_logger {
     Log::Log4perl::init_and_watch($LOG_CONF_FILE, 10);
 }
-
-=head1 METHODS
-
-=cut
 
 =head2 get_logger
 
 Return a logger instance for the caller package
 
 =cut
+
 sub get_logger {
     my ( $package, $filename, $line ) = caller;
     return Log::Log4perl->get_logger($package);
 }
-
-
-=back
 
 =head1 AUTHOR
 
@@ -48,7 +47,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

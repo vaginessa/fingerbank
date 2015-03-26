@@ -32,6 +32,28 @@ BEGIN {
     );
 }
 
+=over
+
+=cut
+
+=item $INSTALL_PATH
+
+=item $CONF_FILE
+
+=item $DEFAULT_CONF_FILE 
+
+=item $LOG_CONF_FILE
+
+=item $LOG_FILE
+
+=item $LOCAL_DB_FILE
+
+=item $LOCAL_DB_SCHEMA
+
+=item $UPSTREAM_DB_FILE
+
+=cut
+
 Readonly::Scalar our $INSTALL_PATH          => '/usr/local/fingerbank/';
 Readonly::Scalar our $CONF_FILE             => catfile($INSTALL_PATH, 'conf/fingerbank.conf');
 Readonly::Scalar our $DEFAULT_CONF_FILE     => catfile($INSTALL_PATH, 'conf/fingerbank.conf.defaults');
@@ -40,6 +62,8 @@ Readonly::Scalar our $LOG_FILE              => catfile($INSTALL_PATH, 'logs/fing
 Readonly::Scalar our $LOCAL_DB_FILE         => catfile($INSTALL_PATH, 'db/fingerbank_Local.db');
 Readonly::Scalar our $LOCAL_DB_SCHEMA       => catfile($INSTALL_PATH, 'db/schema_Local.sql');
 Readonly::Scalar our $UPSTREAM_DB_FILE      => catfile($INSTALL_PATH, 'db/fingerbank_Upstream.db');
+
+=back
 
 =head1 AUTHOR
 
