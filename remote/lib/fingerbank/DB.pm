@@ -122,7 +122,8 @@ sub update_upstream {
 
     # Fetching the latest version of upstream database from Fingerbank project
     # $TRUE is for "we are updating". See fingerbank::DB::fetch_upstream
-    $status = fetch_upstream($self, $TRUE);
+    my $is_an_update = $TRUE;
+    $status = fetch_upstream($self, $is_an_update);
 
     if ( is_success($status) ) {
         # We create a backup of the actual upstream database file
