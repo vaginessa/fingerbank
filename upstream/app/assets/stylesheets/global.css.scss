@@ -27,7 +27,6 @@ td.options{
 }
 
 td{
-  max-width:300px;
   padding:0 1em;
   white-space:nowrap;
 
@@ -50,6 +49,7 @@ td{
 }
 
 td.shortened {
+  max-width:300px;
   overflow:hidden;
   text-overflow:ellipsis;
 }

@@ -46,7 +46,13 @@ class Api::V1::CombinationsController < Api::ApiController
       render json: @combination, :status => 404
     else
       logger.info "Combination processed correctly."
-      render 'combinations/show.json'
+      if params[:debug] == "on"
+        combination_hash = @combination.attributes 
+        combination_hash[:device] = @combination.device
+        render json: combination_hash
+      else
+        render 'combinations/show.json'
+      end
     end
   end
 
