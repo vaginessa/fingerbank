@@ -73,7 +73,11 @@ Taken from HTTP::Status and stripped. Subject to change.
 
 =item $CREATED
 
+=item $NO_CONTENT
+
 =item $BAD_REQUEST
+
+=item $UNAUTHORIZED
 
 =item $FORBIDDEN
 
@@ -83,13 +87,15 @@ Taken from HTTP::Status and stripped. Subject to change.
 
 =item $INTERNAL_SERVER_ERROR
 
+=item $NOT_IMPLEMENTED
+
 =cut
 
 Readonly::Scalar our $OK                                => 200;
 Readonly::Scalar our $CREATED                           => 201;
 #Readonly::Scalar our $ACCEPTED                         => 202;
 #Readonly::Scalar our $NON_AUTHORITATIVE_INFORMATION    => 203;
-#Readonly::Scalar our $NO_CONTENT                       => 204;
+Readonly::Scalar our $NO_CONTENT                       => 204;
 #Readonly::Scalar our $RESET_CONTENT                    => 205;
 #Readonly::Scalar our $PARTIAL_CONTENT                  => 206;
 #Readonly::Scalar our $MULTI_STATUS                     => 207;
@@ -104,7 +110,7 @@ Readonly::Scalar our $CREATED                           => 201;
 #Readonly::Scalar our $TEMPORARY_REDIRECT               => 307;
 
 Readonly::Scalar our $BAD_REQUEST                      => 400;
-#Readonly::Scalar our $UNAUTHORIZED                     => 401;
+Readonly::Scalar our $UNAUTHORIZED                     => 401;
 #Readonly::Scalar our $PAYMENT_REQUIRED                 => 402;
 Readonly::Scalar our $FORBIDDEN                         => 403;
 Readonly::Scalar our $NOT_FOUND                         => 404;
@@ -133,7 +139,7 @@ Readonly::Scalar our $PRECONDITION_FAILED               => 412;
 #Readonly::Scalar our $RETRY_WITH                       => 449;
 
 Readonly::Scalar our $INTERNAL_SERVER_ERROR            => 500;
-#Readonly::Scalar our $NOT_IMPLEMENTED                  => 501;
+Readonly::Scalar our $NOT_IMPLEMENTED                  => 501;
 #Readonly::Scalar our $BAD_GATEWAY                      => 502;
 #Readonly::Scalar our $SERVICE_UNAVAILABLE              => 503;
 #Readonly::Scalar our $GATEWAY_TIMEOUT                  => 504;
