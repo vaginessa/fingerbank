@@ -23,7 +23,8 @@ BEGIN {
     @EXPORT_OK = qw(
         $INSTALL_PATH
         $CONF_FILE
-        $DEFAULT_CONF_FILE
+        $CONFIG_DEFAULTS_FILE
+        $CONFIG_DOC_FILE
         $LOG_CONF_FILE
         $LOG_FILE
         $LOCAL_DB_FILE
@@ -40,7 +41,9 @@ BEGIN {
 
 =item $CONF_FILE
 
-=item $DEFAULT_CONF_FILE 
+=item $CONFIG_DEFAULTS_FILE
+
+=item $CONFIG_DOC_FILE
 
 =item $LOG_CONF_FILE
 
@@ -56,7 +59,8 @@ BEGIN {
 
 Readonly::Scalar our $INSTALL_PATH          => '/usr/local/fingerbank/';
 Readonly::Scalar our $CONF_FILE             => catfile($INSTALL_PATH, 'conf/fingerbank.conf');
-Readonly::Scalar our $DEFAULT_CONF_FILE     => catfile($INSTALL_PATH, 'conf/fingerbank.conf.defaults');
+Readonly::Scalar our $CONFIG_DEFAULTS_FILE  => catfile($INSTALL_PATH, 'conf/fingerbank.conf.defaults');
+Readonly::Scalar our $CONFIG_DOC_FILE       => catfile($INSTALL_PATH, 'conf/fingerbank.conf.doc');
 Readonly::Scalar our $LOG_CONF_FILE         => catfile($INSTALL_PATH, 'conf/log.conf');
 Readonly::Scalar our $LOG_FILE              => catfile($INSTALL_PATH, 'logs/fingerbank.log');
 Readonly::Scalar our $LOCAL_DB_FILE         => catfile($INSTALL_PATH, 'db/fingerbank_Local.db');

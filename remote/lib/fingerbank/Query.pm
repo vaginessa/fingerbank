@@ -58,19 +58,12 @@ sub match {
     }
 
     # We were unable to fullfil a match locally
-    # Most of the time, preconditions may have failed.
+    # Most of the time, preconditions may have failed.    
     my $Config = fingerbank::Config::get_config;
     my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
-    if ( is_enabled($interrogate_upstream) ) {
-        my $ua = LWP::UserAgent->new;
-        my $query_args = encode_json($args);
+    ( $status, $result ) = $self->_interrogateUpstream($args) if is_enabled($interrogate_upstream);
 
-        my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});
-        $req->content_type('application/json');
-        $req->content($query_args);
 
-        my $res = $ua->request($req);
-        my $result = decode_json($res->content);
 
         $self->{device_id} = $result->{device}->{id};
         return ($result);
@@ -196,6 +189,49 @@ sub _buildResult {
     }
 
     return $result;
+}
+
+=head2 _interrogateUpstream
+
+=cut
+
+sub _interrogateUpstream {
+    my ( $self, $args ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my ( $status, $result );
+
+    my $Config = fingerbank::Config::get_config;    
+
+    # Are we configured to do so ?
+    my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
+    if ( is_disabled($interrogate_upstream) ) {
+        $logger->debug("Not configured to interrogate upstream Fingerbank project with unknown match. Skipping");
+        return;
+    }
+
+    $logger->debug("Attempting to interrogate upstream Fingerbank project");
+
+    my $ua = LWP::UserAgent->new;
+    my $query_args = encode_json($args);
+
+    my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});
+    $req->content_type('application/json');
+    $req->content($query_args);
+
+    my $res = $ua->request($req);
+
+    if ( $res->is_success ) {
+        $status = $fingerbank::Status::OK;
+        $result = decode_json($res->content);
+        $logger->info("Successfully interrogate upstream Fingerbank project for matching");
+    } else {
+        $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
+        $result = "An error occured while interrogating upstream Fingerbank project";
+        $logger->warn($result . ": " . $res->status_line);
+    }
+
+    return ( $status, $result );
 }
 
 =head2 _recordUnmatched
