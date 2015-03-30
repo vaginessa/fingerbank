@@ -37,8 +37,8 @@ sub match {
     my $logger = fingerbank::Log::get_logger;
 
     # Initialize status variables
-    # We set the status_code to OK so we can proceed
-    my ($status_code, $status_msg) = $fingerbank::Status::OK;
+    # We set the status to OK so we can proceed
+    my ($status, $status_msg) = $fingerbank::Status::OK;
 
     # We assign the value of each key to the corresponding object attribute (ie.: DHCP_Fingerprint_value)
     # Note: We must have all of the keys in the query, either with a value or with ''
@@ -49,12 +49,14 @@ sub match {
         $logger->debug("- $concatenated_key: '" . $self->$concatenated_key . "'");
     }
 
-    ($status_code, $status_msg) = $self->_getQueryKeyIDs;
-    ($status_code, $status_msg) = $self->_getCombinationID if ( is_success($status_code) );
+    ($status, $status_msg) = $self->_getQueryKeyIDs;
+    ($status, $status_msg) = $self->_getCombinationID if ( is_success($status) );
 
     # All preconditions succeed, we build the device resultset and returns it
-    if ( is_success($status_code) ) {
-        return $self->_buildResult;
+    ( $status, my $result ) = $self->_buildResult;
+    if ( is_success($status) ) {
+        $self->{device_id} = $result->{device}->{id};
+        return $result;
     }
 
     # We were unable to fullfil a match locally
@@ -62,12 +64,13 @@ sub match {
     my $Config = fingerbank::Config::get_config;
     my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
     ( $status, $result ) = $self->_interrogateUpstream($args) if is_enabled($interrogate_upstream);
-
-
-
+    if ( is_success($status) ) {
         $self->{device_id} = $result->{device}->{id};
-        return ($result);
+        return $result;
     }
+
+    $logger->warn("Unable to fullfil a match either locally or using upstream Fingerbank project.");
+    return $fingerbank::Status::NOT_FOUND;
 }
 
 =head2 _getQueryKeyIDs
@@ -180,15 +183,14 @@ sub _buildResult {
     foreach my $key ( keys %$combination ) {
         $result->{$key} = $combination->{$key};
     }
-    $self->device_id($combination->{device_id});
 
     # Get device info
-    my $device = fingerbank::Model::Device->read($self->device_id, $TRUE);
+    my $device = fingerbank::Model::Device->read($combination->{device_id}, $TRUE);
     foreach my $key ( keys %$device ) {
         $result->{device}->{$key} = $device->{$key};
     }
 
-    return $result;
+    return ( $fingerbank::Status::OK, $result );
 }
 
 =head2 _interrogateUpstream
