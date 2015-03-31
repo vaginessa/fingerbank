@@ -55,6 +55,7 @@ sub match {
     # All preconditions succeed, we build the device resultset and returns it
     ( $status, my $result ) = $self->_buildResult;
     if ( is_success($status) ) {
+        $result->{'SOURCE'} = "Local";
         $self->{device_id} = $result->{device}->{id};
         return $result;
     }
@@ -65,6 +66,7 @@ sub match {
     my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
     ( $status, $result ) = $self->_interrogateUpstream($args) if is_enabled($interrogate_upstream);
     if ( is_success($status) ) {
+        $result->{'SOURCE'} = "Upstream";
         $self->{device_id} = $result->{device}->{id};
         return $result;
     }
