@@ -8,7 +8,7 @@ use Pod::Usage;
 use Switch;
 
 BEGIN {
-    use lib "../lib";
+    use lib "/usr/local/fingerbank/lib";
     use fingerbank::Log;
     fingerbank::Log::init_logger;
 }
