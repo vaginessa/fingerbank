@@ -14,7 +14,9 @@ use strict;
 use warnings;
 
 use File::Copy qw(copy move);
+use JSON;
 use LWP::Simple qw(getstore);
+use LWP::UserAgent;
 use POSIX qw(strftime);
 
 use fingerbank::Config;
@@ -23,7 +25,7 @@ use fingerbank::FilePath qw($INSTALL_PATH $LOCAL_DB_FILE $LOCAL_DB_SCHEMA $UPSTR
 use fingerbank::Log;
 use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
-use fingerbank::Util qw(is_success);
+use fingerbank::Util qw(is_success is_disabled);
 
 our @schemas = ('Local', 'Upstream');
 
@@ -177,9 +179,51 @@ sub submit_unknown {
 
     my ( $status, $status_msg );
 
-    $status = $fingerbank::Status::NOT_IMPLEMENTED; 
-    $status_msg = "Not yet implemented";
-    $logger->debug($status_msg);
+    my $Config = fingerbank::Config::get_config;
+
+    if ( !fingerbank::Config::is_api_key_configured ) {
+        $logger->warn("Can't communicate with Fingerbank project without a valid API key.");
+        return;
+    }
+
+    # Are we configured to do so ?
+    my $record_unmatched = $Config->{'query'}{'record_unmatched'};
+    if ( is_disabled($record_unmatched) ) {
+        $logger->debug("Not configured to record unmatched parameters. Cannot submit so skipping");
+        return;
+    }
+
+    $logger->debug("Attempting to submit unmatched parameters to upstream Fingerbank project");
+
+    my $db = fingerbank::DB->connect('Local');
+    my $resultset = $db->resultset('Unmatched')->search({ 'submitted' => $FALSE }, { columns => ['id', 'type', 'value'], order_by => { -asc => 'id' } });
+
+    my ( $id, %data );
+    foreach my $entry ( $resultset ) {
+        while ( my $row = $entry->next ) {
+            push ( @{ $data{$row->type} }, $row->value );
+        }
+    }
+
+    my $ua = LWP::UserAgent->new;
+    my $submitted_data = encode_json(\%data);
+
+    my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'submit_url'}.$Config->{'upstream'}{'api_key'} );
+    $req->content_type('application/json');
+    $req->content($submitted_data);
+
+    my $res = $ua->request($req);
+
+    if ( $res->is_success ) {
+        $status = $fingerbank::Status::OK;
+        $resultset->update( { 'submitted' => $TRUE } );
+        $status_msg = "Successfully submitted unmatched arguments to upstream Fingerbank project";
+        $logger->info($status_msg);
+    } else {
+        $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
+        $status_msg = "An error occured while interrogating upstream Fingerbank project";
+        $logger->warn($status_msg . ": " . $res->status_line);
+    }
 
     return ( $status, $status_msg );
 }

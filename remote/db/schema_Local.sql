@@ -76,6 +76,7 @@ CREATE TABLE "unmatched" (
   "type" varchar(255) NOT NULL,
   "value" varchar(1000) DEFAULT NULL,
   "occurence" int(11) DEFAULT 1,
+  "submitted" tinyint(1) DEFAULT 0,
   "created_at" datetime DEFAULT NULL,
   "updated_at" datetime DEFAULT NULL
 );

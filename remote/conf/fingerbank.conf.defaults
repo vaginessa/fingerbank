@@ -3,6 +3,7 @@ api_key =
 db_url = https://fingerbank.inverse.ca/api/v1/download?key=
 interrogate = enabled
 interrogate_url = https://fingerbank.inverse.ca/api/v1/combinations/interrogate?key=
+submit_url = https://fingerbank.inverse.ca/api/v1/combinations/submit?key=
 
 [query]
 record_unmatched = enabled
