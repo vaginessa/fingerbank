@@ -46,9 +46,9 @@ __PACKAGE__->result_source_instance->view_definition("
     SELECT * FROM combination
     WHERE dhcp_fingerprint_id = ? OR dhcp_vendor_id = ? OR user_agent_id = ? OR (mac_vendor_id = ? OR mac_vendor_id IS NULL)
     ORDER BY
-    case when (dhcp_fingerprint_id = ? AND dhcp_fingerprint_id != '538') then 2 else 0 END +
-    case when (dhcp_vendor_id = ? AND dhcp_vendor_id != '4945') then 2 else 0 END +
-    case when (user_agent_id = ? AND user_agent_id != '6') then 2 else 0 END +
+    case when (dhcp_fingerprint_id = ? AND dhcp_fingerprint_id != '0') then 2 else 0 END +
+    case when (dhcp_vendor_id = ? AND dhcp_vendor_id != '0') then 2 else 0 END +
+    case when (user_agent_id = ? AND user_agent_id != '0') then 2 else 0 END +
     case when (mac_vendor_id = ? OR (mac_vendor_id IS NULL AND ? IS NULL)) then 1 else 0 END
     DESC,
     score DESC LIMIT 1
