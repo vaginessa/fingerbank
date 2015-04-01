@@ -48,7 +48,8 @@ class Api::V1::CombinationsController < Api::ApiController
       logger.info "Combination processed correctly."
       if params[:debug] == "on"
         combination_hash = @combination.attributes 
-        combination_hash[:device] = @combination.device
+        combination_hash[:device] = @combination.device.attributes
+        combination_hash[:device][:parents] = @combination.device.parents
         render json: combination_hash
       else
         render 'combinations/show.json'
