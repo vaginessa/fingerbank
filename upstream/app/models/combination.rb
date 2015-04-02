@@ -7,7 +7,12 @@ class Combination < FingerbankModel
 
   belongs_to :submitter, :class_name => "User"
 
+  before_validation :on => :create do
+    set_empty
+  end
+
   #validates_uniqueness_of :dhcp_fingerprint_id, :scope => [ :user_agent_id, :dhcp_vendor_id ], :message => "A combination with these attributes already exists"
+  validates_presence_of :dhcp_fingerprint_id, :dhcp_vendor_id, :user_agent_id
   validate :validate_combination_uniqueness
 
   scope :unknown, -> {where(:device => nil)}   
@@ -24,6 +29,12 @@ class Combination < FingerbankModel
         :device,
       ]
     }
+  end
+
+  def set_empty
+    self.user_agent_id = 0 unless self.user_agent_id
+    self.dhcp_fingerprint_id = 0 unless self.dhcp_fingerprint_id
+    self.dhcp_vendor_id = 0 unless self.dhcp_vendor_id
   end
 
   def validate_combination_uniqueness
