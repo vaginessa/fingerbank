@@ -1,4 +1,49 @@
 class Api::V1::CombinationsController < Api::ApiController
+
+  def submit
+    params = get_submit_params
+    submit_params = {}
+    submit_params[:user_agent] = params[:user_agent] || []
+    submit_params[:dhcp_fingerprint] = params[:dhcp_fingerprint] || []
+    submit_params[:dhcp_vendor] = params[:dhcp_vendor] || []
+
+    logger.debug "Submit params : #{submit_params.inspect}"
+
+    empty_user_agent = UserAgent.find(0)
+    empty_dhcp_fingerprint = DhcpFingerprint.find(0)
+    empty_dhcp_vendor = DhcpVendor.find(0)
+
+    added = {:user_agent => [], :dhcp_fingerprint => [], :dhcp_vendor => []}
+
+    submit_params[:user_agent].each do |user_agent|
+      unless UserAgent.exists?(:value => user_agent)
+        logger.info "User agent #{user_agent} doesn't exist. Creating it"
+        user_agent = UserAgent.create(:value => user_agent)
+        Combination.create(:user_agent => user_agent, :submitter => @current_user)
+        added[:user_agent] << user_agent.value
+      end
+    end
+
+    submit_params[:dhcp_fingerprint].each do |dhcp_fingerprint|
+      unless DhcpFingerprint.exists?(:value => dhcp_fingerprint)
+        logger.info "DHCP fingerprint #{dhcp_fingerprint} doesn't exist. Creating it"
+        dhcp_fingerprint = DhcpFingerprint.create(:value => dhcp_fingerprint)
+        Combination.create(:dhcp_fingerprint => dhcp_fingerprint, :submitter => @current_user)
+        added[:dhcp_fingerprint] << dhcp_fingerprint.value
+      end
+    end
+
+    submit_params[:dhcp_vendor].each do |dhcp_vendor|
+      unless DhcpVendor.exists?(:value => dhcp_vendor)
+        logger.info "DHCP vendor #{dhcp_vendor} doesn't exist. Creating it"
+        dhcp_vendor = DhcpVendor.create(:value => dhcp_vendor)
+        Combination.create(:dhcp_vendor => dhcp_vendor, :submitter => @current_user)
+        added[:dhcp_vendor] << dhcp_vendor.value
+      end
+    end
+    
+    render :json => added
+  end
   
   def interogate 
     require 'json'
@@ -60,6 +105,10 @@ class Api::V1::CombinationsController < Api::ApiController
   private
     def get_interogate_params
       params.permit(:user_agent, :dhcp_fingerprint, :dhcp_vendor, :mac)
+    end
+
+    def get_submit_params
+      params.permit(:user_agent => [], :dhcp_fingerprint => [], :dhcp_vendor => [])
     end
 
 end
