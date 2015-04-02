@@ -14,6 +14,9 @@ BuildRoot:  %{_tmppath}/%{name}-root
 Requires(post):     /sbin/chkconfig
 Requires(preun):    /sbin/chkconfig
 
+Requires(pre):      /usr/sbin/useradd, /usr/sbin/groupadd, /usr/bin/getent
+Requires(postun):   /usr/sbin/userdel
+
 Requires:   perl
 Requires:   perl(Catalyst::Runtime)
 Requires:   perl(aliased)
@@ -28,8 +31,14 @@ Requires:   perl(Catalyst::Action::REST)
 Requires:   perl(DBD::SQLite)
 Requires:   perl(LWP::Protocol::https)
 
+
 %description
 Fingerbank
+
+
+%pre
+/usr/bin/getent group fingerbank || /usr/sbin/groupadd -r fingerbank
+/usr/bin/getent passwd fingerbank || /usr/sbin/useradd -r -d /usr/local/fingerbank -s /sbin/nologin -g fingerbank fingerbank
 
 
 %prep
@@ -44,19 +53,23 @@ rm -rf %{buildroot}
 %{__install} -d $RPM_BUILD_ROOT/usr/local/fingerbank
 cp -r * $RPM_BUILD_ROOT/usr/local/fingerbank
 
+
 %post
 /usr/local/fingerbank/db/init_databases.pl
+
 
 %clean
 rm -rf %{buildroot}
 
 
+%postun
+/usr/sbin/userdel fingerbank
+
+
 %files
-%defattr(-,root,root,-)
+%defattr(-,fingerbank,fingerbank,-)
 %dir                    /usr/local/fingerbank
                         /usr/local/fingerbank/*
-
-
 
 
 %changelog
