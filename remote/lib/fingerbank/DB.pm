@@ -208,7 +208,7 @@ sub submit_unknown {
     my $ua = LWP::UserAgent->new;
     my $submitted_data = encode_json(\%data);
 
-    my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'submit_url'}.$Config->{'upstream'}{'api_key'} );
+    my $req = HTTP::Request->new( POST => $Config->{'upstream'}{'submit_url'}.$Config->{'upstream'}{'api_key'} );
     $req->content_type('application/json');
     $req->content($submitted_data);
 
@@ -221,7 +221,7 @@ sub submit_unknown {
         $logger->info($status_msg);
     } else {
         $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
-        $status_msg = "An error occured while interrogating upstream Fingerbank project";
+        $status_msg = "An error occured while submitting unmatched arguments to upstream Fingerbank project";
         $logger->warn($status_msg . ": " . $res->status_line);
     }
 
