@@ -43,9 +43,9 @@ class CombinationsController < ApplicationController
     if params[:search]
       @search = escaped_search
       @selected_fields = params[:fields]
-      @combinations = Combination.simple_search(params[:search], @selected_fields).paginate(:page => params[:page])
+      @combinations = Combination.simple_search(params[:search], @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
     else
-      @combinations = Combination.simple_search('', @selected_fields).paginate(:page => params[:page])
+      @combinations = Combination.simple_search('', @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
     end
     order_results
   end
