@@ -18,7 +18,7 @@
           <li class="list-group-item"><%= Combination.unknown.count %> unknown combinations</li>
           <li class="list-group-item"><%= new_combinations(1.day.ago).size %> new combinations discovered in the last 24 hours</li>
           <li class="list-group-item"><%= new_user_agents(1.day.ago).size %> new user agents discovered in the last 24 hours</span>
-          <li class="list-group-item"><%= Combination.average(:score) %> is the average combination score</span>
+          <li class="list-group-item"><%= Combination.average(:score).round %> is the average combination score</span>
         </ul>
         <% end %>      </div>
       <div class="modal-footer">
