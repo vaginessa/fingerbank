@@ -42,42 +42,48 @@ class Discoverer < FingerbankModel
       combinations[c.id] = []
     end
     Discoverer.all.each do |discoverer|
-      matches = []
-
-      query = ""
-      started = false
-
-      discoverer.device_rules.each do |rule|
-        to_add = Combination.add_condition rule.computed, started
-        
-        query += to_add
-        started = true
-      end
-
-      unless query.empty?
-        sql = "SELECT combinations.id from combinations 
-                inner join user_agents on user_agents.id=combinations.user_agent_id 
-                inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
-                inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
-                left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
-                WHERE (#{query});"
-        records = ActiveRecord::Base.connection.execute(sql)
-        records.each do |record|
-          begin
-            combinations[record[0]] << discoverer
-          rescue
-            combinations[record[0]] = []
-            combinations[record[0]] << discoverer
-          end
+      records = discoverer.find_matches
+      records.each do |record|
+        begin
+          combinations[record[0]] << discoverer
+        rescue
+          combinations[record[0]] = []
+          combinations[record[0]] << discoverer
         end
-        logger.info "Found #{records.size} hits for discoverer #{discoverer.id}"
-      
       end
+      logger.info "Found #{records.size} hits for discoverer #{discoverer.id}"
     end    
     # We keep our result in the cache
     success = FingerbankCache.set("device_matching_discoverers", combinations)
     logger.info "Writing cache gave #{success}"
     return combinations
+  end
+
+  def find_matches
+    query = ""
+    started = false
+
+    self.device_rules.each do |rule|
+      to_add = Combination.add_condition rule.computed, started
+      
+      query += to_add
+      started = true
+    end
+
+    unless query.empty?
+      sql = "SELECT combinations.id from combinations 
+              inner join user_agents on user_agents.id=combinations.user_agent_id 
+              inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
+              inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
+              left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
+              WHERE (#{query});"
+      records = ActiveRecord::Base.connection.execute(sql)
+      return records
+    else
+      return [] 
+    end
+
+
   end
 
   def self.if_for_query(query, started)
