@@ -23,7 +23,7 @@ Rails.application.routes.draw do
         collection do 
           get 'interogate'
           get 'interrogate', :to => 'combinations#interogate', :as => 'interrogate'
-          get 'submit'
+          post 'submit'
         end
       end
       get 'download', :to => 'static#download'
