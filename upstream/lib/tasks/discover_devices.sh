@@ -32,6 +32,9 @@ RAILS_ENV=production bundle exec rake import:discover_blackberry_models
 echo "Starting merge with stats"
 RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
 
+# remove the orphan data due to administrative deletion or another reason
+RAILS_ENV=production bundle exec rake clean:delete_orphans
+
 # rebuild the discoverers cache from scratch
 RAILS_ENV=production bundle exec rake fbcache:clear_discoverers 
 echo "Starting discoverers cache build"
