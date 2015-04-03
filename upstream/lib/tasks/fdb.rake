@@ -6,6 +6,10 @@ namespace :fdb do |ns|
     puts ns.tasks
   end
 
+  task :test_discoverer, [:discoverer_id] => [:environment] do |t, args|
+    puts "That discoverer matches : #{Discoverer.find(args[:discoverer_id]).find_matches.count} combinations"
+  end
+
   task reset_timeframed_requests: :environment do
     User.update_all(:timeframed_requests => 0)
   end
