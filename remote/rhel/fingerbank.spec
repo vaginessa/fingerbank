@@ -56,6 +56,8 @@ cp -r * $RPM_BUILD_ROOT/usr/local/fingerbank
 
 %post
 /usr/local/fingerbank/db/init_databases.pl
+chown fingerbank.fingerbank /usr/local/fingerbank/db/fingerbank_Local.db
+chmod 664 /usr/local/fingerbank/db/fingerbank_Local.db
 
 
 %clean
@@ -67,7 +69,7 @@ rm -rf %{buildroot}
 
 
 %files
-%defattr(-,fingerbank,fingerbank,-)
+%defattr(664,fingerbank,fingerbank,775)
 %dir                    /usr/local/fingerbank
                         /usr/local/fingerbank/*
 
