@@ -145,13 +145,24 @@ sub update_upstream {
         my $database_file_backup    = $database_file . "_$date";
         my $database_file_new       = $database_file . ".new";
 
+        my $return_code;
+
         # We create a backup of the actual upstream database file
         $logger->debug("Backing up actual 'upstream' database file to '$database_file_backup'");
-        copy($database_file, $database_file_backup);
+        $return_code = copy($database_file, $database_file_backup);
 
-        # We move the newly downloaded upstream database file to the existing one
-        $logger->debug("Moving new 'upstream' database file to existing one");
-        move($database_file_new, $database_file);
+        # If copy operation succeed
+        if ( $return_code == 1 ) {
+            # We move the newly downloaded upstream database file to the existing one
+            $logger->debug("Moving new 'upstream' database file to existing one");
+            $return_code = move($database_file_new, $database_file);
+        }
+
+        # Handling error in either copy or move operation
+        if ( $return_code == 0 ) {
+            $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
+            $logger->warn("An error occured while copying / moving files during 'upstream' database update process: $!");
+        }
     }
 
     if ( is_success($status) ) {
