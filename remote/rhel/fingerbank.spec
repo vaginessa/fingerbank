@@ -1,5 +1,5 @@
 Name:       fingerbank
-Version:    1.42
+Version:    1.0.0
 Release:    1%{?dist}
 Summary:    An exhaustive profiling tool
 Packager:   Inverse inc. <info@inverse.ca>
