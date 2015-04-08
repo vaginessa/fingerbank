@@ -1,5 +1,6 @@
 fingerbank (1.0.0) unstable; urgency=low
 
-  * Version 1.0.0
+  * Initial release
 
- -- Inverse <info@inverse.ca> Wed, 08 Apr 2015 12:00:00 -0400
+ -- Durand Fabrice <fdurand@inverse.ca>  Wed, 08 Apr 2015 13:05:59 -0400
+
