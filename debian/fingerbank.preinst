@@ -23,7 +23,7 @@ stop_service_if_exists() {
 case "$1" in
     install)
         if [ -z "$(getent passwd fingerbank)" ]; then
-                useradd -r -d "/usr/local/fingerbank" -s /bin/sh -c "fingerbank" -M fingerbank
+                useradd -U -r -d "/usr/local/fingerbank" -s /bin/sh -c "fingerbank" -M fingerbank
                 echo "create fingerbank user"
         else
                 echo "fingerbank user already exist"
