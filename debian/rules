@@ -49,7 +49,7 @@ install: build
 	done
 	for i in `find * ! -path 'remote' ! -path 'debian/*' ! -path 'debian' ! -path 'obsolete/*' ! -path 'obsolete' ! -path 'upstream/*' ! -path 'upstream' ! -type d`; do \
 		i=$$(echo $$i | sed -e "s/remote//g"); \
-		install -d -m0664 $(CURDIR)/debian/fingerbank$(PREFIX)/$(NAME)/$$i; \
+		$(INSTALL) $$i $(CURDIR)/debian/fingerbank$(PREFIX)/$(NAME)/$$i; \
 	done
 # Build architecture-independent files here.
 binary-indep: build install
