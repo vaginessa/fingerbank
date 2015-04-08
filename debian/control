@@ -17,7 +17,6 @@ Depends: ${misc:Depends},
  libconfig-general-perl,libreadonly-xs-perl, 
  liblog-log4perl-perl (>=1.43),libcatalyst-action-rest-perl,
  libdbd-sqlite, liblwp-protocol-https-perl,
-
 Description: fingerbank
  No! Fingerbank is not an organ bank for nice fingers ;)
  It is a database for device fingerprinting based on different properties
