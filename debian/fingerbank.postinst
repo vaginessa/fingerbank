@@ -26,9 +26,9 @@ case "$1" in
     configure)
         export FINGERBANK=/usr/local/fingerbank
         /usr/local/fingerbank/db/init_databases.pl
-        chown fingerbank.fingerbank $FINGERBANK/db/fingerbank_Local.db
+        chown fingerbank:fingerbank $FINGERBANK/db/fingerbank_Local.db
         chmod 0664 $FINGERBANK/db/fingerbank_Local.db
-
+        find $FINGERBANK '(' -type d -or -type f ')' -print0 | xargs -0 chown fingerbank:fingerbank
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
