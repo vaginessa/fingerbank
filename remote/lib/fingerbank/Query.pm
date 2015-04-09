@@ -55,9 +55,11 @@ sub match {
     ($status, $status_msg) = $self->_getQueryKeyIDs;
     ($status, $status_msg) = $self->_getCombinationID if ( is_success($status) );
 
+    my $result;
+
     # All preconditions succeed, we build the device resultset and returns it
-    ( $status, my $result ) = $self->_buildResult;
     if ( is_success($status) ) {
+        ( $status, $result ) = $self->_buildResult;
         $result->{'SOURCE'} = "Local";
         $self->{device_id} = $result->{device}->{id};
         return $result;
