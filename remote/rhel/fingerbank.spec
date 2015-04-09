@@ -1,6 +1,7 @@
 Name:       fingerbank
 Version:    1.0.0
 Release:    1%{?dist}
+BuildArch:  noarch
 Summary:    An exhaustive profiling tool
 Packager:   Inverse inc. <info@inverse.ca>
 Group:      System Environment/Daemons
@@ -70,8 +71,9 @@ rm -rf %{buildroot}
 
 %files
 %defattr(664,fingerbank,fingerbank,775)
-%dir                    /usr/local/fingerbank
-                        /usr/local/fingerbank/*
+%dir                                /usr/local/fingerbank
+                                    /usr/local/fingerbank/*
+%attr(775,fingerbank,fingerbank)    /usr/local/fingerbank/db/init_databases.pl
 
 
 %changelog
