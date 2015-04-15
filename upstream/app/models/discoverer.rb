@@ -17,7 +17,7 @@ class Discoverer < FingerbankModel
   def version_finder
     if self.version.nil?
       return "''"
-    elsif self.version.match(/^PREG_CAPTURE/) || self.version.match(/^REPLACE/)
+    elsif self.version.match(/^PREG_CAPTURE/) || self.version.match(/^REPLACE/) || self.version.match(/^PREG_REPLACE/)
       return self.version
     else
       return "'#{self.version}'"
