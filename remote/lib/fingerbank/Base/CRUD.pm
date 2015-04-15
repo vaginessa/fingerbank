@@ -414,7 +414,8 @@ sub list_paginated {
     # Building the resultset to be returned
     foreach my $resultset ( @$result ) {
         while ( my $row = $resultset->next ) {
-            my %array_row = ( 'id' => $row->id, 'value' => $row->value );
+            # TODO: Handle the 'value' since it is for "compatibility" with PacketFence
+            my %array_row = ( %{$row->{'_column_data'}}, 'value' => $row->value );
             push ( @return, \%array_row );
         }
     }
