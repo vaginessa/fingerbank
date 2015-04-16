@@ -14,6 +14,7 @@ class CombinationsController < ApplicationController
       {:field => 'dhcp_fingerprints.value', :display => 'DhcpFingerprint'},
       {:field => 'devices.name', :display => 'Device name'},
       {:field => 'mac_vendors.name', :display => 'Mac vendor name', :type => 'string'},
+      {:field => 'submitters.name', :display => 'Submitter username', :type => 'string'},
     ]
   end
 
