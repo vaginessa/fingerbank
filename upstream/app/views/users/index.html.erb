@@ -1,6 +1,9 @@
 <h3>Admin users</h3>
 <%= render :partial => 'users', :locals => {:users => User.admins} %>
 
+<h3>Unlimited users</h3>
+<%= render :partial => 'users', :locals => {:users => User.unlimited} %>
+
 <h3>API submitters users</h3>
 <%= render :partial => 'users', :locals => {:users => User.api_submitters} %>
 

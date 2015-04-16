@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
   has_many :devices, :foreign_key => "submitter_id"
 
   scope :admins, -> {where(:level => 10)}
+  scope :unlimited, -> {where(:level => 9)}
   scope :api_submitters, -> {where(:level => 5)}
   scope :community, -> {where(:level => 0)}
 
@@ -22,6 +23,7 @@ class User < ActiveRecord::Base
   def self.LEVELS
     return {
       :admin => 10,
+      :unlimited => 9,
       :api_submitter => 5,
       :community => 0,
     }
@@ -85,6 +87,10 @@ class User < ActiveRecord::Base
     promote_to User.LEVELS[:admin]
   end
 
+  def promote_unlimited
+    promote_to User.LEVELS[:unlimited]
+  end
+
   def promote_submitter
     promote_to User.LEVELS[:api_submitter]
   end
@@ -107,6 +113,10 @@ class User < ActiveRecord::Base
 
   def admin?
     level >= 10
+  end
+
+  def unlimited?
+    level >= 9
   end
 
   def api_submitter?
