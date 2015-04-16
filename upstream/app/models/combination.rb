@@ -27,6 +27,7 @@ class Combination < FingerbankModel
         :dhcp_vendor,
         :mac_vendor,
         :device,
+        :submitter,
       ]
     }
   end

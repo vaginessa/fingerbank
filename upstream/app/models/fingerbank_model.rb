@@ -29,7 +29,7 @@ class FingerbankModel < ActiveRecord::Base
     self.simple_search_joins[:belongs_to].each do |assoc| 
       assoc = self.reflect_on_association(assoc)
       default_fields << self.create_scoped_fields(eval("#{assoc.class_name}.column_names"), assoc.plural_name)
-      join_string = "left outer join #{assoc.table_name} as #{assoc.plural_name} on #{table_name}.#{assoc.name}_id=#{assoc.table_name}.id"
+      join_string = "left outer join #{assoc.table_name} as #{assoc.plural_name} on #{table_name}.#{assoc.name}_id=#{assoc.plural_name}.id"
       le_join = le_join.joins(join_string)
     end 
 
