@@ -83,11 +83,11 @@ class Api::V1::CombinationsController < Api::ApiController
     if @combination.nil?
       logger.warn "Combination doesn't exist. Creating a new one"
       @combination = Combination.new(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor, :submitter => @current_user)
-      @combination.process(:with_version => true, :save => false)
+      @combination.process(:with_version => true, :save => true)
     end
     if @combination.device.nil?
       logger.warn "Combination didn't yield any device."
-      @combination.save if @current_user.api_submitter?
+      @combination.destroy unless @current_user.api_submitter?
       render json: @combination, :status => 404
     else
       logger.info "Combination processed correctly."
