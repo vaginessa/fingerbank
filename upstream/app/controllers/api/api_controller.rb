@@ -19,6 +19,9 @@ class Api::ApiController < ApplicationController
     end
 
     if !@current_user.can_use_api
+      if @current_user.reached_api_limit
+        UserMailer.hourly_limit_reached(@current_user).deliver
+      end
       render :json => "Account blocked or max hourly limit reached.", :status => :forbidden
       return
     end

@@ -50,15 +50,22 @@ class User < ActiveRecord::Base
   end
 
   def can_use_api
-    request_number = self.timeframed_requests || 0
-    
     # admins have the right to submit whatever happens
     if self.admin?
       return true
     end
 
     # normal users have a limit and can't be blocked
-    if request_number < User.MAX_TIMEFRAMED_REQUESTS && !self.blocked 
+    if !reached_api_limit && !self.blocked 
+      return true
+    end
+    return false
+  end
+
+  def reached_api_limit
+    request_number = self.timeframed_requests || 0
+    # normal users have a limit and can't be blocked
+    if request_number > User.MAX_TIMEFRAMED_REQUESTS && !self.blocked 
       return true
     end
     return false
