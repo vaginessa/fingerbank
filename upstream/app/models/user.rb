@@ -66,8 +66,13 @@ class User < ActiveRecord::Base
 
   def reached_api_limit
     request_number = self.timeframed_requests || 0
+
+    if self.unlimited?
+      return false
+    end
+
     # normal users have a limit and can't be blocked
-    if request_number > User.MAX_TIMEFRAMED_REQUESTS && !self.blocked 
+    if request_number > User.MAX_TIMEFRAMED_REQUESTS 
       return true
     end
     return false
