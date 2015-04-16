@@ -14,81 +14,62 @@ namespace :import do |ns|
     end
   
     line_num=0
-    text=File.open('tmp/android_models.txt').read
+    text=File.open(args[:file_path]).read
     text.gsub!(/\r\n?/, "\n")
-    state = "looking_for_manufacturer"
-    manufacturer = ""
     generic_android = Device.where(:name => "Generic Android").first
     count = 0
     text.each_line do |line|
       line.gsub!(/\n/, "")
       line.gsub!(/^ */, "")
-      #puts "LINE = #{line}"
-      #puts "MANUFACTURER = #{manufacturer}"
-      #puts "STATE = #{state}"
-      #$stdin.read
-      if state == "looking_for_manufacturer" and !line.empty?
-        state = "looking_for_device"
-        #manufacturer = line
-        manufacturer = Device.where('lower(name) = ?',  "#{line} Android".downcase).first
-        if manufacturer.nil?
-          Rails.logger.debug "Manufacturer #{line} Android doesn't exists"
-          manufacturer = Device.create!(:name => "#{line} Android", :parent => generic_android)
-          Rails.logger.info "Created manufacturer #{manufacturer.name}"
-        else
-          Rails.logger.debug "Manufacturer #{manufacturer.name} exists"
-        end
-      elsif state == "looking_for_device" or state=="parsing_devices" and !line.empty?
-        state = "parsing_devices"
-        count += 1
-        Rails.logger.debug "processing #{line}"
-        data = line.split('(')
-        name = data[0]
-        name = ic.iconv(name + ' ')[0..-2]
-        name.gsub!(/ *$/, "")
-        Rails.logger.debug "got device name : '#{name}'"
+      data = line.split(/[ ]{2,}/)
+      next if data.size != 4
+      count += 1
+      manufacturer = data[0]
+      name = data[1]
+      name = ic.iconv(name + ' ')[0..-2]
+      name.gsub!(/ *$/, "")
+      model_info = data[3]
+      puts "'#{manufacturer}' '#{name}' '#{model_info}'"
+      Rails.logger.debug "got device name : '#{name}'"
 
-        device = Device.where('lower(name) = ?', name.downcase).first
-        if device.nil?
-          Rails.logger.warn "Device #{name} doesn't exist yet. Creating it"
-          device = Device.create!(:name => name, :parent => manufacturer)
-        else
-          Rails.logger.debug "Device #{name} exists"
-        end
+      manufacturer_device = Device.where('lower(name) = ?', "#{manufacturer} Android".downcase).first
+      if manufacturer_device.nil?
+        manufacturer_device = Device.create!(:name => "#{manufacturer} Android", :parent => generic_android)
+        Rails.logger.info "Created manufacturer #{manufacturer_device.name}"
+      end
+      manufacturer = manufacturer_device
 
-        unless data[1].nil?
-          model_info = data[1].split('/')
-          unless model_info[1].nil?
-            model_number = model_info[1].sub(/\)/, '') 
-            model_number = model_number.sub('\'', '\'\'') 
-            model_number = ic.iconv(model_number + ' ')[0..-2]
-            discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{name} from model # on User Agent".downcase).first
-            rule_value = "user_agents.value regexp '#{model_number}[\);/ ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model_number}'"
-            unless discoverer.nil?
-              rule_already_in = false
-              discoverer.device_rules.each do |rule|
-                if rule.value == rule_value
-                  rule_already_in = true
-                  break
-                end
-              end
-    
-              unless rule_already_in
-                Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
-                rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
-              end
-            else
-              discoverer = Discoverer.create!(:description => "#{name} from model # on User Agent", :priority => 5, :device => device)
-              Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
-              rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
-            end
+      device = Device.where('lower(name) = ?', name.downcase).first
+      if device.nil?
+        Rails.logger.warn "Device #{name} doesn't exist yet. Creating it"
+        device = Device.create!(:name => name, :parent => manufacturer)
+      else
+        Rails.logger.debug "Device #{name} exists"
+      end
 
+      model_number = model_info.sub('\'', '\'\'') 
+      model_number = ic.iconv(model_number + ' ')[0..-2]
+      discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{name} from model # on User Agent".downcase).first
+      rule_value = "user_agents.value regexp '#{model_number}[\);/ ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model_number}'"
+      unless discoverer.nil?
+        rule_already_in = false
+        discoverer.device_rules.each do |rule|
+          if rule.value == rule_value
+            rule_already_in = true
+            break
           end
         end
 
-      elsif state == "parsing_devices" and line.empty?
-        state = "looking_for_manufacturer"
+        unless rule_already_in
+          Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
+          rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
+        end
+      else
+        discoverer = Discoverer.create!(:description => "#{name} from model # on User Agent", :priority => 5, :device => device)
+        Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
+        rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
       end
+
     end
 
   end

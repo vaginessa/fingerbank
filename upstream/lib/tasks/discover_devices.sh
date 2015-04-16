@@ -9,12 +9,9 @@ echo $ANDROID_PDF
 curl $ANDROID_PDF > tmp/android_devices.pdf
 pdftotext -layout tmp/android_devices.pdf
 
-# pdf to text generates ^L characters. we remove them
-sed 's///g' tmp/android_devices.txt > tmp/android_devices_clean.txt
-
 # we launch the importation job
 echo "Starting Android import job"
-RAILS_ENV=production bundle exec rake import:android_models[tmp/android_devices_clean.txt]
+RAILS_ENV=production bundle exec rake import:android_models[tmp/android_devices.txt]
 
 # refresh cfnetwork discoverers
 curl http://user-agents.me/cfnetwork-version-list > tmp/cfnetwork-version-list.html
