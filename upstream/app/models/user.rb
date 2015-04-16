@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   validates_presence_of :name
+  validates_presence_of :email
   validates_uniqueness_of :name
   validates_uniqueness_of :github_uid, :allow_nil => true, :allow_blank => true
   validates_uniqueness_of :display_name, :allow_nil => true, :allow_blank => true
