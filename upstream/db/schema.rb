@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150416024508) do
+ActiveRecord::Schema.define(version: 20150416143132) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -103,9 +103,6 @@ ActiveRecord::Schema.define(version: 20150416024508) do
     t.datetime "updated_at"
   end
 
-  create_table "test", force: true do |t|
-  end
-
   create_table "user_agents", force: true do |t|
     t.string   "value",      limit: 1000
     t.datetime "created_at"
@@ -115,7 +112,7 @@ ActiveRecord::Schema.define(version: 20150416024508) do
   add_index "user_agents", ["value"], name: "index_user_agents_on_value", length: {"value"=>255}, using: :btree
 
   create_table "users", force: true do |t|
-    t.string   "github_uid",                      null: false
+    t.string   "github_uid"
     t.string   "name",                            null: false
     t.string   "display_name"
     t.integer  "level",               default: 0

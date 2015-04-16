@@ -1,6 +1,8 @@
 class User < ActiveRecord::Base
-  validates_presence_of :github_uid, :name
-  validates_uniqueness_of :github_uid, :display_name
+  validates_presence_of :name
+  validates_uniqueness_of :name
+  validates_uniqueness_of :github_uid, :allow_nil => true, :allow_blank => true
+  validates_uniqueness_of :display_name, :allow_nil => true, :allow_blank => true
 
   has_many :combinations, :foreign_key => "submitter_id"
   has_many :watched_combinations
@@ -26,7 +28,7 @@ class User < ActiveRecord::Base
 
   def generate_key
     require 'digest/sha1'
-    self.key = Digest::SHA1.hexdigest "API-#{Time.now}-#{github_uid}"
+    self.key = Digest::SHA1.hexdigest "API-#{Time.now}-#{name}"
     self.save
   end
 
