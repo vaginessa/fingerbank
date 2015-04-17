@@ -1,8 +1,8 @@
 
 class Discoverer < FingerbankModel
   def self.fbcache
-    Discoverer.build_device_matching_discoverers
     Discoverer.build_discoverers_ifs
+    Discoverer.build_device_matching_discoverers
   end
 
   def self.build_device_matching_discoverers

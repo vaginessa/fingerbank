@@ -33,7 +33,6 @@ RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
 RAILS_ENV=production bundle exec rake clean:delete_orphans
 
 # rebuild the discoverers cache from scratch
-RAILS_ENV=production bundle exec rake fbcache:clear_discoverers 
 echo "Starting discoverers cache build"
 RAILS_ENV=production bundle exec rake fbcache:build_discoverers 
 
