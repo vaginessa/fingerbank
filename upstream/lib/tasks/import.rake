@@ -47,7 +47,8 @@ namespace :import do |ns|
         Rails.logger.debug "Device #{name} exists"
       end
 
-      model_number = model_info.sub('\'', '\'\'') 
+      model_number = model_info.gsub('\'', '\'\'') 
+      model_number = model_number.gsub(/\\/, "") 
       model_number = ic.iconv(model_number + ' ')[0..-2]
       discoverer = Discoverer.where(:device => device).where("lower(description) = ?", "#{name} from model # on User Agent".downcase).first
       rule_value = "user_agents.value regexp '#{model_number}[\);/ ]{1}' and user_agents.value not regexp '[A-Za-z0-9]#{model_number}'"
