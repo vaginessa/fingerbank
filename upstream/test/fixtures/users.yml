@@ -1,2 +1,8 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+julsemaan:
+  github_uid: "3857942"
+  name: 'TBD'
+  email: 'TBD'
+  level: 10 
+  key: 'seeded-key'
