@@ -14,7 +14,7 @@ namespace :fbcache do |ns|
   end
 
   task build_discoverers: :environment do 
-    Discoverer.cache
+    Discoverer.fbcache
     # make sure the web server has a cache 
     http = Net::HTTP.new("fingerbank.inverse.ca", 443)
     http.use_ssl = true
