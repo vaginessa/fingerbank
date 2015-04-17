@@ -104,7 +104,7 @@ namespace :fdb do |ns|
   end
 
   task create_base_admin: :environment do
-    User.create!(:github_uid => "3857942", :name => 'TBD', :level => 1)
+    User.create!(:github_uid => "3857942", :name => 'TBD', :email => 'TBD', :level => 10)
   end
 
   task remove_dup_dhcp_vendors: :environment do
