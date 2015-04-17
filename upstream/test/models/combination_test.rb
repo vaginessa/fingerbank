@@ -31,7 +31,7 @@ class CombinationTest < ActiveSupport::TestCase
     assert Discoverer.device_matching_discoverers[combination.id], "Valid known combination will yield in discoverers cache"
     assert !Discoverer.device_matching_discoverers['zammit'], "Invalid id will not yield in discoverers cache"
     assert combination.process(:with_version => true, :save => true), "iPhone combination can be processed"
-    assert combination.processed_method == 'device_matching_discoverers'
+    assert combination.processed_method == 'find_matching_discoverers_cache'
   end
 
   test 'combination lookup with discoverers ifs' do
@@ -39,7 +39,7 @@ class CombinationTest < ActiveSupport::TestCase
     user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
     combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
-    assert combination.processed_method == "find_matching_discoverers"
+    assert combination.processed_method == "find_matching_discoverers_tmp_table"
     
   end
 
