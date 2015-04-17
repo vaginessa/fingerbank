@@ -1,11 +1,10 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  os_id: 1
-  os_rule_id: 1
-  version_rule_id: 1
+iphone:
+  priority: 5
+  device: iphone
 
-two:
-  os_id: 1
-  os_rule_id: 1
-  version_rule_id: 1
+android:
+  priority: 5
+  device: android
+

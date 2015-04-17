@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  mobile: false
+iphone:
+  name: iPhone
+  mobile: true
   tablet: false
 
-two:
-  name: MyString
-  mobile: false
+android:
+  name: 'Nexus zammit'
+  mobile: true
   tablet: false

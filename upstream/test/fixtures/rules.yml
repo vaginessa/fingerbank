@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  value: MyString
-  os_id: 1
+iphone:
+  value: "user_agents.value regexp 'iphone'"
+  device_discoverer: iphone
 
-two:
-  value: MyString
-  os_id: 1
+android:
+  value: "user_agents.value regexp 'Android'"
+  device_discoverer: android
+
+

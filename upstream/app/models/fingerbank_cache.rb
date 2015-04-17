@@ -22,4 +22,9 @@ class FingerbankCache
     return Rails.cache.delete(key)
   end
 
+  def self.clear
+    Rails.application.config.instance_cache = {}
+    Rails.cache.clear
+  end
+
 end

@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  fingerprint_id: 1
-  user_agent_id: 1
+iphone:
+  user_agent: iphone
+  dhcp_fingerprint: empty
+  dhcp_vendor: empty
 
-two:
-  fingerprint_id: 1
-  user_agent_id: 1
+android:
+  user_agent: android
+  dhcp_fingerprint: empty
+  dhcp_vendor: empty

@@ -11,6 +11,8 @@ class Combination < FingerbankModel
     set_empty
   end
 
+  attr_accessor :processed_method
+
   #validates_uniqueness_of :dhcp_fingerprint_id, :scope => [ :user_agent_id, :dhcp_vendor_id ], :message => "A combination with these attributes already exists"
   validates_presence_of :dhcp_fingerprint_id, :dhcp_vendor_id, :user_agent_id
   validate :validate_combination_uniqueness
@@ -68,8 +70,12 @@ class Combination < FingerbankModel
     new_score = nil
     discoverers_match = Discoverer.device_matching_discoverers[id]
     if discoverers_match.nil?
+      logger.info "Cache miss in device_matching_discoverers for combination #{id}"
       discoverers_match = find_matching_discoverers
+    else
+      self.processed_method = "device_matching_discoverers"
     end
+
     unless discoverers_match.empty?
       deepest = 0
       discoverers = discoverers_match 
@@ -135,15 +141,19 @@ class Combination < FingerbankModel
   def find_matching_discoverers
     valid_discoverers = []
 
-    beginning_time = Time.now
-    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
-    end_time = Time.now
-    logger.info "Time elapsed for temp creation #{(end_time - beginning_time)*1000} milliseconds"  
-  
+ 
     ifs, conditions = Discoverer.discoverers_ifs
 
     matches = []
     unless ifs.empty?
+
+      beginning_time = Time.now
+      temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+      end_time = Time.now
+      logger.info "Time elapsed for temp creation #{(end_time - beginning_time)*1000} milliseconds"  
+   
+
+      logger.debug "Computing discoverer from the temp table with the ifs from the cache"
       sql = "SELECT #{ifs} from temp_combinations 
               WHERE (id=#{temp_combination.id});"
 
@@ -163,11 +173,42 @@ class Combination < FingerbankModel
           count+=1
         end
       end
-
+      temp_combination.delete
+      self.processed_method = "find_matching_discoverers"
+    else
+      logger.warn "Computing discoverers data without cache. THIS WILL BE LONG !!!!"
+      self.processed_method = "find_matching_discoverers_long"
+      matches = find_matching_discoverers_long
     end
 
-    temp_combination.delete
     return matches 
+  end
+
+  def find_matching_discoverers_long
+    discoverers = Discoverer.all
+    discoverers_matched = []
+    discoverers.each do |discoverer|
+      matches = []
+      version_discovered = ''
+      discoverer.device_rules.each do |rule|
+        computed = rule.computed
+        sql = "SELECT #{discoverer.id} from combinations 
+                inner join user_agents on user_agents.id=combinations.user_agent_id 
+                inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
+                inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
+                left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
+                WHERE (combinations.id=#{id}) AND #{computed};"
+        records = ActiveRecord::Base.connection.execute(sql)
+        unless records.size == 0
+          matches.push rule
+          logger.debug "Matched discocerer rule in #{discoverer.id}"
+        end
+      end
+      unless matches.empty?
+        discoverers_matched.push discoverer
+      end
+    end
+    return discoverers_matched
   end
 
   def find_version
