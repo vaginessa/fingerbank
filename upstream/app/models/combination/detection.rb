@@ -89,8 +89,8 @@ class Combination < FingerbankModel
     discoverers_match = find_matching_discoverers_long
     logger.warn "Computing discoverers data without cache. THIS WILL BE LONG !!!!"
     self.processed_method = "find_matching_discoverers_long"
-    # Alert the admin that this occured
-    AdminMailer.discoverers_cache_miss.deliver
+    # Notify full cache miss to discoverer
+    Discoverer.full_cache_miss
 
     return discoverers_match
   end

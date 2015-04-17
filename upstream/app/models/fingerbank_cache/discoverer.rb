@@ -5,6 +5,18 @@ class Discoverer < FingerbankModel
     Discoverer.build_device_matching_discoverers
   end
 
+  def self.full_cache_miss
+    Thread.new do
+     now = Time.now
+      happened_at = Rails.cache.fetch("discoverers-full-cache-miss", :expires_in => 30.minute) {Time.now}
+      if happened_at > now 
+        AdminMailer.discoverers_cache_miss.deliver
+        Discoverer.fbcache 
+      end
+      ActiveRecord::Base.connection.close
+    end
+  end
+
   def self.build_device_matching_discoverers
     combinations = {}
     Combination.all.each do |c|
