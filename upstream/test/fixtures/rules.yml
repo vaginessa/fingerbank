@@ -8,4 +8,6 @@ android:
   value: "user_agents.value regexp 'Android'"
   device_discoverer: android
 
-
+iphone_version:
+  value: "user_agents.value regexp 'CPU .* ([0-9_]+) like Mac OS X'"
+  version_discoverer: iphone_version

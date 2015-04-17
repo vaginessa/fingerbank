@@ -17,6 +17,9 @@ class CombinationTest < ActiveSupport::TestCase
     assert combination.process(:with_version => true, :save => true), "Android combination can be processed"
     assert combination.processed_method == 'find_matching_discoverers_long'
     assert combination.device.name == 'Nexus zammit', "Android combination yields the right result"
+
+    # We're supposed to send e-mails when having full cache miss
+    assert ActionMailer::Base.deliveries.size == 2
   end
 
   test 'combination lookup with cache discoverers cache' do
@@ -38,5 +41,12 @@ class CombinationTest < ActiveSupport::TestCase
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
     assert combination.processed_method == "find_matching_discoverers"
     
+  end
+
+  test 'combination lookup with version' do
+    combination = combinations(:iphone)
+    Discoverer.fbcache
+    combination.process(:with_version => true, :save => true)
+    assert combination.version == '7.1.2', "version has been detected properly (#{combination.version})"     
   end
 end

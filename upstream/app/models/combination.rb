@@ -91,12 +91,13 @@ class Combination < FingerbankModel
       if discoverer_detected_device.nil?
         # no choice really
         # leave as is 
+        logger.warn "Couldn't find device for combination #{id} so can't find version"
       else
         save!
         find_version
         logger.debug self.device.nil? ? "Unknown device" : "Detected device "+self.device.full_path  
         logger.debug "Score "+score.to_s
-        logger.debug version ? "Version "+version : "Unknown version"
+        logger.info version ? "Version "+version : "Unknown version"
       end
     end
     save! if options[:save]
@@ -177,6 +178,7 @@ class Combination < FingerbankModel
       self.processed_method = "find_matching_discoverers"
     else
       logger.warn "Computing discoverers data without cache. THIS WILL BE LONG !!!!"
+      AdminMailer.discoverers_cache_miss.deliver
       self.processed_method = "find_matching_discoverers_long"
       matches = find_matching_discoverers_long
     end
