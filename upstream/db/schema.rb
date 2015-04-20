@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150416143132) do
+ActiveRecord::Schema.define(version: 20150420195711) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -25,6 +25,11 @@ ActiveRecord::Schema.define(version: 20150416143132) do
     t.integer  "mac_vendor_id"
     t.integer  "submitter_id"
   end
+
+  add_index "combinations", ["dhcp_fingerprint_id"], name: "combinations_dhcp_fingerprint_id_ix", using: :btree
+  add_index "combinations", ["dhcp_vendor_id"], name: "combinations_dhcp_vendor_id_ix", using: :btree
+  add_index "combinations", ["mac_vendor_id"], name: "combinations_mac_vendor_id_ix", using: :btree
+  add_index "combinations", ["user_agent_id"], name: "combinations_user_agent_id_ix", using: :btree
 
   create_table "conditions", force: true do |t|
     t.string   "value"
@@ -101,6 +106,9 @@ ActiveRecord::Schema.define(version: 20150416143132) do
     t.string   "dhcp_vendor",      limit: 1000
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "test", force: true do |t|
   end
 
   create_table "user_agents", force: true do |t|

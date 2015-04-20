@@ -62,23 +62,38 @@ class Api::V1::CombinationsController < Api::ApiController
       return
     end
 
+    beginning_time = Time.now
     @combination = nil
     user_agent = UserAgent.where(:value => interogate_params[:user_agent]).first
     user_agent = UserAgent.create(:value => interogate_params[:user_agent]) unless user_agent
     logger.info "Matched UA #{user_agent.id} : #{user_agent.value}"
+    end_time = Time.now
+    logger.info "Time elapsed for user agent lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
+    beginning_time = Time.now
     dhcp_fingerprint = DhcpFingerprint.where(:value => interogate_params[:dhcp_fingerprint]).first
     dhcp_fingerprint = DhcpFingerprint.create(:value => interogate_params[:dhcp_fingerprint]) unless dhcp_fingerprint
     logger.info "Matched DHCP fingerprint #{dhcp_fingerprint.id} : #{dhcp_fingerprint.value}"
+    end_time = Time.now
+    logger.info "Time elapsed for dhcp fingerprint lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
+    beginning_time = Time.now
     dhcp_vendor = DhcpVendor.where(:value => interogate_params[:dhcp_vendor]).first
     dhcp_vendor = DhcpVendor.create(:value => interogate_params[:dhcp_vendor]) unless dhcp_vendor
     logger.info "Matched DHCP vendor #{dhcp_vendor.id} : #{dhcp_vendor.value}"
+    end_time = Time.now
+    logger.info "Time elapsed for dhcp vendor lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
+    beginning_time = Time.now
     mac_vendor = MacVendor.from_mac(interogate_params[:mac])
     mac_vendor_id = mac_vendor.nil? ? 'NULL' : mac_vendor.id
+    end_time = Time.now
+    logger.info "Time elapsed for mac vendor lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
+    beginning_time = Time.now
     @combination = Combination.where(:user_agent =>user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor_id => dhcp_vendor, :mac_vendor => mac_vendor).first
+    end_time = Time.now
+    logger.info "Time elapsed for combination lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
     if @combination.nil?
       logger.warn "Combination doesn't exist. Creating a new one"
