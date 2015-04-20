@@ -5,7 +5,9 @@ class DiscoverersController < ApplicationController
   before_action :set_show_help, only: [:show]
 
   def cache
-    Discoverer.cache
+    FingerbankCache.get('device_matching_discoverers')
+    FingerbankCache.get('ifs_for_discoverers')
+    FingerbankCache.get('ifs_association_for_discoverers')
     render text: 'ok'
   end
 
