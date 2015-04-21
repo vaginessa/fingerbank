@@ -79,6 +79,13 @@ class Combination < FingerbankModel
       return discoverers_match
     end
 
+    discoverers_match = find_matching_discoverers_local
+    unless discoverers_match.nil?
+      logger.debug "Cache hit in local for combination #{id}"
+      self.processed_method = "find_matching_discoverers_local"
+      return discoverers_match
+    end
+
     discoverers_match = find_matching_discoverers_tmp_table
     unless discoverers_match.nil?
       logger.debug "Cache hit in ifs_for_discoverer for combination #{id}"
@@ -99,42 +106,39 @@ class Combination < FingerbankModel
     return Discoverer.device_matching_discoverers[id]
   end
 
+  def find_matching_discoverers_local
+    regex_assoc = Discoverer.regex_assoc
+    return if regex_assoc.nil?
+    assoc = regex_assoc[:regex_assoc]
+    non_regex_discoverers = regex_assoc[:non_regex_discoverers]
+
+
+    ua = user_agent.value
+    discoverers = []
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+    assoc.each do |regex, discoverer|
+      if ua =~ /#{regex}/ && temp_combination.matches?(discoverer)
+         discoverers << discoverer
+      end
+    end
+
+    other_discoverers = temp_combination.matches_on_ifs?(regex_assoc[:non_regex_discoverers_ifs][0],regex_assoc[:non_regex_discoverers_ifs][1] )
+    discoverers << other_discoverers unless other_discoverers.empty?
+
+    discoverers = discoverers.flatten
+
+    return discoverers
+  end
+
   def find_matching_discoverers_tmp_table
     valid_discoverers = []
     ifs, conditions = Discoverer.discoverers_ifs
     matches = []
 
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
     unless ifs.empty?
-      beginning_time = Time.now
-      temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
-      end_time = Time.now
-      logger.info "Time elapsed for temp creation #{(end_time - beginning_time)*1000} milliseconds"  
-   
-
-      logger.debug "Computing discoverer from the temp table with the ifs from the cache"
-      sql = "SELECT #{ifs} from temp_combinations 
-              WHERE (id=#{temp_combination.id});"
-
-      beginning_time = Time.now
-      records = ActiveRecord::Base.connection.execute(sql)
-      end_time = Time.now
-      logger.info "Time elapsed for big SQL query #{(end_time - beginning_time)*1000} milliseconds"  
-
-      count = 0 
-      records.each do |record|
-        while !record[count].nil?
-          if record[count] == 1
-            discoverer = conditions[count]
-            matches.push discoverer
-            logger.debug "Matched OS rule in #{discoverer.id}"
-          end
-          count+=1
-        end
-      end
-      temp_combination.delete
+      return temp_combination.matches_on_ifs?(ifs, conditions)   
       self.processed_method = "find_matching_discoverers_tmp_table"
-
-      return matches 
     else
       return nil
     end
@@ -144,25 +148,11 @@ class Combination < FingerbankModel
   def find_matching_discoverers_long
     discoverers = Discoverer.all
     discoverers_matched = []
+    
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
     discoverers.each do |discoverer|
-      matches = []
-      version_discovered = ''
-      discoverer.device_rules.each do |rule|
-        computed = rule.computed
-        sql = "SELECT #{discoverer.id} from combinations 
-                inner join user_agents on user_agents.id=combinations.user_agent_id 
-                inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
-                inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
-                left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
-                WHERE (combinations.id=#{id}) AND #{computed};"
-        records = ActiveRecord::Base.connection.execute(sql)
-        unless records.size == 0
-          matches.push rule
-          logger.debug "Matched discocerer rule in #{discoverer.id}"
-        end
-      end
-      unless matches.empty?
-        discoverers_matched.push discoverer
+      if temp_combination.matches?(discoverer)
+        discoverers_matched << discoverer
       end
     end
     return discoverers_matched
