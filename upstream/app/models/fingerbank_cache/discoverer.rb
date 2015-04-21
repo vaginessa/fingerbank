@@ -1,7 +1,7 @@
 
 class Discoverer < FingerbankModel
   def self.fbcache
-    Discoverer.build_regex_assoc
+    Discoverer.build_model_regex_assoc
     Discoverer.build_discoverers_ifs
     Discoverer.build_device_matching_discoverers
   end
@@ -83,7 +83,7 @@ class Discoverer < FingerbankModel
     return ifs, conditions
   end
 
-  def self.build_regex_assoc
+  def self.build_model_regex_assoc
     assoc = {}
     non_regex_discoverers = []
     Discoverer.all.each do |discoverer|
@@ -98,8 +98,8 @@ class Discoverer < FingerbankModel
       end
       non_regex_discoverers << discoverer unless(hit and discoverer.description =~ /from model #/)
     end
-    success = FingerbankCache.set("regex_assoc", {:regex_assoc => assoc, :non_regex_discoverers => non_regex_discoverers, :non_regex_discoverers_ifs => Discoverer.build_ifs(non_regex_discoverers)})
-    logger.info "Writing regex_assoc gave #{success}"
+    success = FingerbankCache.set("model_regex_assoc", {:regex_assoc => assoc, :non_regex_discoverers => non_regex_discoverers, :non_regex_discoverers_ifs => Discoverer.build_ifs(non_regex_discoverers)})
+    logger.info "Writing model_regex_assoc gave #{success}"
     return assoc 
   end
 

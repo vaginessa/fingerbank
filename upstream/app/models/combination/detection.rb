@@ -107,10 +107,10 @@ class Combination < FingerbankModel
   end
 
   def find_matching_discoverers_local
-    regex_assoc = Discoverer.regex_assoc
-    return if regex_assoc.nil?
-    assoc = regex_assoc[:regex_assoc]
-    non_regex_discoverers = regex_assoc[:non_regex_discoverers]
+    model_regex_assoc = Discoverer.model_regex_assoc
+    return if model_regex_assoc.nil?
+    assoc = model_regex_assoc[:regex_assoc]
+    non_regex_discoverers = model_regex_assoc[:non_regex_discoverers]
 
 
     ua = user_agent.value
@@ -122,7 +122,7 @@ class Combination < FingerbankModel
       end
     end
 
-    other_discoverers = temp_combination.matches_on_ifs?(regex_assoc[:non_regex_discoverers_ifs][0],regex_assoc[:non_regex_discoverers_ifs][1] )
+    other_discoverers = temp_combination.matches_on_ifs?(model_regex_assoc[:non_regex_discoverers_ifs][0],model_regex_assoc[:non_regex_discoverers_ifs][1] )
     discoverers << other_discoverers unless other_discoverers.empty?
 
     discoverers = discoverers.flatten

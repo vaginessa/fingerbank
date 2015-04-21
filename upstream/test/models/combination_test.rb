@@ -51,7 +51,7 @@ class CombinationTest < ActiveSupport::TestCase
   test 'combination lookup with discoverers ifs' do
     Discoverer.fbcache
     # we delete the regexes so we go to the ifs
-    FingerbankCache.delete("regex_assoc")
+    FingerbankCache.delete("model_regex_assoc")
     # we create a new combination with a new user agent
     user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
     combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))

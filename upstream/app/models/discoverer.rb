@@ -61,8 +61,8 @@ class Discoverer < FingerbankModel
     return ifs, conditions
   end
 
-  def self.regex_assoc
-    return FingerbankCache.get("regex_assoc") || nil
+  def self.model_regex_assoc
+    return FingerbankCache.get("model_regex_assoc") || nil
   end
 
 end
