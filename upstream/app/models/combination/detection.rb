@@ -164,7 +164,11 @@ class Combination < FingerbankModel
       return
     end
     version_discoverers_ifs = Discoverer.version_discoverers_ifs
-    return if version_discoverers_ifs.nil?
+    if version_discoverers_ifs.nil?
+      # Notify full cache miss to discoverer
+      Discoverer.full_cache_miss
+      return
+    end
 
     temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
     valid_discoverers = temp_combination.matches_on_ifs?(version_discoverers_ifs[:ifs], version_discoverers_ifs[:conditions])
