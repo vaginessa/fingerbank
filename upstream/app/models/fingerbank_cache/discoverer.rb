@@ -1,7 +1,9 @@
 
 class Discoverer < FingerbankModel
   def self.fbcache
+    Discoverer.build_model_regex_assoc
     Discoverer.build_discoverers_ifs
+    Discoverer.build_version_discoverers_ifs
     Discoverer.build_device_matching_discoverers
   end
 
@@ -41,19 +43,39 @@ class Discoverer < FingerbankModel
   end
 
   def self.build_discoverers_ifs
+    ifs, conditions = Discoverer.build_ifs(Discoverer.all)
+    success = FingerbankCache.set("ifs_for_discoverers", ifs)
+    logger.info "Writing ifs_for_discoverers gave #{success}"
+    success = FingerbankCache.set("ifs_association_for_discoverers", conditions)
+    logger.info "Writing ifs_association_for_discoverers gave #{success}"
+
+    return ifs, conditions
+  end
+
+  def self.build_version_discoverers_ifs
+    ifs, conditions = Discoverer.build_ifs(Discoverer.all, :device => false)
+    version_discoverers_ifs = {:ifs => ifs, :conditions => conditions}
+    success = FingerbankCache.set("version_discoverers_ifs", version_discoverers_ifs)
+    logger.info "Writing version_discoverers_ifs gave #{success}"
+
+    return version_discoverers_ifs
+  end
+
+  def self.build_ifs(discoverers, options={})
+    options[:device] = options[:device].nil? || (options[:device]) ? true : false
     ifs_started = false
 
     ifs = ""
     conditions = []
-    Discoverer.all.each do |discoverer|
+    discoverers.each do |discoverer|
 
       query = ""
       started = false
 
-      discoverer.device_rules.each do |rule|
-        to_add = rule.computed.gsub('dhcp_fingerprints.value', 'dhcp_fingerprint')
-        to_add = to_add.gsub('user_agents.value', 'user_agent')
-        to_add = to_add.gsub('dhcp_vendors.value', 'dhcp_vendor')
+      rules = options[:device] ? discoverer.device_rules : discoverer.version_rules
+
+      rules.each do |rule|
+        to_add = Discoverer.rule_for_tmp_table(rule)
         to_add = Combination.add_condition to_add, started
         
         query += to_add
@@ -66,12 +88,39 @@ class Discoverer < FingerbankModel
         ifs_started = true
       end
     end    
-    success = FingerbankCache.set("ifs_for_discoverers", ifs)
-    logger.info "Writing ifs_for_discoverers gave #{success}"
-    success = FingerbankCache.set("ifs_association_for_discoverers", conditions)
-    logger.info "Writing ifs_association_for_discoverers gave #{success}"
+
+    if ifs.empty?
+      ifs = 0
+    end
 
     return ifs, conditions
+  end
+
+  def self.build_model_regex_assoc
+    assoc = {}
+    non_regex_discoverers = []
+    Discoverer.all.each do |discoverer|
+      hit = false
+      discoverer.device_rules.each do |rule|
+        data = rule.computed.match(/user_agents.value[ ]+regexp '(.*?)'/)
+        if data
+          hit = true
+          regexp = data[1]
+          assoc[regexp] = discoverer
+        end
+      end
+      non_regex_discoverers << discoverer unless(hit and discoverer.description =~ /from model #/)
+    end
+    success = FingerbankCache.set("model_regex_assoc", {:regex_assoc => assoc, :non_regex_discoverers => non_regex_discoverers, :non_regex_discoverers_ifs => Discoverer.build_ifs(non_regex_discoverers)})
+    logger.info "Writing model_regex_assoc gave #{success}"
+    return assoc 
+  end
+
+  def self.rule_for_tmp_table(rule)
+    to_add = rule.computed.gsub('dhcp_fingerprints.value', 'dhcp_fingerprint')
+    to_add = to_add.gsub('user_agents.value', 'user_agent')
+    to_add = to_add.gsub('dhcp_vendors.value', 'dhcp_vendor')
+    return to_add
   end
 
   private

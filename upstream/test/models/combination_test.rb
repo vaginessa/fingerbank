@@ -34,7 +34,24 @@ class CombinationTest < ActiveSupport::TestCase
     assert combination.processed_method == 'find_matching_discoverers_cache'
   end
 
+  test 'combination lookup methods all give the same result' do
+    FingerbankCache.clear
+    Discoverer.fbcache
+    combination = combinations(:iphone)
+    through_cache = combination.find_matching_discoverers_cache
+    through_local = combination.find_matching_discoverers_local
+    through_tmp_table = combination.find_matching_discoverers_tmp_table
+    through_long = combination.find_matching_discoverers_long
+    
+    assert (through_cache == through_tmp_table)
+    assert (through_cache == through_local)
+    assert (through_cache == through_long)
+  end
+
   test 'combination lookup with discoverers ifs' do
+    Discoverer.fbcache
+    # we delete the regexes so we go to the ifs
+    FingerbankCache.delete("model_regex_assoc")
     # we create a new combination with a new user agent
     user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
     combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
@@ -42,6 +59,18 @@ class CombinationTest < ActiveSupport::TestCase
     assert combination.processed_method == "find_matching_discoverers_tmp_table"
     
   end
+
+  test 'combination lookup with ruby regex' do
+    Discoverer.fbcache
+    # we create a new combination with a new user agent
+    user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
+    combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
+    assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
+    assert combination.processed_method == "find_matching_discoverers_local"
+    
+  end
+
+
 
   test 'combination lookup with version' do
     combination = combinations(:iphone)

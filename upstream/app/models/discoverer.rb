@@ -30,6 +30,10 @@ class Discoverer < FingerbankModel
     return FingerbankCache.get("device_matching_discoverers") || {}
   end
 
+  def self.version_discoverers_ifs
+    return FingerbankCache.get("version_discoverers_ifs") || nil
+  end
+
   def find_matches
     query = ""
     started = false
@@ -59,6 +63,10 @@ class Discoverer < FingerbankModel
     ifs = FingerbankCache.get("ifs_for_discoverers") || ""
     conditions = FingerbankCache.get("ifs_association_for_discoverers") || []
     return ifs, conditions
+  end
+
+  def self.model_regex_assoc
+    return FingerbankCache.get("model_regex_assoc") || nil
   end
 
 end
