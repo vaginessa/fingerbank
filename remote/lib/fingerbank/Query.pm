@@ -219,6 +219,14 @@ sub _interrogateUpstream {
         return;
     }
 
+    # Is an API key configured ?
+    if ( !fingerbank::Config::is_api_key_configured ) {
+        $status = $fingerbank::Status::UNAUTHORIZED;
+        $result = "Can't communicate with Fingerbank project without a valid API key.";
+        $logger->warn($result);
+        return ( $status, $result );
+    }
+
     $logger->debug("Attempting to interrogate upstream Fingerbank project");
 
     my $ua = LWP::UserAgent->new;
