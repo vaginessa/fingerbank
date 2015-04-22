@@ -32,4 +32,20 @@ namespace :fbcache do |ns|
     puts "Done refreshing stats"
   end
 
+  task benchmark_processing: :environment do
+    # do it once to bring the cache in mem
+    
+    combination = UserAgent.last.combinations.first
+    combination.find_matching_discoverers_cache
+    combination.find_matching_discoverers_local
+    combination.find_matching_discoverers_tmp_table
+
+    TIMES=30
+    Benchmark.bm(13) do |x|
+      x.report("pre-computed :") { (1..TIMES).each { |i| combination.find_matching_discoverers_cache } }
+      x.report("local        :") { (1..TIMES).each { |i| combination.find_matching_discoverers_local} }
+      x.report("tmp-table    :") { (1..TIMES).each { |i| combination.find_matching_discoverers_tmp_table} }
+    end
+  end
+
 end
