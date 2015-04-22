@@ -27,7 +27,7 @@ module ApplicationHelper
   end
 
   def average_response_time
-    return `awk '/interogate/,/Completed/' #{Rails.root}/log/production.log | egrep 'Completed (200|404)' | egrep -o 'ActiveRecord: [0-9.]+' | egrep -o '[0-9.]+' | awk '{s+=$1; count+=1} END {print s/count}'`
+    return `awk '/interogate/,/Completed/' #{Rails.root}/log/production.log | egrep 'Completed (200|404)' | egrep -o 'OK in [0-9.]+' | egrep -o '[0-9.]+' | awk '{s+=$1; count+=1} END {print s/count}'`
   end
 
   def devices_discovered(from_when = 20.year.ago)
