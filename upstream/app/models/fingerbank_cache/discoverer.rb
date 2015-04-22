@@ -3,6 +3,7 @@ class Discoverer < FingerbankModel
   def self.fbcache
     Discoverer.build_model_regex_assoc
     Discoverer.build_discoverers_ifs
+    Discoverer.build_version_discoverers_ifs
     Discoverer.build_device_matching_discoverers
   end
 
@@ -51,7 +52,17 @@ class Discoverer < FingerbankModel
     return ifs, conditions
   end
 
-  def self.build_ifs(discoverers)
+  def self.build_version_discoverers_ifs
+    ifs, conditions = Discoverer.build_ifs(Discoverer.all, :device => false)
+    version_discoverers_ifs = {:ifs => ifs, :conditions => conditions}
+    success = FingerbankCache.set("version_discoverers_ifs", version_discoverers_ifs)
+    logger.info "Writing version_discoverers_ifs gave #{success}"
+
+    return version_discoverers_ifs
+  end
+
+  def self.build_ifs(discoverers, options={})
+    options[:device] = options[:device].nil? || (options[:device]) ? true : false
     ifs_started = false
 
     ifs = ""
@@ -61,7 +72,9 @@ class Discoverer < FingerbankModel
       query = ""
       started = false
 
-      discoverer.device_rules.each do |rule|
+      rules = options[:device] ? discoverer.device_rules : discoverer.version_rules
+
+      rules.each do |rule|
         to_add = Discoverer.rule_for_tmp_table(rule)
         to_add = Combination.add_condition to_add, started
         

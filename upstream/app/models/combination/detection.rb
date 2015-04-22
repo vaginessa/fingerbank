@@ -163,36 +163,30 @@ class Combination < FingerbankModel
       logger.warn "device is nil"
       return
     end
-    discoverers = device.tree_discoverers
-    valid_discoverers = []
+    version_discoverers_ifs = Discoverer.version_discoverers_ifs
+    return if version_discoverers_ifs.nil?
+
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+    valid_discoverers = temp_combination.matches_on_ifs?(version_discoverers_ifs[:ifs], version_discoverers_ifs[:conditions])
     versions_discovered = {} 
-    discoverers.each do |discoverer|
-      matches = []
-      version_discovered = ''
-      discoverer.version_rules.each do |rule|
-        computed = rule.computed
-        sql = "SELECT #{discoverer.version_finder} from combinations 
-                inner join user_agents on user_agents.id=combinations.user_agent_id 
-                inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
-                inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
-                left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
-                WHERE (combinations.id=#{id}) AND #{computed};"
-        records = ActiveRecord::Base.connection.execute(sql)
-        unless records.size == 0
-          matches.push rule
-          logger.debug "Matched version rule in #{discoverer.id}"
-          version_discovered = records.first[0]
-        end
-      end
-      unless matches.empty?
-        valid_discoverers.push discoverer
-        versions_discovered[discoverer.id] = version_discovered 
-      end
+    valid_discoverers.each do |discoverer|
+      version_discovered = find_version_from_discoverer(discoverer)
+      versions_discovered[discoverer.id] = version_discovered 
     end
     version_discoverer = valid_discoverers.sort{|a,b| a.priority <=> b.priority}.last
     self.version = versions_discovered[version_discoverer.id] unless version_discoverer.nil?
   end
 
 
+  def find_version_from_discoverer(discoverer)
+    sql = "SELECT #{discoverer.version_finder} from combinations 
+            inner join user_agents on user_agents.id=combinations.user_agent_id 
+            inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
+            inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
+            left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
+            WHERE (combinations.id=#{id});"
+    records = ActiveRecord::Base.connection.execute(sql)
+    return records.first[0]
+  end
 
 end

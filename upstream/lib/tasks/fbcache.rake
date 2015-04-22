@@ -56,13 +56,13 @@ namespace :fbcache do |ns|
 
     # processing with all cache
     Benchmark.bm(20) do |x|
-      x.report("processing fast cache :") { (1..TIMES).each { |i| combination.process} }
+      x.report("processing fast cache :") { (1..TIMES).each { |i| combination.process(:with_version => true, :save => true)} }
     end
 
     # without device_matching_discoverers
     FingerbankCache.delete("device_matching_discoverers")
     Benchmark.bm(20) do |x|
-      x.report("processing slow cache :") { (1..TIMES).each { |i| combination.process} }
+      x.report("processing slow cache :") { (1..TIMES).each { |i| combination.process(:with_version => true, :save => true)} }
     end
 
   end
