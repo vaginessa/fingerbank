@@ -5,9 +5,11 @@ namespace :report do |ns|
   end
 
   task generate_in_events: :environment do
-    Event.create(:value => "There are now #{Combination.unknown.count} unknown combinations")
-    Event.create(:value => "There are now #{Device.where(:mobile => true)} mobile devices")
-    Event.create(:value => "There are now #{Device.where(:tablet => true)} tablet devices")
+    Event.create(:title => "Today's Fingerbank stats", :value => "
+      There are now #{Combination.unknown.count} unknown combinations
+      There are now #{Device.where(:mobile => true).count} mobile devices
+      There are now #{Device.where(:tablet => true).count} tablet devices
+    ")
   end
 
 end

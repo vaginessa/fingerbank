@@ -83,7 +83,7 @@ namespace :import do |ns|
 
     end
 
-    Event.create(:value => "Android phones processing : Created #{discovered_manufacturers.size} manufacturers, #{discovered_devices.size} devices and #{discovered_models.size} models")    
+    Event.create(:title => "Android phones processing : Created #{discovered_manufacturers.size} manufacturers, #{discovered_devices.size} devices and #{discovered_models.size} models")    
 
   end
 
@@ -148,7 +148,7 @@ namespace :import do |ns|
 
     end
 
-    Event.create(:value => "Windows phones processing : Created #{discovered_manufacturers.size} manufacturers and #{discovered_devices.size} devices")    
+    Event.create(:title => "Windows phones processing : Created #{discovered_manufacturers.size} manufacturers and #{discovered_devices.size} devices")    
 
   end
 
@@ -201,7 +201,7 @@ namespace :import do |ns|
     end
 
 
-    Event.create(:value => "Blackberry phones processing : Created #{discovered_devices.size} devices")    
+    Event.create(:title => "Blackberry phones processing : Created #{discovered_devices.size} devices")    
 
   end
 
@@ -319,7 +319,7 @@ namespace :import do |ns|
     puts "Done with merging stats"
 
 
-    Event.create(:value => "Merge in stats : Created #{discovered_combinations.size} combinations")    
+    Event.create(:title => "Merge in stats : Created #{discovered_combinations.size} combinations")    
 
   end
 

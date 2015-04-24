@@ -18,7 +18,12 @@ class Package
       self.build
       if self.validate
         self.release
-        Event.create(:value => "Fingerbank database released !")
+        Event.create(:title => "Fingerbank database released !", :value => "
+          Has #{self.db_stats[:combinations]} combinations in it
+          Has #{self.db_stats[:user_agents]} user agents in it
+          Has #{self.db_stats[:dhcp_fingerprints]} DHCP fingerprints in it
+          Has #{self.db_stats[:mac_vendors]} MAC vendors in it
+        ")
       else
         AdminMailer.package_failed.deliver
       end 
