@@ -28,6 +28,7 @@ namespace :import do |ns|
       name = data[1]
       name = ic.iconv(name + ' ')[0..-2]
       name.gsub!(/ *$/, "")
+      name.gsub!(/\\/, "")
       model_info = data[3]
       puts "'#{manufacturer}' '#{name}' '#{model_info}'"
       Rails.logger.debug "got device name : '#{name}'"
@@ -48,7 +49,7 @@ namespace :import do |ns|
       end
 
       model_number = model_info.gsub('\'', '\'\'') 
-      model_number = model_number.gsub(/\\/, "") 
+      model_number = model_number.gsub('\\', "") 
       model_number = model_number.gsub("(", "\\(") 
       model_number = model_number.gsub(")", "\\)") 
       model_number = ic.iconv(model_number + ' ')[0..-2]
