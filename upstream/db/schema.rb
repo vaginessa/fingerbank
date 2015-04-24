@@ -115,6 +115,9 @@ ActiveRecord::Schema.define(version: 20150424173959) do
     t.datetime "updated_at"
   end
 
+  create_table "test", force: true do |t|
+  end
+
   create_table "user_agents", force: true do |t|
     t.string   "value",      limit: 1000
     t.datetime "created_at"
