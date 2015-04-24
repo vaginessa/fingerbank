@@ -14,4 +14,9 @@ class AdminMailer< ActionMailer::Base
     mail(subject: "Fingerbank database build failed !", :body => "Check server side logs for details.")
   end
 
+  def daily_report
+    @events = Event.where('created_at > ?', 1.day.ago).order('created_at ASC')
+    mail(subject: "Fingerbank daily event report")
+  end
+
 end

@@ -6,5 +6,11 @@ class Event < ActiveRecord::Base
     self.value = 'No details provided' if self.value.nil?
   end
 
+  def html_value
+    tmp = value
+    tmp.gsub! /^[ ]*$\n/, '' 
+    tmp.gsub!(/\n/, '<br>')
+    return tmp
+  end
 
 end

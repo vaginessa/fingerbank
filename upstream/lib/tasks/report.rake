@@ -20,4 +20,8 @@ namespace :report do |ns|
     ")
   end
 
+  task mail_daily: :environment do
+    AdminMailer.daily_report.deliver
+  end
+
 end
