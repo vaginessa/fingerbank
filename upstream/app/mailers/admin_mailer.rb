@@ -10,4 +10,8 @@ class AdminMailer< ActionMailer::Base
     end
   end
 
+  def package_failed
+    mail(subject: "Fingerbank database build failed !", :body => "Check server side logs for details.")
+  end
+
 end

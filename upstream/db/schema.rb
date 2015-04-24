@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150420195711) do
+ActiveRecord::Schema.define(version: 20150424145746) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -78,6 +78,12 @@ ActiveRecord::Schema.define(version: 20150420195711) do
     t.string   "version"
   end
 
+  create_table "events", force: true do |t|
+    t.text     "value",      limit: 2147483647
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "fingerprints_os", force: true do |t|
     t.integer "device_id"
     t.integer "fingerprint_id"
@@ -106,9 +112,6 @@ ActiveRecord::Schema.define(version: 20150420195711) do
     t.string   "dhcp_vendor",      limit: 1000
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "test", force: true do |t|
   end
 
   create_table "user_agents", force: true do |t|

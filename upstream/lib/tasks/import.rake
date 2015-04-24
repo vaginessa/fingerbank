@@ -7,6 +7,9 @@ namespace :import do |ns|
   end
 
   task :android_models, [:file_path] => [:environment] do |t, args|
+    discovered_manufacturers = []
+    discovered_devices = []
+    discovered_models = []
     ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
     if args[:file_path].nil?
       puts "No file specified. Exiting"
@@ -37,6 +40,7 @@ namespace :import do |ns|
       if manufacturer_device.nil?
         manufacturer_device = Device.create!(:name => "#{manufacturer} Android", :parent => generic_android)
         Rails.logger.info "Created manufacturer #{manufacturer_device.name}"
+        discovered_manufacturers << manufacturer_device
       end
       manufacturer = manufacturer_device
 
@@ -44,6 +48,7 @@ namespace :import do |ns|
       if device.nil?
         Rails.logger.warn "Device #{name} doesn't exist yet. Creating it"
         device = Device.create!(:name => name, :parent => manufacturer)
+        discovered_devices << device
       else
         Rails.logger.debug "Device #{name} exists"
       end
@@ -67,18 +72,24 @@ namespace :import do |ns|
         unless rule_already_in
           Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
           rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
+          discovered_models << model_number
         end
       else
         discoverer = Discoverer.create!(:description => "#{name} from model # on User Agent", :priority => 5, :device => device)
         Rails.logger.warn "Adding rule for model # #{model_number} to device #{device.name}"
         rule = Rule.create!(:value => rule_value, :device_discoverer => discoverer)
+        discovered_models << model_number
       end
 
     end
 
+    Event.create(:value => "Android phones processing : Created #{discovered_manufacturers.size} manufacturers, #{discovered_devices.size} devices and #{discovered_models.size} models")    
+
   end
 
   task :discover_windows_phone => :environment do
+    discovered_manufacturers = []
+    discovered_devices = []
     windows_phone = Device.where(:name => "Windows Phone").first
     UserAgent.all.each do |user_agent|
       value = user_agent.value.nil? ? '' : user_agent.value
@@ -94,6 +105,7 @@ namespace :import do |ns|
           Rails.logger.warn "Manufacturer #{manufacturer_name} Windows Phone doesn't exists"
           manufacturer = Device.create!(:name => "#{manufacturer_name} Windows Phone", :parent => windows_phone)
           Rails.logger.info "Created manufacturer #{manufacturer.name}"
+          discovered_manufacturers << manufacturer
         end
 
         Rails.logger.debug "Discoverered #{model}"
@@ -101,6 +113,7 @@ namespace :import do |ns|
         if device.nil?
           device = Device.create!(:name => "Windows phone - #{model}", :parent => manufacturer)
           Rails.logger.warn "Created device #{model}"
+          discovered_devices << device
         else
           Rails.logger.debug "Device #{model} exists"
         end
@@ -134,11 +147,15 @@ namespace :import do |ns|
 
 
     end
+
+    Event.create(:value => "Windows phones processing : Created #{discovered_manufacturers.size} manufacturers and #{discovered_devices.size} devices")    
+
   end
 
 
   task :discover_blackberry_models => :environment do
     blackberry = Device.where(:name => "RIM BlackBerry").first
+    discovered_devices = []
     UserAgent.all.each do |user_agent|
       value = user_agent.value.nil? ? '' : user_agent.value
       matchdata = value.match(/(BlackBerry[; ]{0,1}[0-9]+)/)
@@ -156,6 +173,7 @@ namespace :import do |ns|
         if device.nil?
           device = Device.create!(:name => model, :parent => blackberry)
           Rails.logger.warn "Created device #{model}"
+          discovered_devices << device
         else
           Rails.logger.debug "Device #{model} exists"
         end
@@ -181,10 +199,16 @@ namespace :import do |ns|
         end
       end
     end
+
+
+    Event.create(:value => "Blackberry phones processing : Created #{discovered_devices.size} devices")    
+
   end
 
 
   task :merge_stats, [:db_path, :days_to_merge] => [:environment] do |t, args|
+
+    discovered_combinations = []
 
     # what is the last inserted that has no owner (should be by this script)
     last_inserted = Combination.where(:submitter_id => nil).order(created_at: :desc).first
@@ -239,7 +263,8 @@ namespace :import do |ns|
       combination.user_agent = user_agent
       combination.dhcp_vendor = dhcp_vendor
       combination.mac_vendor = MacVendor.from_mac(mac_value)
-      combination.save
+      success = combination.save
+      discovered_combinations << combination if success
       combination = Combination.where(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => combination.mac_vendor).first
 
       count+=1
@@ -281,7 +306,8 @@ namespace :import do |ns|
       combination.user_agent = user_agent
       combination.dhcp_vendor = dhcp_vendor
       combination.mac_vendor = MacVendor.from_mac(mac_value)
-      combination.save
+      success = combination.save
+      discovered_combinations << combination if success
       combination = Combination.where(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => combination.mac_vendor).first
 
       count+=1
@@ -291,6 +317,9 @@ namespace :import do |ns|
     puts "Done processing join http -> dhcp"
 
     puts "Done with merging stats"
+
+
+    Event.create(:value => "Merge in stats : Created #{discovered_combinations.size} combinations")    
 
   end
 

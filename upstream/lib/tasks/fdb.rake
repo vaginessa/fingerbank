@@ -64,47 +64,12 @@ namespace :fdb do |ns|
     end
   end
 
-  task package: :environment do
-
-    config   = Rails.configuration.database_configuration
-    host     = config[Rails.env]["host"]
-    database = config[Rails.env]["database"]
-    username = config[Rails.env]["username"]
-    password = config[Rails.env]["password"]
-
-    sqlite_sql = `sh #{Rails.root.join('db', 'mysql2sqlite.sh')} #{host} #{username} #{password} #{database} "combinations dhcp_vendors user_agents dhcp_fingerprints mac_vendors devices"` 
-    dump_fname = Rails.root.join('tmp', "#{Time.now.to_i}.sqlite3dump.sql")
-    bak_dump_fname = Rails.root.join('tmp', "#{Time.now.to_i}.sqlite3dump.sql.bak")
-    sqlite_sql_output = File.open(dump_fname, 'w') 
-    sqlite_sql_output << sqlite_sql
-    sqlite_sql_output.close
-
-    # rename the tables to put them singular
-    success = system ('sed -i.bak s/\"devices\"/\"device\"/g '+dump_fname.to_s)
-    success = system ('sed -i.bak s/\"combinations\"/\"combination\"/g '+dump_fname.to_s)
-    success = system ('sed -i.bak s/\"dhcp_fingerprints\"/\"dhcp_fingerprint\"/g '+dump_fname.to_s)
-    success = system ('sed -i.bak s/\"user_agents\"/\"user_agent\"/g '+dump_fname.to_s)
-    success = system ('sed -i.bak s/\"mac_vendors\"/\"mac_vendor\"/g '+dump_fname.to_s)
-    success = system ('sed -i.bak s/\"dhcp_vendors\"/\"dhcp_vendor\"/g '+dump_fname.to_s)
-
-    # replace quote escaping for sqlite3
-    success = system ("sed -i.bak \"s/\\\\\\\\'/''/g\" "+dump_fname.to_s)
-
-    db_fname = Rails.root.join('db', 'package', "#{Time.now.to_i}.sqlite3")
-    success = system ("sqlite3 #{db_fname} < #{dump_fname}")
-
-    Rake::Task["fdb:add_devices_mac_vendors"].invoke(db_fname.to_s)
-
-    #File.delete dump_fname
-    # the sed stuff creates a backup file. we flush it too
-    #File.delete bak_dump_fname
-
-    FileUtils.cp db_fname, Rails.root.join('db', 'package', "packaged.sqlite3")
-
-  end
-
   task create_base_admin: :environment do
     User.create!(:github_uid => "3857942", :name => 'TBD', :email => 'TBD', :level => 10)
+  end
+
+  task package: :environment do
+    Package.new.build_and_release
   end
 
   task remove_dup_dhcp_vendors: :environment do
