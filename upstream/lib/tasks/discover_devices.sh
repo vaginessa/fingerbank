@@ -48,4 +48,8 @@ RAILS_ENV=production bundle exec rake import:detect_device_metadata
 echo "Refreshing the stats"
 RAILS_ENV=production bundle exec rake fbcache:refresh_stats
 
+# generate the daily report that goes in the event log
+echo "Generating the daily report"
+RAILS_ENV=production bundle exec rake report:generate_in_events
+
 touch tmp/restart.txt
