@@ -8,7 +8,7 @@ xml.rss :version => "2.0" do
     for event in @events
       xml.item do
         xml.title event.title
-        xml.description event.value.gsub(/\n/, '<br>').html_safe
+        xml.description event.value.html_safe
         xml.pubDate event.created_at.to_s(:rfc822)
       end
     end
