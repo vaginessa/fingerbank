@@ -77,6 +77,8 @@ Rails.application.routes.draw do
     resources :watched_combinations
   end
 
+  get '/events', :to => 'events#index'
+
   get '/login', :to => 'users#login'
   get '/auth/:provider/callback', :to => 'sessions#create'
   get '/logout', :to => 'sessions#destroy'
