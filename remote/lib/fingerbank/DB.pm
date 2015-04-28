@@ -27,6 +27,9 @@ use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
 use fingerbank::Util qw(is_success is_disabled);
 
+has 'status_code'   => (is => 'rw', isa => 'Str');
+has 'status_msg'    => (is => 'rw', isa => 'Str');
+
 our @schemas = ('Local', 'Upstream');
 
 =head1 METHODS
