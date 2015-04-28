@@ -13,8 +13,9 @@ Handling 'Device' related stuff
 use Moose;
 use namespace::autoclean;
 
-use fingerbank::Util qw(is_error);
+use fingerbank::Constant qw($TRUE $FALSE);
 use fingerbank::Log;
+use fingerbank::Util qw(is_error is_success);
 
 extends 'fingerbank::Base::CRUD';
 
@@ -61,6 +62,42 @@ sub read {
     }
 
     return ( $fingerbank::Status::OK, $return );
+}
+
+=head2 is_a
+
+=cut
+
+sub is_a {
+    my ( $self, $arg, $condition ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $status;
+
+    # We need to convert a device type to an ID if needed
+    my $device_id = $arg;
+    if ( $arg !~ /^\d+$/ ) {
+        my $query = {};
+        $query->{'name'} = $arg;
+        ( $status, my $query_result ) = $self->find([$query, { columns => ['id'] }]);
+        $device_id = $query_result->id if is_success($status);
+        return $FALSE if is_error($status);
+    }
+
+    # We first check if the requested device is matching the condition
+    return $TRUE if ( $device_id eq $condition );
+
+    # We want the device details including the parents
+    ( $status, my $device ) = $self->read($device_id, 1);
+    return $FALSE if is_error($status);
+
+    my %parents_id = map { $_ => 1 } @{$device->{parents_ids}};
+
+    if ( exists($parents_id{$condition}) ) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
 }
 
 =head1 AUTHOR

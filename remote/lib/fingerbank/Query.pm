@@ -302,32 +302,85 @@ sub _recordUnmatched {
     }
 }
 
-=head2 isAndroid
+=head2 isWindows
+
+Test if device (name or ID) is Windows based
 
 =cut
+
+sub isWindows {
+    my ( $self, $device ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $WINDOWS_PARENT_ID = 1;
+    $logger->debug("Testing if device '$device' is a Windows based device");
+
+    my $result = fingerbank::Model::Device->is_a($device, $WINDOWS_PARENT_ID);
+
+    $logger->info("Device '$device' is a Windows based device") if $result;
+
+    return $result;
+}
+
+=head2 isMacOS
+
+Test if device (name or ID) is MacOS based
+
+=cut
+
+sub isMacOS {
+    my ( $self, $device ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $MACOS_PARENT_ID = 2;
+    $logger->debug("Testing if device '$device' is a MacOS based device");
+
+    my $result = fingerbank::Model::Device->is_a($device, $MACOS_PARENT_ID);
+
+    $logger->info("Device '$device' is a MacOS based device") if $result;
+
+    return $result;
+}
+
+=head2 isAndroid
+
+Test if device (name or ID) is Android based
+
+=cut
+
 sub isAndroid {
-#    my ( $self ) = @_;
-#    my $logger = fingerbank::Log::get_logger;
-#
-#    my $ANDROID_PARENT_ID = 202;
-#    $logger->debug("Testing if device ID '" . $self->device_id . "' is an Android device");
-#
-#    my $result = fingerbank::Model::Device->test($self->device_id, $ANDROID_PARENT_ID);
-#
-#    if ( $result ) {
-#        $logger->info("Device ID '" . $self->device_id . "' is an Android device");
-#    }
-#
-#    return $result;
+    my ( $self, $device ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $ANDROID_PARENT_ID = 202;
+    $logger->debug("Testing if device '$device' is an Android based device");
+
+    my $result = fingerbank::Model::Device->is_a($device, $ANDROID_PARENT_ID);
+
+    $logger->info("Device '$device' is an Android based device") if $result;
+
+    return $result;
 }
 
 =head2 isIOS
 
+Test if device (name or ID) is IOS based
+
 =cut
+
 sub isIOS {
+    my ( $self, $device ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $IOS_PARENT_ID = 193;
+    $logger->debug("Testing if device '$device' is an IOS based device");
+
+    my $result = fingerbank::Model::Device->is_a($device, $IOS_PARENT_ID);
+
+    $logger->info("Device '$device' is an IOS based device") if $result;
+
+    return $result;
 }
-
-
 
 =head1 AUTHOR
 
