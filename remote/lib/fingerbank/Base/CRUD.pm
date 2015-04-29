@@ -126,6 +126,12 @@ sub create {
     $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding updated_at with current timestamp
 
     my $db = fingerbank::DB->new(schema => 'Local');
+    if ( $db->isError ) {
+        my $status_msg = "Cannot create new '$className' entry with ID '$entry_id' in schema 'Local'";
+        $logger->warn($status_msg . ". DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
     my $resultset = $db->handle->resultset($className)->create($args);
 
     # Query doesn't returned any result which means failure in this case
@@ -178,6 +184,12 @@ sub read {
     $logger->debug("Looking for '$className' entry with ID '$id' in schema '$schema'");
 
     my $db = fingerbank::DB->new(schema => $schema);
+    if ( $db->isError ) {
+        my $status_msg = "Cannot read from '$className' table in schema '$schema'";
+        $logger->warn($status_msg . ". DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
     my $resultset = $db->handle->resultset($className)->find($id);
 
     # Query doesn't return any result
@@ -223,6 +235,12 @@ sub update {
 
     # Fetching current data to build the resultset from which we will then update with new data
     my $db = fingerbank::DB->new(schema => 'Local');
+    if ( $db->isError ) {
+        my $status_msg = "Cannot read from '$className' table in schema 'Local'. Cannot update";
+        $logger->warn($status_msg . ". DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
     my $resultset = $db->handle->resultset($className)->find($id);
 
     # Query doesn't returned any result
@@ -271,6 +289,12 @@ sub delete {
 
     # Fetching current data to build the resultset from which we will delete
     my $db = fingerbank::DB->new(schema => 'Local');
+    if ( $db->isError ) {
+        my $status_msg = "Cannot read from '$className' table in schema 'Local'. Cannot delete";
+        $logger->warn($status_msg . ". DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
     my $resultset = $db->handle->resultset($className)->find($id);
 
     # Query doesn't returned any result
@@ -334,6 +358,12 @@ sub search {
         $logger->debug("Searching '$className' entries in schema '$schema'");
 
         my $db = fingerbank::DB->new(schema => $schema);
+        if ( $db->isError ) {
+            my $status_msg = "Cannot read from '$className' table in schema '$schema'. Cannot search";
+            $logger->warn($status_msg . ". DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+            return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+
         my $resultset = $db->handle->resultset($className)->search(@$search_args);
 
         # Empty resultset should not be pushed into the result array
@@ -462,11 +492,17 @@ sub count {
 
     foreach my $schema ( @schemas ) {
         my $db = fingerbank::DB->new(schema => $schema);
+        if ( $db->isError ) {
+            my $status_msg = "Cannot read from '$className' table in schema '$schema'. Cannot search";
+            $logger->warn($status_msg . ". DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+            return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+
         my $nb_of_rows = $db->handle->resultset($className)->search->count;
         $count += $nb_of_rows;
     }
 
-    return $count;
+    return ( $fingerbank::Status::OK, $count );
 }
 
 =head2 clone
@@ -477,14 +513,22 @@ sub clone {
     my ( $self, $id ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
+    my ( $status, $result );
+
     my $className = $self->_parseClassName;
 
     $logger->debug("Attempting to clone '$className' entry ID '$id' in schema 'Local'");
 
     my $return = {};
 
-    my $original_item = $self->read($id);
-    $self->create($original_item);    
+    ( $status, $result ) = $self->read($id);
+    return ($status, $result) if ( is_error($status) );
+
+    my $original_item = $result;
+    ( $status, $result ) = $self->create($original_item);
+    return ($status, $result) if ( is_error($status) );
+
+    return ( $fingerbank::Status::OK, $result );
 }
 
 =head1 AUTHOR
