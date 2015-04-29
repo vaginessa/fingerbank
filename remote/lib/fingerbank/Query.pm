@@ -58,8 +58,8 @@ sub match {
     my $result;
 
     # All preconditions succeed, we build the device resultset and returns it
+    ( $status, $result ) = $self->_buildResult if ( is_success($status) );
     if ( is_success($status) ) {
-        ( $status, $result ) = $self->_buildResult;
         $result->{'SOURCE'} = "Local";
         $self->{device_id} = $result->{device}->{id};
         return $result;
@@ -154,6 +154,11 @@ sub _getCombinationID {
     # Sorting by match is handled by the SQL query itself. See L<fingerbank::Base::Schema::CombinationMatch>
     foreach my $schema ( @fingerbank::DB::schemas ) {
         my $db = fingerbank::DB->new(schema => $schema);
+        if ( $db->isError ) {
+            $logger->warn("Cannot read from 'CombinationMatch' table in schema 'Local'. DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+            return $fingerbank::Status::INTERNAL_SERVER_ERROR;
+        }
+
         my $resultset = $db->handle->resultset('CombinationMatch')->search({}, { bind => [ @bindings, @bindings, $self->MAC_Vendor_id ] })->first;
         if ( defined($resultset) ) {
             $self->combination_id($resultset->id);
@@ -186,13 +191,17 @@ sub _buildResult {
     my $result = {};
 
     # Get the combination info
-    my $combination = fingerbank::Model::Combination->read($self->combination_id);
+    my ( $status, $combination ) = fingerbank::Model::Combination->read($self->combination_id);
+    return $status if ( is_error($status) );
+
     foreach my $key ( keys %$combination ) {
         $result->{$key} = $combination->{$key};
     }
 
     # Get device info
-    my $device = fingerbank::Model::Device->read($combination->{device_id}, $TRUE);
+    ( $status, my $device ) = fingerbank::Model::Device->read($combination->{device_id}, $TRUE);
+    return $status if ( is_error($status) );
+
     foreach my $key ( keys %$device ) {
         $result->{device}->{$key} = $device->{$key};
     }
@@ -208,23 +217,19 @@ sub _interrogateUpstream {
     my ( $self, $args ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-    my ( $status, $result );
-
     my $Config = fingerbank::Config::get_config;    
 
     # Are we configured to do so ?
     my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
     if ( is_disabled($interrogate_upstream) ) {
         $logger->debug("Not configured to interrogate upstream Fingerbank project with unknown match. Skipping");
-        return;
+        return $fingerbank::Status::$NOT_IMPLEMENTED;
     }
 
     # Is an API key configured ?
     if ( !fingerbank::Config::is_api_key_configured ) {
-        $status = $fingerbank::Status::UNAUTHORIZED;
-        $result = "Can't communicate with Fingerbank project without a valid API key.";
-        $logger->warn($result);
-        return ( $status, $result );
+        $logger->warn("Can't communicate with Fingerbank project without a valid API key.");
+        return $fingerbank::Status::UNAUTHORIZED;
     }
 
     $logger->debug("Attempting to interrogate upstream Fingerbank project");
@@ -239,16 +244,13 @@ sub _interrogateUpstream {
     my $res = $ua->request($req);
 
     if ( $res->is_success ) {
-        $status = $fingerbank::Status::OK;
-        $result = decode_json($res->content);
         $logger->info("Successfully interrogate upstream Fingerbank project for matching");
+        my $result = decode_json($res->content);
+        return ( $fingerbank::Status::OK, $result );
     } else {
-        $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
-        $result = "An error occured while interrogating upstream Fingerbank project";
-        $logger->warn($result . ": " . $res->status_line);
+        $logger->warn("An error occured while interrogating upstream Fingerbank project: " . $res->status_line);
+        return $fingerbank::Status::INTERNAL_SERVER_ERROR;
     }
-
-    return ( $status, $result );
 }
 
 =head2 _recordUnmatched
@@ -272,6 +274,11 @@ sub _recordUnmatched {
 
     # We first check if we already have the entry, if so we simply increment the occurence number
     my $db = fingerbank::DB->new(schema => 'Local');
+    if ( $db->isError ) {
+        $logger->warn("Cannot read from 'Unmatched' table in schema 'Local'. DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return;
+    }
+
     my $resultset = $db->handle->resultset('Unmatched')->search({
         type    => { 'like', $key },
         value   => { 'like', $value},
