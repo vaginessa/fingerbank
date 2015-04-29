@@ -67,6 +67,9 @@ Returns a true or false value based on if given error code is considered a succe
 
 sub is_success {
     my ($code) = @_;
+
+    return $FALSE if ( $code !~ /^\d+$/ );
+
     return $TRUE if ($code >= 200 && $code < 300);
     return $FALSE;
 }
@@ -79,6 +82,9 @@ Returns a true or false value based on if given error code is considered an erro
 
 sub is_error {
     my ($code) = @_;
+
+    return $FALSE if ( $code !~ /^\d+$/ );
+
     return $TRUE if ($code >= 400 && $code < 600);
     return $FALSE;
 }
