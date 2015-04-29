@@ -1,8 +1,12 @@
 package fingerbank::Base::Schema::TablesIDs;
 
-use base qw/DBIx::Class::Core/;
+use Moose;
+use namespace::autoclean;
+
+extends 'fingerbank::Base::Schema';
 
 __PACKAGE__->table('tables_ids');
+
 __PACKAGE__->add_columns(
    "combination",
    "device",
@@ -12,5 +16,6 @@ __PACKAGE__->add_columns(
    "user_agent",
 );
 
+__PACKAGE__->meta->make_immutable;
 
 1;

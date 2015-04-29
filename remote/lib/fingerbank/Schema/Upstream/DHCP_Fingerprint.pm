@@ -3,7 +3,8 @@ package fingerbank::Schema::Upstream::DHCP_Fingerprint;
 use Moose;
 use namespace::autoclean;
 
-BEGIN {extends 'fingerbank::Base::Schema::DHCP_Fingerprint'; }
+extends 'fingerbank::Base::Schema::DHCP_Fingerprint';
 
+__PACKAGE__->meta->make_immutable;
 
 1;

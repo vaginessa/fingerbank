@@ -3,7 +3,8 @@ package fingerbank::Schema::Local::LocalUsers;
 use Moose;
 use namespace::autoclean;
 
-BEGIN {extends 'fingerbank::Base::Schema::LocalUsers'; }
+extends 'fingerbank::Base::Schema::LocalUsers';
 
+__PACKAGE__->meta->make_immutable;
 
 1;

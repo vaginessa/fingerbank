@@ -1,8 +1,12 @@
 package fingerbank::Base::Schema::Device;
 
-use base qw/DBIx::Class::Core/;
+use Moose;
+use namespace::autoclean;
+
+extends 'fingerbank::Base::Schema';
 
 __PACKAGE__->table('device');
+
 __PACKAGE__->add_columns(
    "id",
    "name",
@@ -15,6 +19,7 @@ __PACKAGE__->add_columns(
    "submitter_id",
    "approved",
 );
+
 __PACKAGE__->set_primary_key('id');
 
 # Custom accessor (value) that returns the Device name when called for listing entries
@@ -24,5 +29,6 @@ sub value {
     return $self->name;
 }
 
+__PACKAGE__->meta->make_immutable;
 
 1;

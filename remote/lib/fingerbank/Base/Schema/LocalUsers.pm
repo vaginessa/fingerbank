@@ -1,8 +1,12 @@
 package fingerbank::Base::Schema::LocalUsers;
 
-use base qw/DBIx::Class::Core/;
+use Moose;
+use namespace::autoclean;
+
+extends 'fingerbank::Base::Schema';
 
 __PACKAGE__->table('users');
+
 __PACKAGE__->add_columns(
     "id",
     "username",
@@ -16,7 +20,9 @@ __PACKAGE__->add_columns(
     "updated_at",
     "created_by",
 );
+
 __PACKAGE__->set_primary_key('id');
 
+__PACKAGE__->meta->make_immutable;
 
 1;

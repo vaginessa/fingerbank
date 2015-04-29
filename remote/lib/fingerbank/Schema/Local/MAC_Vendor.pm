@@ -3,7 +3,8 @@ package fingerbank::Schema::Local::MAC_Vendor;
 use Moose;
 use namespace::autoclean;
 
-BEGIN {extends 'fingerbank::Base::Schema::MAC_Vendor'; }
+extends 'fingerbank::Base::Schema::MAC_Vendor';
 
+__PACKAGE__->meta->make_immutable;
 
 1;

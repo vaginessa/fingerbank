@@ -1,8 +1,12 @@
 package fingerbank::Base::Schema::MAC_Vendor;
 
-use base qw/DBIx::Class::Core/;
+use Moose;
+use namespace::autoclean;
+
+extends 'fingerbank::Base::Schema';
 
 __PACKAGE__->table('mac_vendor');
+
 __PACKAGE__->add_columns(
    "id",
    "name",
@@ -10,6 +14,7 @@ __PACKAGE__->add_columns(
    "created_at",
    "updated_at",
 );
+
 __PACKAGE__->set_primary_key('id');
 
 # Custom accessor (value) that returns the MAC_Vendor name when called for listing entries
@@ -19,5 +24,6 @@ sub value {
     return $self->name;
 }
 
+__PACKAGE__->meta->make_immutable;
 
 1;

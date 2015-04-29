@@ -3,7 +3,8 @@ package fingerbank::Schema::Local::User_Agent;
 use Moose;
 use namespace::autoclean;
 
-BEGIN {extends 'fingerbank::Base::Schema::User_Agent'; }
+extends 'fingerbank::Base::Schema::User_Agent';
 
+__PACKAGE__->meta->make_immutable;
 
 1;

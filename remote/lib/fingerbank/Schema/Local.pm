@@ -1,18 +1,12 @@
 package fingerbank::Schema::Local;
 
-use base qw/DBIx::Class::Schema/;
+use Moose;
+use namespace::autoclean;
 
-__PACKAGE__->load_classes(
-    "Combination",
-    "CombinationMatch",
-    "Device",
-    "DHCP_Fingerprint",
-    "DHCP_Vendor",
-    "MAC_Vendor",
-    "User_Agent",
-    "Unmatched",
-    "TablesIDs",
-    "LocalUsers",
-);
+extends 'DBIx::Class::Schema';
+
+__PACKAGE__->load_classes;
+
+__PACKAGE__->meta->make_immutable;
 
 1;

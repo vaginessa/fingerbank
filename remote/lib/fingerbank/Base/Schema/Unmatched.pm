@@ -1,8 +1,12 @@
 package fingerbank::Base::Schema::Unmatched;
 
-use base qw/DBIx::Class::Core/;
+use Moose;
+use namespace::autoclean;
+
+extends 'fingerbank::Base::Schema';
 
 __PACKAGE__->table('unmatched');
+
 __PACKAGE__->add_columns(
    "id",
    "type",
@@ -11,6 +15,7 @@ __PACKAGE__->add_columns(
    "created_at",
    "updated_at",
 );
+
 __PACKAGE__->set_primary_key('id');
 
 sub sqlt_deploy_hook {
@@ -20,5 +25,6 @@ sub sqlt_deploy_hook {
     $sqlt_table->add_index(name => 'idx_value', fields => ['value']);
 }
 
+__PACKAGE__->meta->make_immutable;
 
 1;
