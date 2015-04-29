@@ -142,8 +142,7 @@ sub create {
     }
 
     # Increment table ID after successful creation
-    my $status = $self->_incrementTableID($className);
-    if ( is_error($status) ) {
+    if ( is_error($self->_incrementTableID($className)) ) {
         my $status_msg = "Error after creating a new '$className' entry with ID '$entry_id' in schema 'Local'";
         return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
     }

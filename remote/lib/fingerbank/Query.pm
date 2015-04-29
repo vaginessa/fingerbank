@@ -223,7 +223,7 @@ sub _interrogateUpstream {
     my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
     if ( is_disabled($interrogate_upstream) ) {
         $logger->debug("Not configured to interrogate upstream Fingerbank project with unknown match. Skipping");
-        return $fingerbank::Status::$NOT_IMPLEMENTED;
+        return $fingerbank::Status::NOT_IMPLEMENTED;
     }
 
     # Is an API key configured ?
