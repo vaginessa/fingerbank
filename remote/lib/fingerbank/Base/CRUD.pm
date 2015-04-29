@@ -113,7 +113,6 @@ sub create {
     my $entry_id = $self->_getTableID($className);
     if ( is_error($entry_id) ) {
         my $status_msg = "Cannot create new '$className' entry in schema 'Local'";
-        $logger->warn($status_msg);
         return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
@@ -140,7 +139,6 @@ sub create {
     my $status = $self->_incrementTableID($className);
     if ( is_error($status) ) {
         my $status_msg = "Error after creating a new '$className' entry with ID '$entry_id' in schema 'Local'";
-        $logger->warn($status_msg);
         return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
