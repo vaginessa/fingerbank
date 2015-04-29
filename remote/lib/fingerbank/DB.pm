@@ -58,9 +58,20 @@ sub isSuccess {
     return is_success($self->status_code);
 }
 
+=head2 statusCode
+
+Returns the object status code
+
+=cut
+
+sub statusCode {
+    my ( $self ) = @_;
+    return $self->status_code;
+}
+
 =head2 statusMsg
 
-Return the object status message
+Returns the object status message
 
 =cut
 
