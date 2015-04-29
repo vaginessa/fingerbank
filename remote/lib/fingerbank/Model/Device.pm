@@ -79,9 +79,11 @@ sub is_a {
     if ( $arg !~ /^\d+$/ ) {
         my $query = {};
         $query->{'name'} = $arg;
+
         ( $status, my $query_result ) = $self->find([$query, { columns => ['id'] }]);
-        $device_id = $query_result->id if is_success($status);
         return $FALSE if is_error($status);
+    
+        $device_id = $query_result->id;
     }
 
     # We first check if the requested device is matching the condition
