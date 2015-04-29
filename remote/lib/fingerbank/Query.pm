@@ -153,8 +153,8 @@ sub _getCombinationID {
     # Looking for best matching combination in schemas
     # Sorting by match is handled by the SQL query itself. See L<fingerbank::Base::Schema::CombinationMatch>
     foreach my $schema ( @fingerbank::DB::schemas ) {
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset('CombinationMatch')->search({}, { bind => [ @bindings, @bindings, $self->MAC_Vendor_id ] })->first;
+        my $db = fingerbank::DB->new(schema => $schema);
+        my $resultset = $db->handle->resultset('CombinationMatch')->search({}, { bind => [ @bindings, @bindings, $self->MAC_Vendor_id ] })->first;
         if ( defined($resultset) ) {
             $self->combination_id($resultset->id);
             $logger->info("Found combination ID '" . $self->combination_id . "' in schema '$schema'");
@@ -271,8 +271,8 @@ sub _recordUnmatched {
     $logger->debug("Attempting to record the unmatched query key '$key' with value '$value' in the 'unmatched' table of 'Local' database");
 
     # We first check if we already have the entry, if so we simply increment the occurence number
-    my $db = fingerbank::DB->connect('Local');
-    my $resultset = $db->resultset('Unmatched')->search({
+    my $db = fingerbank::DB->new(schema => 'Local');
+    my $resultset = $db->handle->resultset('Unmatched')->search({
         type    => { 'like', $key },
         value   => { 'like', $value},
     });
@@ -286,7 +286,7 @@ sub _recordUnmatched {
             created_at => strftime("%Y-%m-%d %H:%M:%S", localtime(time)),
             updated_at => strftime("%Y-%m-%d %H:%M:%S", localtime(time)),
         );
-        my $unmatched_key = $db->resultset('Unmatched')->create(\%args);
+        my $unmatched_key = $db->handle->resultset('Unmatched')->create(\%args);
     }
 
     # We have an existing entry for that query key. Incrementing the occurence number
@@ -298,7 +298,7 @@ sub _recordUnmatched {
             updated_at  => strftime("%Y-%m-%d %H:%M:%S", localtime(time)),
             occurence   => $occurence,
         );
-        my $unmatched_key = $db->resultset('Unmatched')->update(\%args);
+        my $unmatched_key = $db->handle->resultset('Unmatched')->update(\%args);
     }
 }
 

@@ -10,8 +10,8 @@ Databases related interaction class
 
 =cut
 
-use strict;
-use warnings;
+use Moose;
+use namespace::autoclean;
 
 use File::Copy qw(copy move);
 use JSON;
@@ -25,36 +25,79 @@ use fingerbank::FilePath qw($INSTALL_PATH $LOCAL_DB_FILE $LOCAL_DB_SCHEMA $UPSTR
 use fingerbank::Log;
 use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
-use fingerbank::Util qw(is_success is_disabled);
+use fingerbank::Util qw(is_success is_error is_disabled);
 
-has 'status_code'   => (is => 'rw', isa => 'Str');
+has 'schema'        => (is => 'rw', isa => 'Str');
+has 'handle'        => (is => 'rw', isa => 'Object');
+has 'status_code'   => (is => 'rw', isa => 'Int');
 has 'status_msg'    => (is => 'rw', isa => 'Str');
 
 our @schemas = ('Local', 'Upstream');
 
-=head1 METHODS
+=head1 OBJECT STATUS
 
-=head2 connect
+=head2 isError
 
-Returns the db handle for the requested schema
+Returns whether or not the object status is erronous
 
 =cut
 
-sub connect {
-    my ( $self, $schema ) = @_;
+sub isError {
+    my ( $self ) = @_;
+    return is_error($self->status_code);
+}
+
+=head2 isSuccess
+
+Returns whether or not the object status is successful
+
+=cut
+
+sub isSuccess {
+    my ( $self ) = @_;
+    return is_success($self->status_code);
+}
+
+=head2 statusMsg
+
+Return the object status message
+
+=cut
+
+sub statusMsg {
+    my ( $self ) = @_;
+    return $self->status_msg;
+}
+
+=head1 METHODS
+
+=head2 BUILD
+
+=cut
+
+sub BUILD {
+    my ( $self ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-    $logger->debug("Requested schema '$schema' db handle");
+    my $schema = $self->schema;
+
+    $logger->trace("Requesting schema '$schema' DB handle");
 
     # Check if the requested schema is a valid one
     my %schemas = map { $_ => 1 } @schemas;
     if ( !exists($schemas{$schema}) ) {
-        $logger->warn("Requested schema '$schema' does not exists");
+        $self->status_code($fingerbank::Status::INTERNAL_SERVER_ERROR);
+        $self->status_msg("Requested schema '$schema' does not exists");
+        $logger->warn($self->status_msg);
         return;
     }
 
     # Returning the requested schema db handle
-    return "fingerbank::Schema::$schema"->connect("dbi:SQLite:" . $INSTALL_PATH . "db/fingerbank_$schema.db");
+    $self->handle("fingerbank::Schema::$schema"->connect("dbi:SQLite:" . $INSTALL_PATH . "db/fingerbank_$schema.db"));
+
+    return;
+}
+
 }
 
 =head2 fetch_upstream
@@ -209,8 +252,8 @@ sub submit_unknown {
 
     $logger->debug("Attempting to submit unmatched parameters to upstream Fingerbank project");
 
-    my $db = fingerbank::DB->connect('Local');
-    my $resultset = $db->resultset('Unmatched')->search({ 'submitted' => $FALSE }, { columns => ['id', 'type', 'value'], order_by => { -asc => 'id' } });
+    my $db = fingerbank::DB->new(schema => 'Local');
+    my $resultset = $db->handle->resultset('Unmatched')->search({ 'submitted' => $FALSE }, { columns => ['id', 'type', 'value'], order_by => { -asc => 'id' } });
 
     my ( $id, %data );
     foreach my $entry ( $resultset ) {
@@ -268,5 +311,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable;
 
 1;

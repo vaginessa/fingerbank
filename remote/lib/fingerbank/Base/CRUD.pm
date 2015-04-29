@@ -47,8 +47,8 @@ sub _parseClassName {
 sub _getTableID {
     my ( $self, $table ) = @_;
 
-    my $db = fingerbank::DB->connect('Local');
-    my $resultset = $db->resultset('TablesIDs')->first;
+    my $db = fingerbank::DB->new(schema => 'Local');
+    my $resultset = $db->handle->resultset('TablesIDs')->first;
 
     $table = lc($table);
     return $resultset->$table;
@@ -61,16 +61,16 @@ sub _getTableID {
 sub _incrementTableID {
     my ( $self, $table ) = @_;
 
-    my $db = fingerbank::DB->connect('Local');
+    my $db = fingerbank::DB->new(schema => 'Local');
 
     # Get current ID before incrementing it
-    my $resultset = $db->resultset('TablesIDs')->first;
+    my $resultset = $db->handle->resultset('TablesIDs')->first;
     $table = lc($table);
     my $id = $resultset->$table;
 
     # Increment the ID and update the table
     $id ++;
-    $db->resultset('TablesIDs')->update({ $table => $id });
+    $db->handle->resultset('TablesIDs')->update({ $table => $id });
 }
 
 
@@ -106,8 +106,8 @@ sub create {
     $args->{created_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding created_at with current timestamp
     $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));   # Overriding updated_at with current timestamp
 
-    my $db = fingerbank::DB->connect('Local');
-    my $resultset = $db->resultset($className)->create($args);
+    my $db = fingerbank::DB->new(schema => 'Local');
+    my $resultset = $db->handle->resultset($className)->create($args);
 
     # Query doesn't returned any result which means failure in this case
     if ( !defined($resultset) ) {
@@ -154,8 +154,8 @@ sub read {
 
     $logger->debug("Looking for '$className' entry with ID '$id' in schema '$schema'");
 
-    my $db = fingerbank::DB->connect($schema);
-    my $resultset = $db->resultset($className)->find($id);
+    my $db = fingerbank::DB->new(schema => $schema);
+    my $resultset = $db->handle->resultset($className)->find($id);
 
     # Query doesn't return any result
     if ( !defined($resultset) ) {
@@ -199,8 +199,8 @@ sub update {
     $args->{updated_at} = strftime("%Y-%m-%d %H:%M:%S", localtime(time));
 
     # Fetching current data to build the resultset from which we will then update with new data
-    my $db = fingerbank::DB->connect('Local');
-    my $resultset = $db->resultset($className)->find($id);
+    my $db = fingerbank::DB->new(schema => 'Local');
+    my $resultset = $db->handle->resultset($className)->find($id);
 
     # Query doesn't returned any result
     if ( !defined($resultset) ) {
@@ -247,8 +247,8 @@ sub delete {
     $logger->debug("Attempting to delete '$className' entry with ID '$id' from schema 'Local'");
 
     # Fetching current data to build the resultset from which we will delete
-    my $db = fingerbank::DB->connect('Local');
-    my $resultset = $db->resultset($className)->find($id);
+    my $db = fingerbank::DB->new(schema => 'Local');
+    my $resultset = $db->handle->resultset($className)->find($id);
 
     # Query doesn't returned any result
     if ( !defined($resultset) ) {
@@ -310,8 +310,8 @@ sub search {
     foreach my $schema ( @schemas ) {
         $logger->debug("Searching '$className' entries in schema '$schema'");
 
-        my $db = fingerbank::DB->connect($schema);
-        my $resultset = $db->resultset($className)->search(@$search_args);
+        my $db = fingerbank::DB->new(schema => $schema);
+        my $resultset = $db->handle->resultset($className)->search(@$search_args);
 
         # Empty resultset should not be pushed into the result array
         next if $resultset eq 0;
@@ -438,8 +438,8 @@ sub count {
     my @schemas = ( defined($schema) ) ? ($schema) : @fingerbank::DB::schemas;
 
     foreach my $schema ( @schemas ) {
-        my $db = fingerbank::DB->connect($schema);
-        my $nb_of_rows = $db->resultset($className)->search->count;
+        my $db = fingerbank::DB->new(schema => $schema);
+        my $nb_of_rows = $db->handle->resultset($className)->search->count;
         $count += $nb_of_rows;
     }
 
