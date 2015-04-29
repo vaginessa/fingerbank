@@ -46,8 +46,14 @@ sub _parseClassName {
 
 sub _getTableID {
     my ( $self, $table ) = @_;
+    my $logger = fingerbank::Log::get_logger;
 
     my $db = fingerbank::DB->new(schema => 'Local');
+    if ( $db->isError ) {
+        $logger->warn("Can't get '$table' table ID. DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return $db->statusCode;
+    }
+
     my $resultset = $db->handle->resultset('TablesIDs')->first;
 
     $table = lc($table);
@@ -60,8 +66,13 @@ sub _getTableID {
 
 sub _incrementTableID {
     my ( $self, $table ) = @_;
+    my $logger = fingerbank::Log::get_logger;
 
     my $db = fingerbank::DB->new(schema => 'Local');
+    if ( $db->isError ) {
+        $logger->warn("Can't increment '$table' table ID. DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return $db->statusCode;
+    }
 
     # Get current ID before incrementing it
     my $resultset = $db->handle->resultset('TablesIDs')->first;
@@ -71,6 +82,8 @@ sub _incrementTableID {
     # Increment the ID and update the table
     $id ++;
     $db->handle->resultset('TablesIDs')->update({ $table => $id });
+
+    return $fingerbank::Status::OK
 }
 
 
@@ -97,7 +110,14 @@ sub create {
     my $className = $self->_parseClassName;
     my $return = {};
 
-    my $entry_id = "L" . $self->_getTableID($className);    # Local entries IDs are prefixed by L
+    my $entry_id = $self->_getTableID($className);
+    if ( is_error($entry_id) ) {
+        my $status_msg = "Cannot create new '$className' entry in schema 'Local'";
+        $logger->warn($status_msg);
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+    }
+
+    $entry_id = 'L' . $entry_id;    # Local entries IDs are prefixed by L
 
     $logger->debug("Attempting to create a new '$className' entry with ID '$entry_id' in schema 'Local'");
 
@@ -117,7 +137,12 @@ sub create {
     }
 
     # Increment table ID after successful creation
-    $self->_incrementTableID($className);
+    my $status = $self->_incrementTableID($className);
+    if ( is_error($status) ) {
+        my $status_msg = "Error after creating a new '$className' entry with ID '$entry_id' in schema 'Local'";
+        $logger->warn($status_msg);
+        return ( $fingerbank::Status::INTERNAL_SERVER_ERROR, $status_msg );
+    }
 
     # Building the newly created resultset to be returned
     foreach my $column ( $resultset->result_source->columns ) {
