@@ -103,12 +103,49 @@ sub BUILD {
         return;
     }
 
+    # Test requested schema DB file validity
+    return if is_error($self->_test);
+
     # Returning the requested schema db handle
     $self->handle("fingerbank::Schema::$schema"->connect("dbi:SQLite:" . $INSTALL_PATH . "db/fingerbank_$schema.db"));
 
     return;
 }
 
+=head2 _test
+
+Not meant to be used outside of this class
+
+=cut
+
+sub _test {
+    my ( $self ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $schema = $self->schema;
+
+    my $database_file = $INSTALL_PATH . "db/fingerbank_$schema.db";
+
+    $logger->trace("Testing '$schema' database");
+
+    # Check if requested schema DB exists and is "valid"
+    if ( (!-e $database_file) || (-z $database_file) ) {
+        $self->status_code($fingerbank::Status::INTERNAL_SERVER_ERROR);
+        $self->status_msg("Requested schema '$schema' DB file does not seems to be valid");
+        $logger->error($self->status_msg);
+        return $self->status_code;
+    }
+
+    # Check for read / write permissions with the effective uid/gid
+    if ( (!-r $database_file) || (!-w $database_file) ) {
+        $self->status_code($fingerbank::Status::INTERNAL_SERVER_ERROR);
+        $self->status_msg("Requested schema '$schema' DB file does not seems to have the right permissions");
+        $logger->error($self->status_msg);
+        return $self->status_code;
+    }
+
+    $self->status_code($fingerbank::Status::OK);
+    return $self->status_code;
 }
 
 =head2 fetch_upstream
