@@ -124,7 +124,8 @@ sub _test {
 
     my $schema = $self->schema;
 
-    my $database_file = $INSTALL_PATH . "db/fingerbank_$schema.db";
+    my $database_path = $INSTALL_PATH . "db/";
+    my $database_file = $database_path . "fingerbank_$schema.db";
 
     $logger->trace("Testing '$schema' database");
 
@@ -137,7 +138,7 @@ sub _test {
     }
 
     # Check for read / write permissions with the effective uid/gid
-    if ( (!-r $database_file) || (!-w $database_file) ) {
+    if ( (!-r $database_path) || (!-w $database_path) || (!-r $database_file) || (!-w $database_file) ) {
         $self->status_code($fingerbank::Status::INTERNAL_SERVER_ERROR);
         $self->status_msg("Requested schema '$schema' DB file does not seems to have the right permissions");
         $logger->error($self->status_msg);
