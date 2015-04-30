@@ -19,6 +19,7 @@ Requires(pre):      /usr/sbin/useradd, /usr/sbin/groupadd, /usr/bin/getent
 Requires(postun):   /usr/sbin/userdel
 
 Requires:   perl
+Requires:   perl-version
 Requires:   perl(Catalyst::Runtime)
 Requires:   perl(aliased)
 Requires:   perl(MooseX::Types::LoadableClass)
