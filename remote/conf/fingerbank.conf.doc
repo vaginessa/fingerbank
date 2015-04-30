@@ -1,0 +1,37 @@
+[upstream.api_key]
+type=text
+description=<<EOT
+API key to interact with upstream Fingerbank project
+EOT
+
+[upstream.db_url]
+type=text
+description=<<EOT
+URL to fetch the upstream Fingerbank project database
+EOT
+
+[upstream.interrogate]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Should the local instance of Fingerbank interrogate the upstream Fingerbank project when unable to fullfil a match
+EOT
+
+[upstream.interrogate_url]
+type=text
+description=<<EOT
+URL to interrogate the upstream Fingerbank project to fullfil a match
+EOT
+
+[upstream.submit_url]
+type=text
+description=<<EOT
+URL to submit unmatched parameter to upstream Fingerbank project
+EOT
+
+[query.record_unmatched]
+type=toggle
+options=enabled|disabled
+description=<<EOT
+Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution
+EOT
