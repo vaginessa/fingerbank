@@ -67,6 +67,25 @@ Readonly::Scalar our $LOCAL_DB_FILE         => catfile($INSTALL_PATH, 'db/finger
 Readonly::Scalar our $LOCAL_DB_SCHEMA       => catfile($INSTALL_PATH, 'db/schema_Local.sql');
 Readonly::Scalar our $UPSTREAM_DB_FILE      => catfile($INSTALL_PATH, 'db/fingerbank_Upstream.db');
 
+Readonly::Array our @PATHS => (
+    $INSTALL_PATH, 
+    $INSTALL_PATH . 'conf',
+    $INSTALL_PATH . 'db',
+    $INSTALL_PATH . 'logs',
+);
+
+Readonly::Array our @FILES => (
+    $CONF_FILE,
+    $CONFIG_DEFAULTS_FILE,
+    $CONFIG_DOC_FILE,
+    $LOG_CONF_FILE,
+    $LOCAL_DB_FILE,
+    $UPSTREAM_DB_FILE,
+    $LOCAL_DB_SCHEMA,
+    $INSTALL_PATH . 'db/init_databases.pl',
+    $LOG_FILE,
+);
+
 =back
 
 =head1 AUTHOR
