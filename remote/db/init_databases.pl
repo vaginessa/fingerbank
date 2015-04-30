@@ -28,7 +28,7 @@ switch ( $database ) {
     }
 
     case 'upstream' {
-        fingerbank::DB::fetch_upstream;
+        fingerbank::DB::update_upstream;
     }
 
     case 'both' {
