@@ -235,6 +235,7 @@ sub _interrogateUpstream {
     $logger->debug("Attempting to interrogate upstream Fingerbank project");
 
     my $ua = LWP::UserAgent->new;
+    $ua->timeout(2);   # An interrogate query should not take more than 2 seconds
     my $query_args = encode_json($args);
 
     my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});

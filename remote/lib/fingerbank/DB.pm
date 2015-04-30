@@ -15,7 +15,6 @@ use namespace::autoclean;
 
 use File::Copy qw(copy move);
 use JSON;
-use LWP::Simple qw(getstore);
 use LWP::UserAgent;
 use POSIX qw(strftime);
 
@@ -172,12 +171,20 @@ sub fetch_upstream {
 
     $logger->debug("Downloading the latest version of upstream database from '$download_url' to '$database_file'");
 
-    my $status = getstore($download_url, $database_file);
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(60);   # An update query should not take more than 60 seconds
+    
+    my $status;
+    my $res = $ua->get($download_url);
 
-    if ( is_success($status) ) {
+    if ( $res->is_success ) {
+        $status = $fingerbank::Status::OK;
         $logger->info("Successfully fetched 'Upstream' database from Fingerbank project");
+        open my $fh, ">", $database_file;
+        print {$fh} $res->decoded_content;
     } else {
-        $logger->warn("Failed to download latest version of 'Upstream' database with the following return code: $status");
+        $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
+        $logger->warn("Failed to download latest version of 'Upstream' database with the following return code: " . $res->status_line);
     }
 
     return $status;
@@ -323,6 +330,7 @@ sub submit_unknown {
     }
 
     my $ua = LWP::UserAgent->new;
+    $ua->timeout(10);  # A submit query should not take more than 10 seconds
     my $submitted_data = encode_json(\%data);
 
     my $req = HTTP::Request->new( POST => $Config->{'upstream'}{'submit_url'}.$Config->{'upstream'}{'api_key'} );
