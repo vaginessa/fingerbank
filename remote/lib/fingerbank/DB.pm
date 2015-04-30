@@ -163,7 +163,7 @@ sub fetch_upstream {
 
     if ( !fingerbank::Config::is_api_key_configured ) {
         $logger->warn("Can't communicate with Fingerbank project without a valid API key.");
-        return;
+        return $fingerbank::Status::UNAUTHORIZED;
     }
 
     my $database_file = $UPSTREAM_DB_FILE;
@@ -233,6 +233,7 @@ sub update_upstream {
     } else {
         $is_an_update = $FALSE;
     }
+
     $status = fetch_upstream($self, $is_an_update);
 
     if ( is_success($status) && $is_an_update ) {
@@ -275,8 +276,6 @@ sub update_upstream {
 
 =head2 submit_unknown
 
-Not yet implemented
-
 =cut
 
 sub submit_unknown {
@@ -287,21 +286,33 @@ sub submit_unknown {
 
     my $Config = fingerbank::Config::get_config;
 
-    if ( !fingerbank::Config::is_api_key_configured ) {
-        $logger->warn("Can't communicate with Fingerbank project without a valid API key.");
-        return;
-    }
-
     # Are we configured to do so ?
     my $record_unmatched = $Config->{'query'}{'record_unmatched'};
     if ( is_disabled($record_unmatched) ) {
-        $logger->debug("Not configured to record unmatched parameters. Cannot submit so skipping");
-        return;
+        $status = $fingerbank::Status::NOT_IMPLEMENTED;
+        $status_msg = ("Not configured to record unmatched parameters. Cannot submit so skipping");
+        $logger->debug($status_msg);
+        return ( $status, $status_msg );
+    }
+
+    # Is an API key configured ?
+    if ( !fingerbank::Config::is_api_key_configured ) {
+        $status = $fingerbank::Status::UNAUTHORIZED;
+        $status_msg = "Can't communicate with Fingerbank project without a valid API key.";
+        $logger->warn($status_msg);
+        return ( $status, $status_msg );
     }
 
     $logger->debug("Attempting to submit unmatched parameters to upstream Fingerbank project");
 
     my $db = fingerbank::DB->new(schema => 'Local');
+    if ( $db->isError ) {
+        $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
+        $status_msg = "Cannot read from 'Unmatched' table in schema 'Local'";
+        $logger->warn($status_msg . ". DB layer returned '" . $db->statusCode . " - " . $db->statusMsg . "'");
+        return ( $status, $status_msg );
+    }
+
     my $resultset = $db->handle->resultset('Unmatched')->search({ 'submitted' => $FALSE }, { columns => ['id', 'type', 'value'], order_by => { -asc => 'id' } });
 
     my ( $id, %data );
