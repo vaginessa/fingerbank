@@ -190,7 +190,8 @@ class Combination < FingerbankModel
             left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
             WHERE (combinations.id=#{id});"
     records = ActiveRecord::Base.connection.execute(sql)
-    return records.first[0]
+    record = records.first
+    return record ? record[0] : nil
   end
 
 end
