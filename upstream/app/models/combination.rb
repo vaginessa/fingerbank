@@ -45,6 +45,7 @@ class Combination < FingerbankModel
   def validate_combination_uniqueness
     existing = Combination.where(:dhcp_fingerprint_id => dhcp_fingerprint_id, :user_agent_id => user_agent_id, :dhcp_vendor_id => dhcp_vendor_id, :mac_vendor_id => mac_vendor_id).size
     if (persisted? && existing > 1) || (!persisted? && existing > 0)
+      logger.warn "Combination #{id} was going to be saved, but a duplicate was found with dhcp_fingerprint_id #{dhcp_fingerprint_id}, user_agent_id #{user_agent_id}, dhcp_vendor_id #{dhcp_vendor_id}, mac_vendor_id #{mac_vendor_id}"
       errors.add(:combination, 'A unique set of attributes must be set. This combination already exists')
     end
   end
