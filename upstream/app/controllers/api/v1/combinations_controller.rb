@@ -97,7 +97,8 @@ class Api::V1::CombinationsController < Api::ApiController
 
     if @combination.nil?
       logger.warn "Combination doesn't exist. Creating a new one"
-      @combination = Combination.new(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor, :submitter => @current_user)
+      Combination.create(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor, :submitter => @current_user)
+      @combination = Combination.where(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor).first
       @combination.process(:with_version => true, :save => true)
     end
     if @combination.device.nil?
