@@ -1,3 +1,9 @@
+fingerbank (1.0.2) unstable; urgency=low
+
+  * Version 1.0.2
+
+ -- Durand Fabrice <fdurand@inverse.ca>  Wed, 12 Mai 2015 13:05:59 -0400
+
 fingerbank (1.0.0) unstable; urgency=low
 
   * Initial release
