@@ -99,6 +99,10 @@ sub _getQueryKeyIDs {
 
         # MAC_Vendor key is different in the way we store the values in the database. Need to handle it
         if ( $key eq 'MAC_Vendor' ) {
+            if ( $query->{'value'} eq '' ) {
+                $logger->debug("Attempting to find an ID for 'MAC_Vendor' with empty value. This is a special case. Returning 'NULL'");
+                return ( $fingerbank::Status::OK, 'NULL' );
+            }
             $query->{'mac'} = delete $query->{'value'}; # The 'value' column is the 'mac' column in this specific case
             my $mac = $query->{'mac'};
             $mac =~ s/[:|\s|-]//g;      # Removing separators
