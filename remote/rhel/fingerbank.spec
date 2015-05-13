@@ -67,7 +67,6 @@ rm -rf %{buildroot}
 
 
 %postun
-/usr/sbin/userdel fingerbank
 
 
 %files
