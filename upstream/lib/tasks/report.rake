@@ -24,4 +24,18 @@ namespace :report do |ns|
     AdminMailer.daily_report.deliver
   end
 
+  task :new_dhcp_discoverers, [:after] => [:environment] do |t, args|
+    unless args[:after]
+      puts "Missing start date"
+    end
+    rules = Rule.where('created_at > ?', args[:after]).where('value like "%dhcp_fingerprints%"')
+    rules.each do |rule| 
+      if rule.device_discoverer 
+        puts "----------------"
+        puts rule.device_discoverer.device.full_path
+        puts rule.value 
+      end
+    end
+  end
+
 end
