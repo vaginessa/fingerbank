@@ -1,0 +1,43 @@
+<h1>Listing unknown DHCP fingerprints</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Ignore</th>
+      <th>Fingerprint</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @dhcp_fingerprints.not_ignored.each do |dhcp_fingerprint| %>
+      <tr>
+        <td class="options"><%= link_to '', trigger_ignore_dhcp_fingerprint_path(dhcp_fingerprint), :method => 'post', :class => "btn-unwatch" if current_user_admin? %></td>
+        <td><%= dhcp_fingerprint.value %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h1>Ignored unknown DHCP fingerprints</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Un-ignore</th>
+      <th>Fingerprint</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @dhcp_fingerprints.ignored.each do |dhcp_fingerprint| %>
+      <tr>
+        <td class="options"><%= link_to '', trigger_ignore_dhcp_fingerprint_path(dhcp_fingerprint), :method => 'post', :class => "btn-watch" if current_user_admin? %></td>
+        <td><%= dhcp_fingerprint.value %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New DhcpFingerprint', new_dhcp_fingerprint_path %>

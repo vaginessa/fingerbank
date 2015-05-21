@@ -6,4 +6,7 @@ class DhcpFingerprint < ActiveRecord::Base
 
   validates_uniqueness_of :value
 
+  scope :ignored, -> {where(:ignored => true)}
+  scope :not_ignored, -> {where(:ignored => false)}
+
 end

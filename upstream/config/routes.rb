@@ -44,7 +44,14 @@ Rails.application.routes.draw do
     resources :conditions
   end
 
-  resources :dhcp_fingerprints
+  resources :dhcp_fingerprints do
+    collection do
+      get 'unknown'
+    end
+    member do
+      post 'trigger_ignore'
+    end
+  end
 
   resources :devices do 
     get 'community', on: :new, :to => 'devices#community_new'

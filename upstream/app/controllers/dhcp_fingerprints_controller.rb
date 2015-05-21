@@ -21,6 +21,21 @@ class DhcpFingerprintsController < ApplicationController
   def edit
   end
 
+  def unknown
+    combinations = Combination.unknown.group(:dhcp_fingerprint_id)
+    dhcp_fingerprint_ids = combinations.map {|c| c.dhcp_fingerprint.id }
+    @dhcp_fingerprints = DhcpFingerprint.where(:id => dhcp_fingerprint_ids)
+  end
+
+  def trigger_ignore
+    dhcp_fingerprint = DhcpFingerprint.find params[:id]
+    dhcp_fingerprint.update(:ignored => !dhcp_fingerprint.ignored)
+    respond_to do |format|
+      format.html { redirect_to :back, notice: 'DHCP fingerprint was successfully modified.' }
+      format.json { head :no_content }
+    end
+  end
+
   # POST /dhcp_fingerprints
   # POST /dhcp_fingerprints.json
   def create
