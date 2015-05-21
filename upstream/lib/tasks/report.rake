@@ -38,4 +38,77 @@ namespace :report do |ns|
     end
   end
 
+  task dhcp_fingerprint_2_device: :environment do
+    fingerprint2device = {}
+    vendor2device = {}
+    DhcpFingerprint.all.each do |fingerprint|
+      fingerprint_devices = fingerprint.combinations.group(:dhcp_vendor_id).map { |c| 
+        c.device.full_path unless c.dhcp_vendor.value.empty? || c.dhcp_vendor.value.nil? || c.device.nil? 
+      }
+      fingerprint_devices = fingerprint_devices.uniq
+      fingerprint_devices.delete(nil)
+
+      fingerprint2device[fingerprint.value] = fingerprint_devices unless fingerprint_devices.size < 2
+
+    end
+    require 'pp'
+    pp fingerprint2device
+  end
+
+  task dhcp_fingerprint_2_vendor: :environment do
+    fingerprint2vendor = {}
+    DhcpFingerprint.all.each do |fingerprint|
+      tmp_vendors = fingerprint.combinations.group(:dhcp_vendor_id).map { |c| 
+        c.dhcp_vendor.value unless c.dhcp_vendor.value.empty? || c.dhcp_vendor.value.nil? 
+      }
+
+      vendors = []
+      added_dhcpcd = false
+      added_xerox = false
+      added_hp = false
+      added_bb = false
+      added_udhcp = false
+      added_linux = false
+      tmp_vendors.each do |vendor|
+        if vendor =~ /^dhcpcd-.*/i
+          vendors << vendor if !added_dhcpcd 
+          added_dhcpcd = true
+          next
+        end
+        if vendor =~ /^mf(g|f)=Xerox.*/i || vendor =~ /^mfg=fujixerox.*/i
+          vendors << vendor if !added_xerox
+          added_xerox = true
+          next
+        end
+        if vendor =~ /^mfg=Hewlett.*/i
+          vendors << vendor if !added_hp
+          added_hp = true
+          next
+        end
+        if vendor =~ /^blackberry.*/i
+          vendors << vendor if !added_bb
+          added_bb = true
+          next
+        end
+        if vendor =~ /^udhcp.*/i
+          vendors << vendor if !added_udhcp
+          added_udhcp = true
+          next
+        end
+        if vendor =~ /^Linux.*/i
+          vendors << vendor if !added_linux
+          added_linux = true
+          next
+        end
+
+        vendors << vendor
+      end
+      
+      fingerprint2vendor[fingerprint.value] = vendors unless vendors.size < 2
+
+    end
+    require 'pp'
+    pp fingerprint2vendor
+  end
+
 end
