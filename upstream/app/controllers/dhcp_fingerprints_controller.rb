@@ -24,7 +24,14 @@ class DhcpFingerprintsController < ApplicationController
   def unknown
     combinations = Combination.unknown.group(:dhcp_fingerprint_id)
     dhcp_fingerprint_ids = combinations.map {|c| c.dhcp_fingerprint.id }
-    @dhcp_fingerprints = DhcpFingerprint.where(:id => dhcp_fingerprint_ids)
+    @dhcp_fingerprints = DhcpFingerprint.where(:id => dhcp_fingerprint_ids).not_ignored
+    @fingerprints_w_count = {}
+    @dhcp_fingerprints.each do |dhcp_fingerprint|
+      @fingerprints_w_count[dhcp_fingerprint] = dhcp_fingerprint.combinations.known.count
+    end
+    @fingerprints_w_count = @fingerprints_w_count.sort {|a1,a2| a2[1]<=>a1[1]}
+
+    @ignored_dhcp_fingerprints = DhcpFingerprint.where(:id => dhcp_fingerprint_ids).ignored
   end
 
   def trigger_ignore

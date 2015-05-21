@@ -5,14 +5,16 @@
     <tr>
       <th>Ignore</th>
       <th>Fingerprint</th>
+      <th>Known combinations</th>
     </tr>
   </thead>
 
   <tbody>
-    <% @dhcp_fingerprints.not_ignored.each do |dhcp_fingerprint| %>
+    <% @fingerprints_w_count.each do |dhcp_fingerprint, count| %>
       <tr>
         <td class="options"><%= link_to '', trigger_ignore_dhcp_fingerprint_path(dhcp_fingerprint), :method => 'post', :class => "btn-unwatch" if current_user_admin? %></td>
         <td><%= dhcp_fingerprint.value %></td>
+        <td><%= count %></td>
       </tr>
     <% end %>
   </tbody>
@@ -25,6 +27,7 @@
     <tr>
       <th>Un-ignore</th>
       <th>Fingerprint</th>
+      <th>Known combinations</th>
     </tr>
   </thead>
 
@@ -33,6 +36,7 @@
       <tr>
         <td class="options"><%= link_to '', trigger_ignore_dhcp_fingerprint_path(dhcp_fingerprint), :method => 'post', :class => "btn-watch" if current_user_admin? %></td>
         <td><%= dhcp_fingerprint.value %></td>
+        <td><%= dhcp_fingerprint.combinations.known.count %></td>
       </tr>
     <% end %>
   </tbody>

@@ -20,6 +20,7 @@ class Combination < FingerbankModel
   validate :validate_combination_uniqueness
 
   scope :unknown, -> {where(:device => nil)}   
+  scope :known, -> {where('device_id is not null')}   
   scope :unrated, -> {where('device_id is not null and score=0')}   
 
   def self.simple_search_joins
