@@ -10,7 +10,7 @@
 #export DH_VERBOSE=1
 NAME		= fingerbank
 PREFIX		= /usr/local
-INSTALL		= /usr/bin/install -c -D -m0644
+INSTALL		= /usr/bin/install -c -D -m0664
 
 configure: configure-stamp
 configure-stamp:
