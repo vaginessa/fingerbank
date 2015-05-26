@@ -28,7 +28,7 @@ case "$1" in
         set +e
         userdel fingerbank
         if [ $? -ne 0 ]; then
-            echo "Unable to remove ifingerbank user"
+            echo "Unable to remove fingerbank user"
         fi
         if [ -e /etc/lsb-release ]; then
             groupdel fingerbank
