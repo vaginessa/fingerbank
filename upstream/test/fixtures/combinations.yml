@@ -9,3 +9,9 @@ android:
   user_agent: android
   dhcp_fingerprint: empty
   dhcp_vendor: empty
+
+nintendo:
+  user_agent: empty
+  dhcp_fingerprint: empty
+  dhcp_vendor: empty
+  mac_vendor: nintendo

@@ -1,3 +1,4 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-
+nintendo:
+  name: 'Nintendo Inc.'

@@ -8,7 +8,12 @@ android:
   priority: 5
   device: android
 
+nintendo:
+  priority: 5
+  device: nintendo
+
 iphone_version:
   priority: 5
   device: iphone
   version: "REPLACE( PREG_CAPTURE('/CPU .* ([0-9_]+) like Mac OS X/', user_agents.value, 1), '_', '.')"
+

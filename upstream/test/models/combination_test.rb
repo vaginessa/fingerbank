@@ -6,6 +6,7 @@ class CombinationTest < ActiveSupport::TestCase
   end
 
   test 'combination lookup without cache' do
+    Rails.cache.clear
     FingerbankCache.clear
     combination = combinations(:iphone)
     assert combination.process(:with_version => true, :save => true), "iPhone combination can be processed"
@@ -18,8 +19,14 @@ class CombinationTest < ActiveSupport::TestCase
     assert combination.processed_method == 'find_matching_discoverers_long'
     assert combination.device.name == 'Nexus zammit', "Android combination yields the right result"
 
+    FingerbankCache.clear
+    combination = combinations(:nintendo)
+    assert combination.process(:with_version => true, :save => true), "Nintendo combination can be processed"
+    assert combination.processed_method == 'find_matching_discoverers_long'
+    assert combination.device.name == 'Nintendo Pii', "Nintendo combination yields the right result"
+
     # We're supposed to send e-mails when having full cache miss
-    assert ActionMailer::Base.deliveries.size == 2
+    assert ActionMailer::Base.deliveries.size == 3
   end
 
   test 'combination lookup with cache discoverers cache' do
@@ -55,6 +62,11 @@ class CombinationTest < ActiveSupport::TestCase
     # we create a new combination with a new user agent
     user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
     combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
+    assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
+    assert combination.processed_method == "find_matching_discoverers_tmp_table"
+
+    mac_vendor = mac_vendors(:nintendo)
+    combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty), :mac_vendor => mac_vendor)
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
     assert combination.processed_method == "find_matching_discoverers_tmp_table"
     

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150521155421) do
+ActiveRecord::Schema.define(version: 20150608145948) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -114,6 +114,7 @@ ActiveRecord::Schema.define(version: 20150521155421) do
     t.string   "dhcp_vendor",      limit: 1000
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "mac_vendor",       limit: 1000
   end
 
   create_table "test", force: true do |t|

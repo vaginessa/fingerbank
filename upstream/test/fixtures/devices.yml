@@ -9,3 +9,8 @@ android:
   name: 'Nexus zammit'
   mobile: true
   tablet: false
+
+nintendo:
+  name: 'Nintendo Pii'
+  mobile: false
+  tablet: false

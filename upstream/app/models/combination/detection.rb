@@ -115,7 +115,8 @@ class Combination < FingerbankModel
 
     ua = user_agent.value
     discoverers = []
-    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+    mac_vendor_name = mac_vendor ? mac_vendor.name : ''
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name)
     assoc.each do |regex, discoverer|
       if ua =~ /#{regex}/ && temp_combination.matches?(discoverer)
          discoverers << discoverer
@@ -135,7 +136,8 @@ class Combination < FingerbankModel
     ifs, conditions = Discoverer.discoverers_ifs
     matches = []
 
-    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+    mac_vendor_name = mac_vendor ? mac_vendor.name : ''
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name)
     unless ifs.empty?
       return temp_combination.matches_on_ifs?(ifs, conditions)   
       self.processed_method = "find_matching_discoverers_tmp_table"
@@ -149,7 +151,8 @@ class Combination < FingerbankModel
     discoverers = Discoverer.all
     discoverers_matched = []
     
-    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+    mac_vendor_name = mac_vendor ? mac_vendor.name : ''
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name)
     discoverers.each do |discoverer|
       if temp_combination.matches?(discoverer)
         discoverers_matched << discoverer
@@ -170,7 +173,8 @@ class Combination < FingerbankModel
       return
     end
 
-    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value)
+    mac_vendor_name = mac_vendor ? mac_vendor.name : ''
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name)
     valid_discoverers = temp_combination.matches_on_ifs?(version_discoverers_ifs[:ifs], version_discoverers_ifs[:conditions])
     versions_discovered = {} 
     valid_discoverers.each do |discoverer|
