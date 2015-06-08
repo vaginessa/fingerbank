@@ -7,7 +7,6 @@
   <th>Email address</th>
   <th># of requests</th>
   <th># of requests (this hour)</th>
-  <th>Combinations contributed</th>
   <th>Joined</th>
   <th></th>
 </tr>
@@ -20,7 +19,6 @@
     <td><%= user.email %></td>
     <td><%= user.requests || 0 %></td>
     <td><%= user.timeframed_requests %></td>
-    <td><%= user.combinations.count %></td>
     <td><%= time_ago_in_words(user.created_at) %> ago</td>
     <% if user.admin? %>
 
