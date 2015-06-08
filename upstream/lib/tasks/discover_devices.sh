@@ -32,6 +32,9 @@ RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
 # remove the orphan data due to administrative deletion or another reason
 RAILS_ENV=production bundle exec rake clean:delete_orphans
 
+# delete invalid combinations
+RAILS_ENV=production bundle exec fdb:delete_invalid_combinations
+
 # rebuild the discoverers cache from scratch
 echo "Starting discoverers cache build"
 RAILS_ENV=production bundle exec rake fbcache:build_discoverers 

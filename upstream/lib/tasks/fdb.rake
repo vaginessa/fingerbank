@@ -113,4 +113,13 @@ namespace :fdb do |ns|
     end
   end
 
+  task delete_invalid_combinations: :environment do
+    Combination.all.each do |c| 
+      unless c.valid?
+        puts "Deleting #{c.id}"
+        c.delete
+      end
+    end
+  end
+
 end
