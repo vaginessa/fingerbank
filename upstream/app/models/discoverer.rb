@@ -50,6 +50,7 @@ class Discoverer < FingerbankModel
               inner join user_agents on user_agents.id=combinations.user_agent_id 
               inner join dhcp_fingerprints on dhcp_fingerprints.id=combinations.dhcp_fingerprint_id
               inner join dhcp6_fingerprints on dhcp6_fingerprints.id=combinations.dhcp6_fingerprint_id
+              inner join dhcp6_enterprises on dhcp6_enterprises.id=combinations.dhcp6_enterprise_id
               inner join dhcp_vendors on dhcp_vendors.id=combinations.dhcp_vendor_id
               left join mac_vendors on mac_vendors.id=combinations.mac_vendor_id
               WHERE (#{query});"

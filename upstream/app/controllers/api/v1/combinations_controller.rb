@@ -44,6 +44,7 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
     submit_params[:user_agent] = params[:user_agent] || []
     submit_params[:dhcp_fingerprint] = params[:dhcp_fingerprint] || []
     submit_params[:dhcp6_fingerprint] = params[:dhcp6_fingerprint] || []
+    submit_params[:dhcp6_enterprise] = params[:dhcp6_enterprise] || []
     submit_params[:dhcp_vendor] = params[:dhcp_vendor] || []
 
     logger.debug "Submit params : #{submit_params.inspect}"
@@ -52,7 +53,7 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
     empty_dhcp_fingerprint = DhcpFingerprint.find(0)
     empty_dhcp_vendor = DhcpVendor.find(0)
 
-    added = {:user_agent => [], :dhcp_fingerprint => [], :dhcp6_fingerprint => [], :dhcp_vendor => []}
+    added = {:user_agent => [], :dhcp_fingerprint => [], :dhcp6_fingerprint => [], :dhcp6_enterprise => [], :dhcp_vendor => []}
 
     submit_params[:user_agent].each do |user_agent|
       unless UserAgent.exists?(:value => user_agent)
@@ -78,6 +79,15 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
         combination = Combination.get_or_create(:dhcp6_fingerprint => dhcp6_fingerprint)
         combination.update(:submitter => @current_user)
         added[:dhcp6_fingerprint] << dhcp6_fingerprint
+      end
+    end
+
+    submit_params[:dhcp6_enterprise].each do |dhcp6_enterprise|
+      unless Dhcp6Enterprise.exists?(:value => dhcp6_enterprise)
+        logger.info "DHCP6 enterprise #{dhcp6_enterprise} doesn't exist. Creating it"
+        combination = Combination.get_or_create(:dhcp6_enterprise => dhcp6_enterprise)
+        combination.update(:submitter => @current_user)
+        added[:dhcp6_enterprise] << dhcp6_enterprise
       end
     end
 
@@ -168,19 +178,20 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
 
     interogate_params[:dhcp_fingerprint] = interogate_params[:dhcp_fingerprint] || ""
     interogate_params[:dhcp6_fingerprint] = interogate_params[:dhcp6_fingerprint] || ""
+    interogate_params[:dhcp6_enterprise] = interogate_params[:dhcp6_enterprise] || ""
     interogate_params[:user_agent] = interogate_params[:user_agent] || ""
     interogate_params[:dhcp_vendor] = interogate_params[:dhcp_vendor] || ""
     interogate_params[:mac] = interogate_params[:mac] || ""
 
     logger.debug "Interogate params : #{interogate_params.inspect}"
 
-    if interogate_params[:user_agent].blank? && interogate_params[:dhcp_fingerprint].blank? && interogate_params[:dhcp_vendor].blank? && interogate_params[:dhcp6_fingerprint].blank? && interogate_params[:mac].blank?
+    if interogate_params[:user_agent].blank? && interogate_params[:dhcp_fingerprint].blank? && interogate_params[:dhcp_vendor].blank? && interogate_params[:dhcp6_fingerprint].blank? && interogate_params[:dhcp6_enterprise].blank? && interogate_params[:mac].blank?
       render json: {:message => 'There is no parameter in your query'}, :status => :bad_request
       return
     end
 
     beginning_time = Time.now
-    @combination = Combination.get_or_create(:user_agent => interogate_params[:user_agent], :dhcp_fingerprint => interogate_params[:dhcp_fingerprint], :dhcp6_fingerprint => interogate_params[:dhcp6_fingerprint], :dhcp_vendor => interogate_params[:dhcp_vendor], :mac => interogate_params[:mac])
+    @combination = Combination.get_or_create(:user_agent => interogate_params[:user_agent], :dhcp_fingerprint => interogate_params[:dhcp_fingerprint], :dhcp6_fingerprint => interogate_params[:dhcp6_fingerprint], :dhcp6_enterprise => interogate_params[:dhcp6_enterprise], :dhcp_vendor => interogate_params[:dhcp_vendor], :mac => interogate_params[:mac])
     end_time = Time.now
     logger.info "Time elapsed for combination lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
@@ -208,11 +219,11 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
 
   private
     def get_interogate_params
-      params.permit(:user_agent, :dhcp_fingerprint, :dhcp6_fingerprint, :dhcp_vendor, :mac)
+      params.permit(:user_agent, :dhcp_fingerprint, :dhcp6_fingerprint, :dhcp6_enterprise, :dhcp_vendor, :mac)
     end
 
     def get_submit_params
-      params.permit(:user_agent => [], :dhcp_fingerprint => [], :dhcp_vendor => [])
+      params.permit(:user_agent => [], :dhcp_fingerprint => [], :dhcp6_fingerprint => [], :dhcp6_enterprise => [], :dhcp_vendor => [])
     end
 
 end
