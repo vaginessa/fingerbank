@@ -18,7 +18,6 @@ class Api::V1::CombinationsControllerTest < ActionController::TestCase
 
     post :interogate, {:dhcp6_fingerprint => combination.dhcp6_fingerprint.value, :dhcp_vendor => dhcp_vendors(:microsoft).value, :key => @user.key}
     result = JSON.parse @response.body
-    puts @response.body
     assert result['id'] != combination.id, "DHCPv6 combination with new info is not reusing the combination"
     assert result['device']['id'] == devices(:windows).id, "DHCPv6 combination with new info has yielded the right device"
 
