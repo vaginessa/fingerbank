@@ -179,7 +179,7 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
     end
 
     beginning_time = Time.now
-    @combination = Combination.get_or_create(:user_agent => interogate_params[:user_agent], :dhcp_fingerprint => interogate_params[:dhcp_fingerprint], :dhcp_vendor_id => interogate_params[:dhcp_vendor], :mac => interogate_params[:mac]).first
+    @combination = Combination.get_or_create(:user_agent => interogate_params[:user_agent], :dhcp_fingerprint => interogate_params[:dhcp_fingerprint], :dhcp_vendor_id => interogate_params[:dhcp_vendor], :mac => interogate_params[:mac])
     end_time = Time.now
     logger.info "Time elapsed for combination lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
