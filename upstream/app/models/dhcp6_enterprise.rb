@@ -1,2 +1,2 @@
-class Dhcp6Enterprise < ActiveRecord::Base
+class Dhcp6Enterprise < CombinationAttribute
 end

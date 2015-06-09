@@ -110,7 +110,7 @@ class CombinationTest < ActiveSupport::TestCase
     assert combination.version == '7.1.2', "version has been detected properly (#{combination.version})"     
   end
 
-  test 'combination lookup with dhcpv6' do
+  test 'combination lookup with dhcpv6 fingerprint' do
     combination = combinations(:windows_ipv6)
     Discoverer.fbcache
     combination.process(:with_version => true, :save => true)
@@ -134,5 +134,31 @@ class CombinationTest < ActiveSupport::TestCase
     assert combination.device == devices(:windows), "Windows IPv6 combination yields the right result through a full scan"
    
   end
+
+  test 'combination lookup with dhcpv6 enterprise' do
+    combination = combinations(:android_ipv6)
+    Discoverer.fbcache
+    combination.process(:with_version => true, :save => true)
+    assert combination.device == devices(:android), "Device with DHCPv6 fingerprint is properly detected through the cache"
+
+    # test it with temp table
+    # we create a new combination with a new user agent
+    FingerbankCache.delete("model_regex_assoc")
+
+    user_agent = 'Gaggle OS'
+    combination = Combination.get_or_create(:user_agent => user_agent, :dhcp6_enterprise => dhcp6_enterprises(:android).value)
+    assert combination.process(:with_version => true, :save => true), "New Android IPv6 combination can be processed"
+    assert combination.processed_method == "find_matching_discoverers_tmp_table"   
+    assert combination.device == devices(:android), "Android IPv6 combination yields the right result through the temp table"
+
+    # test it full
+    FingerbankCache.clear
+    combination = combinations(:android_ipv6)
+    assert combination.process(:with_version => true, :save => true), "Android IPv6 combination can be processed"
+    assert combination.processed_method == 'find_matching_discoverers_long'
+    assert combination.device == devices(:android), "Android IPv6 combination yields the right result through a full scan"
+   
+  end
+
 
 end

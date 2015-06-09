@@ -2,3 +2,6 @@
 
 empty:
   value: ''
+
+android:
+  value: 'Google mobile OS'

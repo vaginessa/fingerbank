@@ -28,3 +28,10 @@ windows_ipv6:
   dhcp6_fingerprint: microsoft
   dhcp6_enterprise: empty
   dhcp_vendor: empty
+
+android_ipv6:
+  user_agent: empty
+  dhcp_fingerprint: empty
+  dhcp6_fingerprint: empty
+  dhcp6_enterprise: android
+  dhcp_vendor: empty 

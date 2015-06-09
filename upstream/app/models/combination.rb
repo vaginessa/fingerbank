@@ -50,7 +50,7 @@ class Combination < FingerbankModel
   def self.get_or_create(values)
     dhcp_fingerprint = DhcpFingerprint.get_or_create(:value => values[:dhcp_fingerprint])
     dhcp6_fingerprint = Dhcp6Fingerprint.get_or_create(:value => values[:dhcp6_fingerprint])
-    dhcp6_enterprise = Dhcp6Fingerprint.get_or_create(:value => values[:dhcp6_enterprise])
+    dhcp6_enterprise = Dhcp6Enterprise.get_or_create(:value => values[:dhcp6_enterprise])
     dhcp_vendor = DhcpVendor.get_or_create(:value => values[:dhcp_vendor])
     user_agent = UserAgent.get_or_create(:value => values[:user_agent])
     mac_vendor = MacVendor.from_mac(values[:mac])
