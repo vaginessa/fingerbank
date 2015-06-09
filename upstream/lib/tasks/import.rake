@@ -392,16 +392,8 @@ namespace :import do |ns|
       elsif state == 'searching_end' && line.empty?
         #puts "Done processing"
         puts "ua : '#{user_agent_value}', fingerprint : '#{fingerprint_value}'"
-        UserAgent.create(:value => user_agent_value)
-        user_agent = UserAgent.where(:value => user_agent_value).first
-        DhcpFingerprint.create(:value => fingerprint_value)
-        dhcp_fingerprint = DhcpFingerprint.where(:value => fingerprint_value).first
-        
-        dhcp_vendor = DhcpVendor.where(:value => '').first
-        mac_vendor = MacVendor.from_mac(nil)
-      
 
-        Combination.create(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor)
+        Combination.get_or_create(:user_agent => user_agent_value, :dhcp_fingerprint => dhcp_fingerprint_value)
 
         state = 'searching_ua'
       end
@@ -440,16 +432,8 @@ namespace :import do |ns|
       elsif state == 'searching_end' && line.empty?
         #puts "Done processing"
         puts "ua : #{user_agent_value}, fingerprint : #{fingerprint_value}"
-        UserAgent.create(:value => user_agent_value)
-        user_agent = UserAgent.where(:value => user_agent_value).first
-        DhcpFingerprint.create(:value => fingerprint_value)
-        dhcp_fingerprint = DhcpFingerprint.where(:value => fingerprint_value).first
-        
-        dhcp_vendor = DhcpVendor.where(:value => '').first
-        mac_vendor = MacVendor.from_mac(nil)
-      
 
-        Combination.create(:user_agent => user_agent, :dhcp_fingerprint => dhcp_fingerprint, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor)
+        Combination.get_or_create(:user_agent => user_agent_value, :dhcp_fingerprint => dhcp_fingerprint_value)
 
         state = 'searching_ua'
       end

@@ -1,8 +1,4 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-nintendo:
-  name: 'Nintendo Inc.'
-
-zammit:
-  name: 'Zammit corp'
-  mac: '123456'
+empty:
+  value: ''

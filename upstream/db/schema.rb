@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150608145948) do
+ActiveRecord::Schema.define(version: 20150609144433) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -21,9 +21,10 @@ ActiveRecord::Schema.define(version: 20150608145948) do
     t.integer  "device_id"
     t.string   "version"
     t.integer  "dhcp_vendor_id"
-    t.integer  "score",               default: 0
+    t.integer  "score",                default: 0
     t.integer  "mac_vendor_id"
     t.integer  "submitter_id"
+    t.integer  "dhcp6_fingerprint_id"
   end
 
   add_index "combinations", ["dhcp_fingerprint_id"], name: "combinations_dhcp_fingerprint_id_ix", using: :btree
@@ -49,6 +50,12 @@ ActiveRecord::Schema.define(version: 20150608145948) do
     t.boolean  "inherit"
     t.integer  "submitter_id"
     t.boolean  "approved",     default: true
+  end
+
+  create_table "dhcp6_fingerprints", force: true do |t|
+    t.string   "value",      limit: 1000
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "dhcp_fingerprints", force: true do |t|

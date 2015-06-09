@@ -1,6 +1,22 @@
 require 'test_helper'
 
 class CombinationTest < ActiveSupport::TestCase
+
+  test 'create a combination with default values' do
+    combination = Combination.get_or_create(:dhcp_fingerprint => "1,2,3,4,5", :user_agent => "Mozilla/Dinde")
+    assert combination.dhcp_fingerprint.value == "1,2,3,4,5", "DHCP fingerprint was properly created"
+    assert combination.user_agent.value == "Mozilla/Dinde", "User agent was properly created"
+    assert combination.dhcp_vendor == dhcp_vendors(:empty), "DHCP vendor is set to empty"
+    assert combination.mac_vendor.nil?, "MAC vendor is set to NULL"
+    assert combination.dhcp6_fingerprint == dhcp6_fingerprints(:empty), "DHCP6 fingerprint vendor is set to empty"
+
+    combination = Combination.get_or_create(:mac => '1234567890ab', :dhcp6_fingerprint => '5,4,3,2,1', :dhcp_vendor => 'Microhard')
+    assert combination.mac_vendor == mac_vendors(:zammit), "MAC vendor is properly detected"
+    assert combination.dhcp6_fingerprint.value == "5,4,3,2,1", "DHCP6 fingerprint was properly created"
+    assert combination.dhcp_vendor.value == 'Microhard', "DHCP vendor was properly created"
+  end
+
+
   test 'fixtures are there' do
     assert combinations(:iphone).user_agent.value == 'Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) GSA/5.2.43972 Mobile/11D257 Safari/9537.53'
   end
@@ -61,12 +77,12 @@ class CombinationTest < ActiveSupport::TestCase
     FingerbankCache.delete("model_regex_assoc")
     # we create a new combination with a new user agent
     user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
-    combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
+    combination = Combination.get_or_create(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
     assert combination.processed_method == "find_matching_discoverers_tmp_table"
 
     mac_vendor = mac_vendors(:nintendo)
-    combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty), :mac_vendor => mac_vendor)
+    combination = Combination.get_or_create(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty), :mac_vendor => mac_vendor)
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
     assert combination.processed_method == "find_matching_discoverers_tmp_table"
     
@@ -76,7 +92,7 @@ class CombinationTest < ActiveSupport::TestCase
     Discoverer.fbcache
     # we create a new combination with a new user agent
     user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
-    combination = Combination.create!(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
+    combination = Combination.get_or_create(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
     assert combination.processed_method == "find_matching_discoverers_local"
     

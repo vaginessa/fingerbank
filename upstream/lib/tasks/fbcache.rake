@@ -34,10 +34,8 @@ namespace :fbcache do |ns|
 
   task benchmark_processing: :environment do
 
-    UserAgent.create(:value => "Mozilla/5.0 (Linux; Android 4.4.2; 0PCV1 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.89 Mobile Safari/537.36")    
-    user_agent = UserAgent.where(:value => "Mozilla/5.0 (Linux; Android 4.4.2; 0PCV1 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.89 Mobile Safari/537.36").first
-    Combination.create(:user_agent => user_agent, :dhcp_fingerprint_id => 0, :dhcp_vendor_id => 0)
-    combination = Combination.where(:user_agent => user_agent, :dhcp_fingerprint_id => 0, :dhcp_vendor_id => 0).first
+    user_agent = "Mozilla/5.0 (Linux; Android 4.4.2; 0PCV1 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.89 Mobile Safari/537.36"
+    combination = Combination.get_or_create(:user_agent => user_agent)
     
     # do it once to bring the cache in mem
     Discoverer.fbcache
