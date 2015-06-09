@@ -2,3 +2,6 @@
 
 empty:
   value: ''
+
+microsoft:
+  value: 'MSFT 5.0'

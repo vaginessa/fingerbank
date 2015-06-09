@@ -22,6 +22,9 @@ class CombinationTest < ActiveSupport::TestCase
   end
 
   test 'combination lookup without cache' do
+    # Clear any previous mails
+    ActionMailer::Base.deliveries = []
+
     Rails.cache.clear
     FingerbankCache.clear
     combination = combinations(:iphone)
@@ -76,13 +79,13 @@ class CombinationTest < ActiveSupport::TestCase
     # we delete the regexes so we go to the ifs
     FingerbankCache.delete("model_regex_assoc")
     # we create a new combination with a new user agent
-    user_agent = UserAgent.create!(:value => 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36')
-    combination = Combination.get_or_create(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty))
+    user_agent = 'Mozilla/5.0 (Linux; Android 4.1.2; SGH-T599N Build/JZO54K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.86 Mobile Safari/537.36'
+    combination = Combination.get_or_create(:user_agent => user_agent)
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
     assert combination.processed_method == "find_matching_discoverers_tmp_table"
 
     mac_vendor = mac_vendors(:nintendo)
-    combination = Combination.get_or_create(:user_agent => user_agent, :dhcp_vendor => dhcp_vendors(:empty), :dhcp_fingerprint => dhcp_fingerprints(:empty), :mac_vendor => mac_vendor)
+    combination = Combination.get_or_create(:user_agent => user_agent, :mac_vendor => mac_vendor)
     assert combination.process(:with_version => true, :save => true), "New android combination can be processed"
     assert combination.processed_method == "find_matching_discoverers_tmp_table"
     
@@ -106,4 +109,30 @@ class CombinationTest < ActiveSupport::TestCase
     combination.process(:with_version => true, :save => true)
     assert combination.version == '7.1.2', "version has been detected properly (#{combination.version})"     
   end
+
+  test 'combination lookup with dhcpv6' do
+    combination = combinations(:windows_ipv6)
+    Discoverer.fbcache
+    combination.process(:with_version => true, :save => true)
+    assert combination.device == devices(:windows), "Device with DHCPv6 fingerprint is properly detected through the cache"
+
+    # test it with temp table
+    # we create a new combination with a new user agent
+    FingerbankCache.delete("model_regex_assoc")
+
+    user_agent = 'Microsaft OS'
+    combination = Combination.get_or_create(:user_agent => user_agent, :dhcp6_fingerprint => dhcp6_fingerprints(:microsoft).value)
+    assert combination.process(:with_version => true, :save => true), "New windows IPv6 combination can be processed"
+    assert combination.processed_method == "find_matching_discoverers_tmp_table"   
+    assert combination.device == devices(:windows), "Windows IPv6 combination yields the right result through the temp table"
+
+    # test it full
+    FingerbankCache.clear
+    combination = combinations(:windows_ipv6)
+    assert combination.process(:with_version => true, :save => true), "Windows IPv6 combination can be processed"
+    assert combination.processed_method == 'find_matching_discoverers_long'
+    assert combination.device == devices(:windows), "Windows IPv6 combination yields the right result through a full scan"
+   
+  end
+
 end

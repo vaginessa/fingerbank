@@ -2,3 +2,6 @@
 
 empty:
   value: ''
+
+microsoft:
+  value: '24,23,17,39' 

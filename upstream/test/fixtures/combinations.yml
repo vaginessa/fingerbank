@@ -18,3 +18,9 @@ nintendo:
   dhcp6_fingerprint: empty
   dhcp_vendor: empty
   mac_vendor: nintendo
+
+windows_ipv6:
+  user_agent: empty
+  dhcp_fingerprint: empty
+  dhcp6_fingerprint: microsoft
+  dhcp_vendor: empty

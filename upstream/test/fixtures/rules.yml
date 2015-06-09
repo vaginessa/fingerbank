@@ -16,3 +16,6 @@ iphone_version:
   value: "user_agents.value regexp 'CPU .* ([0-9_]+) like Mac OS X'"
   version_discoverer: iphone_version
 
+windows_ipv6:
+  value: "dhcp6_fingerprints.value = '24,23,17,39'"
+  device_discoverer: windows_ipv6

@@ -118,6 +118,7 @@ class Discoverer < FingerbankModel
 
   def self.rule_for_tmp_table(rule)
     to_add = rule.computed.gsub('dhcp_fingerprints.value', 'dhcp_fingerprint')
+    to_add = to_add.gsub('dhcp6_fingerprints.value', 'dhcp6_fingerprint')
     to_add = to_add.gsub('user_agents.value', 'user_agent')
     to_add = to_add.gsub('dhcp_vendors.value', 'dhcp_vendor')
     to_add = to_add.gsub('mac_vendors.name', 'mac_vendor')

@@ -14,3 +14,8 @@ nintendo:
   name: 'Nintendo Pii'
   mobile: false
   tablet: false
+
+windows:
+  name: 'Windows computer'
+  mobile: false
+  tablet: false
