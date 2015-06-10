@@ -9,7 +9,7 @@ class Api::V1::CombinationsControllerTest < ActionController::TestCase
     @user = users(:normal_user)
   end
 
-  test "should be able to lookup a combination with DHCPv6 information" do
+  test "should be able to lookup a combination with DHCPv6 fingerprint" do
     combination = combinations(:windows_ipv6)
     combination.process
     post :interogate, {:dhcp6_fingerprint => combination.dhcp6_fingerprint.value, :key => @user.key}
@@ -22,6 +22,22 @@ class Api::V1::CombinationsControllerTest < ActionController::TestCase
     assert result['device']['id'] == devices(:windows).id, "DHCPv6 combination with new info has yielded the right device"
 
   end
+
+  test "should be able to lookup a combination with DHCPv6 enterprise" do
+    combination = combinations(:android_ipv6)
+    combination.process
+    post :interogate, {:dhcp6_enterprise => combination.dhcp6_enterprise.value, :key => @user.key}
+    result = JSON.parse @response.body
+    assert result['id'] == combination.id, "DHCPv6 combination that exists is properly returned by the API"
+
+    post :interogate, {:dhcp6_enterprise => combination.dhcp6_enterprise.value, :dhcp_vendor => dhcp_vendors(:microsoft).value, :key => @user.key}
+    result = JSON.parse @response.body
+    assert result['id'] != combination.id, "DHCPv6 combination with new info is not reusing the combination"
+    assert result['device']['id'] == devices(:android).id, "DHCPv6 combination with new info has yielded the right device"
+
+  end
+
+
 
   test "should be able to lookup an existing combination" do
     combination = combinations(:iphone)
