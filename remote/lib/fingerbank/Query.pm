@@ -101,7 +101,8 @@ sub _getQueryKeyIDs {
         if ( $key eq 'MAC_Vendor' ) {
             if ( $query->{'value'} eq '' ) {
                 $logger->debug("Attempting to find an ID for 'MAC_Vendor' with empty value. This is a special case. Returning 'NULL'");
-                return ( $fingerbank::Status::OK, 'NULL' );
+                $self->{$key . '_id'} = 'NULL';
+                next;
             }
             $query->{'mac'} = delete $query->{'value'}; # The 'value' column is the 'mac' column in this specific case
             my $mac = $query->{'mac'};
