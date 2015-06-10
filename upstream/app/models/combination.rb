@@ -26,6 +26,8 @@ class Combination < FingerbankModel
       :has => [],
       :belongs_to => [
         :dhcp_fingerprint,
+        :dhcp6_fingerprint,
+        :dhcp6_enterprise,
         :user_agent,
         :dhcp_vendor,
         :mac_vendor,
