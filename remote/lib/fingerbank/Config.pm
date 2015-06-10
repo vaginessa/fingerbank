@@ -19,6 +19,7 @@ use fingerbank::Constant qw($TRUE $FALSE);
 use fingerbank::FilePath qw($CONF_FILE $CONFIG_DEFAULTS_FILE $CONFIG_DOC_FILE);
 use fingerbank::Log;
 use fingerbank::Status;
+use fingerbank::Util qw(is_enabled);
 
 our %Config;
 
@@ -257,6 +258,17 @@ Return TRUE or FALSE whether if the Fingerbank API key is configured or not
 sub is_api_key_configured {
     my $api_key = get_config('upstream', 'api_key');
     ( defined($api_key) && $api_key ne "" ) ? return $TRUE : return $FALSE;
+}
+
+=head2 do_we_interrogate_upstream
+
+Return TRUE or FALSE whether if configured to interrogate Fingerbank upstream project
+
+=cut
+
+sub do_we_interrogate_upstream {
+    my $interrogate_upstream = get_config('upstream', 'interrogate');
+    ( is_enabled($interrogate_upstream) ) ? return $TRUE : return $FALSE;
 }
 
 =head1 AUTHOR
