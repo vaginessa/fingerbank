@@ -33,7 +33,7 @@ RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
 RAILS_ENV=production bundle exec rake clean:delete_orphans
 
 # delete invalid combinations
-RAILS_ENV=production bundle exec fdb:delete_invalid_combinations
+RAILS_ENV=production bundle exec rake fdb:delete_invalid_combinations
 
 # rebuild the discoverers cache from scratch
 echo "Starting discoverers cache build"
