@@ -203,7 +203,7 @@ sub read {
         $return->{$column} = $resultset->$column;
     }
 
-    $logger->info("Found '$className' entry with ID '$id' in schema '$schema'");
+    $logger->debug("Found '$className' entry with ID '$id' in schema '$schema'");
 
     return ( $fingerbank::Status::OK, $return );
 }
