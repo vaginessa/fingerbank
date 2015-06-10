@@ -1,4 +1,26 @@
+
+
+
 <div>
+
+
+
+<div class="btn-group" style="float:left">
+  <button type="button" class="btn btn-primary"><%= sorting_span @sort_fields[@order], @order %></button>
+  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <span class="caret"></span>
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <% @sort_fields.each do |field, display| %>
+      <li><%= sorting_link display, field %></li>
+    <% end %>
+
+    <li><%= sorting_link 'Discovered when', 'created_at' %></li>
+
+
+  </ul>
+</div>
 
   <%= render :partial => 'search' %>
 
