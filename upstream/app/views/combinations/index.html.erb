@@ -6,7 +6,9 @@
 
 
 <div class="btn-group" style="float:left">
-  <button type="button" class="btn btn-primary"><%= sorting_span @sort_fields[@order], @order %></button>
+  <a href="?<%= @default_order ? '' : sorting_request(@order) %>" class="btn btn-primary">
+    <%= @default_order ? 'Sort by' : sorting_span(@sort_fields[@order], @order) %>
+  </a>
   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
     <span class="caret"></span>
     <span class="sr-only">Toggle Dropdown</span>
@@ -39,19 +41,19 @@
   <thead>
     <tr>
       <th></th>
-      <th><%= sorting_link 'Device', 'devices.name' %></th>
+      <th>Device</th>
       <th>Submitter</th>
-      <th><%= sorting_link 'User agent', 'user_agents.value' %></th>
+      <th>User agent</th>
       <th>
-        <%= sorting_link 'DHCPv4 fingerprint', 'dhcp_fingerprints.value' %><br/>
-        <%= sorting_link 'DHCPv4 vendor', 'dhcp_vendors.value' %>
+        DHCPv4 fingerprint<br/>
+        DHCPv4 vendor
       </th>
       <th>
-        <%= sorting_link 'DHCPv6 fingerprint', 'dhcp6_fingerprints.value' %><br/>
-        <%= sorting_link 'DHCPv6 enterprise', 'dhcp6_enterprises.value' %>
+        DHCPv6 fingerprint<br/>
+        DHCPv6 enterprise
       </th>
-      <th><%= sorting_link 'Mac vendor', 'mac_vendors.name' %></th>
-      <th><%= sorting_link 'Discovered when', 'created_at' %></th>
+      <th>Mac vendor</th>
+      <th>Discovered when</th>
     </tr>
   </thead>
 
@@ -67,8 +69,7 @@
         </td>
         <td class="device_info shortened hover-popup" 
           data-details="
-            <%= combination.device ? combination.device.full_path : "Unknown" %><br/>
-            Version : <%= combination.version ? combination.version : "Unknown" %>
+            <%= combination.device ? combination.device.full_path : "Unknown" %>
           ">
           <span><%= combination.device ? combination.device.name : "Unknown" %></span>
           <br/>

@@ -1,6 +1,10 @@
 module CombinationsHelper
   def sorting_link(label, column_name)
-    return raw("<a href='?#{request.parameters.merge({:order => column_name, :order_way => (@order == column_name && @order_way == 'desc') ? 'asc' : 'desc' }).to_param}'>#{sorting_span(label, column_name)}</a>")
+    return raw("<a href='?#{sorting_request(column_name)}'>#{sorting_span(label, column_name)}</a>")
+  end
+
+  def sorting_request(column_name)
+    request.parameters.merge({:order => column_name, :order_way => (@order == column_name && @order_way == 'desc') ? 'asc' : 'desc' }).to_param
   end
 
   def sorting_span(label, column_name)
