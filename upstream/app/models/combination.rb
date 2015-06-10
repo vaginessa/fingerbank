@@ -124,5 +124,10 @@ class Combination < FingerbankModel
     end
   end
 
+  def create_temp_combination
+    mac_vendor_name = mac_vendor ? mac_vendor.name : ''
+    return TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :dhcp6_fingerprint => dhcp6_fingerprint.value, :dhcp6_enterprise => dhcp6_enterprise.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name)
+  end
+
 end
 
