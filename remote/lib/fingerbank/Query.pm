@@ -175,7 +175,7 @@ sub _getCombinationID {
             foreach ( @query_keys ) {
                 my $concatenated_key = $_ . '_id';
                 my $lc_concatenated_key = lc($concatenated_key);
-                $matched_keys ++ if ( $resultset->$lc_concatenated_key == $self->$concatenated_key );
+                $matched_keys ++ if ( $resultset->$lc_concatenated_key eq $self->$concatenated_key );
             }
             my $exact_matched_keys = @query_keys;
             $self->combination_is_exact($TRUE) if ( $matched_keys == $exact_matched_keys );
