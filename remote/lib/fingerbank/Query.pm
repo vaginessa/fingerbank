@@ -58,21 +58,19 @@ sub match {
 
     my $result;
 
-    # All preconditions succeed, we build the device resultset and returns it
-    ( $status, $result ) = $self->_buildResult if ( is_success($status) );
-    if ( is_success($status) ) {
-        $result->{'SOURCE'} = "Local";
-        $self->{device_id} = $result->{device}->{id};
-        return $result;
+    # Upstream is configured (an API key is configured and interrogate upstream is enabled) with an unexact match, we go upstream
+    if ( !$self->{combination_is_exact} && fingerbank::Config::is_api_key_configured && fingerbank::Config::do_we_interrogate_upstream ) {
+        $logger->info("Upstream is configured and unable to fullfil an exact match locally. Sending request to upstream Fingerbank project");
+        ( $status, $result ) = $self->_interrogateUpstream($args);
+    } 
+    # Either local match is exact or upstream is not configured, build local result
+    else {
+        $logger->info("Locally matched combination is exact. Build result") if $self->{combination_is_exact};
+        $logger->info("Building the result locally");
+        ( $status, $result ) = $self->_buildResult if ( is_success($status) );
     }
 
-    # We were unable to fullfil a match locally
-    # Most of the time, preconditions may have failed.    
-    my $Config = fingerbank::Config::get_config;
-    my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
-    ( $status, $result ) = $self->_interrogateUpstream($args) if is_enabled($interrogate_upstream);
     if ( is_success($status) ) {
-        $result->{'SOURCE'} = "Upstream";
         $self->{device_id} = $result->{device}->{id};
         return $result;
     }
@@ -223,6 +221,9 @@ sub _buildResult {
         $result->{device}->{$key} = $device->{$key};
     }
 
+    # Tracking down from where the result is coming
+    $result->{'SOURCE'} = "Local";
+
     return ( $fingerbank::Status::OK, $result );
 }
 
@@ -264,6 +265,8 @@ sub _interrogateUpstream {
     if ( $res->is_success ) {
         $logger->info("Successfully interrogate upstream Fingerbank project for matching");
         my $result = decode_json($res->content);
+        # Tracking down from where the result is coming
+        $result->{'SOURCE'} = "Upstream";
         return ( $fingerbank::Status::OK, $result );
     } else {
         $logger->warn("An error occured while interrogating upstream Fingerbank project: " . $res->status_line);
