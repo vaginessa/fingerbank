@@ -26,6 +26,9 @@ Rails.application.routes.draw do
           post 'submit'
         end
       end
+      namespace :test do
+        get 'key/:key', :action => 'key'
+      end
       get 'download', :to => 'static#download'
     end
   end
