@@ -27,6 +27,7 @@ foreach my $key ( @query_keys ) {
 
 has 'device_id' => (is => 'rw', isa => 'Str');
 has 'combination_id' => (is => 'rw', isa => 'Str');
+has 'combination_is_exact' => (is => 'rw', isa => 'Str');
 
 =head2 match
 
@@ -168,6 +169,17 @@ sub _getCombinationID {
         if ( defined($resultset) ) {
             $self->combination_id($resultset->id);
             $logger->info("Found combination ID '" . $self->combination_id . "' in schema '$schema'");
+
+            # Check if exact match
+            my $matched_keys = 0;
+            foreach ( @query_keys ) {
+                my $concatenated_key = $_ . '_id';
+                my $lc_concatenated_key = lc($concatenated_key);
+                $matched_keys ++ if ( $resultset->$lc_concatenated_key == $self->$concatenated_key );
+            }
+            my $exact_matched_keys = @query_keys;
+            $self->combination_is_exact($TRUE) if ( $matched_keys == $exact_matched_keys );
+
             last;
         }
 
