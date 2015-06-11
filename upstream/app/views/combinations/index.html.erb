@@ -1,28 +1,41 @@
 
-
+<div id="combination_details" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div class="modal-title"></div>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <div class="options"></div>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div>
 
+  <div class="btn-group" style="float:left">
+    <a href="?<%= @default_order ? '' : sorting_request(@order) %>" class="btn btn-primary">
+      <%= @default_order ? 'Sort by' : sorting_span(@sort_fields[@order], @order) %>
+    </a>
+    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu" role="menu">
+      <% @sort_fields.each do |field, display| %>
+        <li><%= sorting_link display, field %></li>
+      <% end %>
+
+      <li><%= sorting_link 'Discovered when', 'created_at' %></li>
 
 
-<div class="btn-group" style="float:left">
-  <a href="?<%= @default_order ? '' : sorting_request(@order) %>" class="btn btn-primary">
-    <%= @default_order ? 'Sort by' : sorting_span(@sort_fields[@order], @order) %>
-  </a>
-  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-    <span class="caret"></span>
-    <span class="sr-only">Toggle Dropdown</span>
-  </button>
-  <ul class="dropdown-menu" role="menu">
-    <% @sort_fields.each do |field, display| %>
-      <li><%= sorting_link display, field %></li>
-    <% end %>
-
-    <li><%= sorting_link 'Discovered when', 'created_at' %></li>
-
-
-  </ul>
-</div>
+    </ul>
+  </div>
 
   <%= render :partial => 'search' %>
 
@@ -40,7 +53,6 @@
 <table class="table-striped">
   <thead>
     <tr>
-      <th></th>
       <th>Device</th>
       <th>Submitter</th>
       <th>User agent</th>
@@ -59,14 +71,8 @@
 
   <tbody>
     <% @combinations.each do |combination| %>
-      <tr>
-        <td class="options">
-          <%= link_to '', combination, :class => "btn-show" %>
-          <%= link_to '', edit_combination_path(combination), :class => "btn-edit" if current_user_admin? %>
-          <%= link_to '', combination, method: :delete, data: { confirm: 'Are you sure?' }, :class => 'btn-delete' if current_user_admin? %>
-          <%= link_to '', calculate_combination_path(combination), :class => "btn-refresh" if current_user_admin? %>
-          <%= link_to '', user_watched_combinations_path(@current_user, combination_id: combination.id), method: :post, :class => "btn-watch" unless @current_user.nil? %>
-        </td>
+      <%= link_to '', combination, :class => "hidden", :remote => true, :id => "show_#{combination.id}" %>
+      <tr class="combination" data-combination-id="<%= combination.id %>">
         <td class="device_info shortened hover-popup" 
           data-details="
             <%= combination.device ? combination.device.full_path : "Unknown" %>

@@ -2,6 +2,19 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+div#combination_details {
+  .modal-footer {
+    .options {
+      float:left;
+      display:inline-block;
+    }
+  }
+}
+
+tr.combination {
+  cursor: pointer;
+}
+
 div.search{
   padding:0 1em; 
   display:inline-block;
