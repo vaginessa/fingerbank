@@ -12,6 +12,10 @@ __PACKAGE__->table('combinationmatch');
 __PACKAGE__->add_columns(
     "id",
     "score",
+    "dhcp_fingerprint_id",
+    "dhcp_vendor_id",
+    "user_agent_id",
+    "mac_vendor_id",
 );
 
 __PACKAGE__->set_primary_key('id');
