@@ -1,5 +1,43 @@
-class Api::V1::CombinationsController < Api::ApiController
+class Api::V1::CombinationsController < Api::V1::V1Controller
 
+  resource_description do
+    eval(ApiDoc.v1_block)
+  end
+
+
+  api :POST, '/combinations/submit'
+
+  desc 'This method allows you to submit data to Fingerbank. It will not compute the details about the information you submit.'
+
+  param :user_agent, String, 
+    :desc => "The User Agent of the device", 
+    :meta => {'Type' => "payload"}
+
+  param :dhcp_fingerprint, String, 
+    :desc => "The DHCP fingerprint of the device", 
+    :meta => {'Type' => "payload"}
+
+  param :dhcp_vendor, String, 
+    :desc => "The DHCP vendor of the device", 
+    :meta => {'Type' => "payload"}
+
+  formats ['Request : application/json', 'Response : application/json']
+  example %{
+  Example body:
+  {"dhcp_fingerprint":["1,15,3,6,44,46,47,31,33,121,249,43","1,15,3,6,44,32"]}
+  }
+  example %{
+  Example response:
+  {
+    "dhcp_fingerprint" : [
+      "1,15,3,6,44,32"
+    ]
+  }
+  }
+  example %{
+  Example using curl:
+  curl -X POST -d "{\\"dhcp_fingerprint\\":[\\"1,15,3,6,44,46,47,31,33,121,249,43\\",\\"1,15,3,6,44,32\\"]}" --header "Content-type: application/json" https://fingerbank.inverse.ca/api/v1/combinations/submit?key=
+  }
   def submit
     params = get_submit_params
     submit_params = {}
@@ -45,6 +83,74 @@ class Api::V1::CombinationsController < Api::ApiController
     render :json => added
   end
   
+  api :POST, '/combinations/interogate'
+
+  desc 'This method allows you to interogate the Fingerbank database with a device information and get the details about it.'
+
+  param :debug, String, 
+    :desc => "Whether or not to add additionnal debug information in the response. 'on' activates it", 
+    :meta => {'Type' => "URL"}
+
+  param :user_agent, String, 
+    :desc => "The User Agent of the device", 
+    :meta => {'Type' => "payload"}
+
+  param :dhcp_fingerprint, String, 
+    :desc => "The DHCP fingerprint of the device", 
+    :meta => {'Type' => "payload"}
+
+  param :dhcp_vendor, String, 
+    :desc => "The DHCP vendor of the device", 
+    :meta => {'Type' => "payload"}
+
+  param :mac, String, 
+    :desc => "The MAC address of the device", 
+    :meta => {'Type' => "payload"}
+
+  error 404, "No device was found the the specified combination. It will be added to the unknown combinations list if you are part of the approved API submitters."
+
+  formats ['Request : application/json', 'Response : application/json']
+  example %{
+  Example body:
+  {"dhcp_fingerprint":"1,15,3,6,44,46,47,31,33,121,249,43"}
+  }
+  example %{
+  Example response:
+  {
+      "created_at": "2014-10-13T03:14:45.000Z", 
+      "device": {
+          "created_at": "2014-09-09T15:09:51.000Z", 
+          "id": 33, 
+          "inherit": null, 
+          "mobile?": false, 
+          "name": "Microsoft Windows Vista/7 or Server 2008 (Version 6.0)", 
+          "parent_id": 1, 
+          "parents": [
+              {
+                  "approved": true, 
+                  "created_at": "2014-09-09T15:09:50.000Z", 
+                  "id": 1, 
+                  "inherit": null, 
+                  "mobile": null, 
+                  "name": "Windows", 
+                  "parent_id": null, 
+                  "submitter_id": null, 
+                  "tablet": null, 
+                  "updated_at": "2014-09-09T15:09:50.000Z"
+              }
+          ], 
+          "updated_at": "2014-09-09T15:09:52.000Z"
+      }, 
+      "id": 5733, 
+      "score": 50, 
+      "updated_at": "2014-11-13T17:39:36.000Z", 
+      "version": null
+  } 
+  }
+  example %{
+  Example using curl:
+  curl -X GET -d "{\\"dhcp_fingerprint\\":\\"1,15,3,6,44,46,47,31,33,121,249,43\\"}" --header "Content-type: application/json" https://fingerbank.inverse.ca/api/v1/combinations/interogate?key=
+  }
   def interogate 
     require 'json'
 

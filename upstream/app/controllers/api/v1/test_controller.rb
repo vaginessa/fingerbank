@@ -1,4 +1,4 @@
-class Api::V1::TestController < Api::ApiController
+class Api::V1::TestController < Api::V1::V1Controller
   def key
     # if we've made it here then the key is valid
     render :text => "Key is valid"
