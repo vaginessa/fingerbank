@@ -43,6 +43,40 @@ Readonly::Scalar our $NO        => 'no';
 
 =back
 
+=head1 QUERY PARAMETERS
+
+=over
+
+=item $DHCP_FINGERPRINT
+
+=item $DHCP_VENDOR
+
+=item $USER_AGENT
+
+=item $MAC_VENDOR
+
+=cut
+
+Readonly::Scalar our $DHCP_FINGERPRINT  => 'DHCP_Fingerprint';
+Readonly::Scalar our $DHCP_VENDOR       => 'DHCP_Vendor';
+Readonly::Scalar our $USER_AGENT        => 'User_Agent';
+Readonly::Scalar our $MAC_VENDOR        => 'MAC_Vendor';
+
+=item @QUERY_PARAMETERS
+
+An array containing all the query parameters
+
+=cut
+
+Readonly::Array our @QUERY_PARAMETERS => (
+    $DHCP_FINGERPRINT,
+    $DHCP_VENDOR,
+    $USER_AGENT,
+    $MAC_VENDOR,
+);
+
+=back
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

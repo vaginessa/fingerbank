@@ -18,8 +18,7 @@ use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 # The query keys required to fullfil a match
 # - We load the appropriate module for each of the different query keys based on their name
 # - We declare object attributes for each of the different query keys based on their name
-our @query_keys = ('DHCP_Fingerprint', 'DHCP_Vendor', 'User_Agent', 'MAC_Vendor');
-foreach my $key ( @query_keys ) {
+foreach my $key ( @fingerbank::Constant::QUERY_PARAMETERS ) {
     load "fingerbank::Model::$key";
     has $key . '_value' => (is => 'rw', isa => 'Str', default => "");
     has $key . '_id'    => (is => 'rw', isa => 'Str', default => "");
@@ -47,7 +46,7 @@ sub match {
     # We assign the value of each key to the corresponding object attribute (ie.: DHCP_Fingerprint_value)
     # Note: We must have all of the keys in the query, either with a value or with ''
     $logger->debug("Attempting to match a device with the following attributes:");
-    foreach my $key ( @query_keys ) {
+    foreach my $key ( @fingerbank::Constant::QUERY_PARAMETERS ) {
         my $concatenated_key = $key . '_value';
         $self->$concatenated_key($args->{lc($key)}) if ( defined($args->{lc($key)}) );
         $logger->debug("- $concatenated_key: '" . $self->$concatenated_key . "'");
@@ -89,7 +88,7 @@ sub _getQueryKeyIDs {
     my ( $self ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
-    foreach my $key ( @query_keys ) {
+    foreach my $key ( @fingerbank::Constant::QUERY_PARAMETERS ) {
         my $concatenated_key = $key . '_value';
         $logger->debug("Attempting to find an ID for '$key' with value '" . $self->$concatenated_key . "'");
 
@@ -148,7 +147,7 @@ sub _getCombinationID {
     # See L<fingerbank::Base::Schema::CombinationMatch>
     $logger->debug("Attempting to find a combination with the following ID(s):");
     my @bindings = ();
-    foreach my $key ( @query_keys ) {
+    foreach my $key ( @fingerbank::Constant::QUERY_PARAMETERS ) {
         my $concatenated_key = $key . '_id';
         push @bindings, $self->$concatenated_key;
         $logger->debug("- $concatenated_key: '" . $self->$concatenated_key . "'");
@@ -170,12 +169,12 @@ sub _getCombinationID {
 
             # Check if exact match
             my $matched_keys = 0;
-            foreach ( @query_keys ) {
+            foreach ( @fingerbank::Constant::QUERY_PARAMETERS ) {
                 my $concatenated_key = $_ . '_id';
                 my $lc_concatenated_key = lc($concatenated_key);
                 $matched_keys ++ if ( $resultset->$lc_concatenated_key eq $self->$concatenated_key );
             }
-            my $exact_matched_keys = @query_keys;
+            my $exact_matched_keys = @fingerbank::Constant::QUERY_PARAMETERS;
             $self->combination_is_exact($TRUE) if ( $matched_keys == $exact_matched_keys );
 
             last;
