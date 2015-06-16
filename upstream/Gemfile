@@ -21,6 +21,10 @@ gem 'dalli'
 # we use observers to expire the cache
 gem 'rails-observers'
 
+# 0.3.4 is bugged with api version (/api/v1)
+# See : https://github.com/Apipie/apipie-rails/issues/353
+gem 'apipie-rails', '= 0.3.3'
+
 # cache digest
 #gem 'cache_digests'
 
