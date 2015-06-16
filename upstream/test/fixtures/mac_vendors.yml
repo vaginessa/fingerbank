@@ -2,3 +2,7 @@
 
 nintendo:
   name: 'Nintendo Inc.'
+
+zammit:
+  name: 'Zammit corp'
+  mac: '123456'

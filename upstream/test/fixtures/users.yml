@@ -6,3 +6,16 @@ julsemaan:
   email: 'TBD'
   level: 10 
   key: 'seeded-key'
+
+normal_user:
+  name: 'Ludovic Zammit'
+  email: 'ludovic@zamm.it'
+  level: 0
+  key: 'pain-dinde-moutarde'
+
+blocked_user:
+  name: 'Mr. Blocked'
+  email: 'abuser@example.com'
+  level: 0
+  key: 'i-luv-ddos'
+  blocked: 1

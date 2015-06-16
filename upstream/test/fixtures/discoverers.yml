@@ -17,3 +17,10 @@ iphone_version:
   device: iphone
   version: "REPLACE( PREG_CAPTURE('/CPU .* ([0-9_]+) like Mac OS X/', user_agents.value, 1), '_', '.')"
 
+windows_ipv6:
+  priority: 50
+  device: windows
+
+android_ipv6:
+  priority: 50
+  device: android

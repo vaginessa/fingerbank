@@ -3,5 +3,5 @@
 empty:
   value: ''
 
-microsoft:
-  value: 'MSFT 5.0'
+android:
+  value: 'Google mobile OS'

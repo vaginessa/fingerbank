@@ -2,6 +2,8 @@ require 'combination/detection'
 
 class Combination < FingerbankModel
   belongs_to :dhcp_fingerprint
+  belongs_to :dhcp6_fingerprint
+  belongs_to :dhcp6_enterprise
   belongs_to :user_agent
   belongs_to :dhcp_vendor
   belongs_to :device
@@ -9,14 +11,10 @@ class Combination < FingerbankModel
 
   belongs_to :submitter, :class_name => "User"
 
-  before_validation :on => :create do
-    set_empty
-  end
-
   attr_accessor :processed_method
 
   #validates_uniqueness_of :dhcp_fingerprint_id, :scope => [ :user_agent_id, :dhcp_vendor_id ], :message => "A combination with these attributes already exists"
-  validates_presence_of :dhcp_fingerprint_id, :dhcp_vendor_id, :user_agent_id
+  validates_presence_of :dhcp_fingerprint_id, :dhcp6_fingerprint_id, :dhcp6_enterprise_id, :dhcp_vendor_id, :user_agent_id
   validate :validate_combination_uniqueness
 
   scope :unknown, -> {where(:device => nil)}   
@@ -28,6 +26,8 @@ class Combination < FingerbankModel
       :has => [],
       :belongs_to => [
         :dhcp_fingerprint,
+        :dhcp6_fingerprint,
+        :dhcp6_enterprise,
         :user_agent,
         :dhcp_vendor,
         :mac_vendor,
@@ -37,16 +37,39 @@ class Combination < FingerbankModel
     }
   end
 
-  def set_empty
-    self.user_agent_id = 0 unless self.user_agent_id
-    self.dhcp_fingerprint_id = 0 unless self.dhcp_fingerprint_id
-    self.dhcp_vendor_id = 0 unless self.dhcp_vendor_id
+  def just_created
+    if @just_created
+      true
+    else
+      false
+    end
+  end
+
+  def just_created=(value)
+    @just_created = value
+  end
+
+  def self.get_or_create(values)
+    dhcp_fingerprint = DhcpFingerprint.get_or_create(:value => values[:dhcp_fingerprint])
+    dhcp6_fingerprint = Dhcp6Fingerprint.get_or_create(:value => values[:dhcp6_fingerprint])
+    dhcp6_enterprise = Dhcp6Enterprise.get_or_create(:value => values[:dhcp6_enterprise])
+    dhcp_vendor = DhcpVendor.get_or_create(:value => values[:dhcp_vendor])
+    user_agent = UserAgent.get_or_create(:value => values[:user_agent])
+    mac_vendor = MacVendor.from_mac(values[:mac])
+    combination = Combination.where(:dhcp_fingerprint_id => dhcp_fingerprint.id, :dhcp6_fingerprint_id => dhcp6_fingerprint.id, :dhcp6_enterprise_id => dhcp6_enterprise.id, :user_agent_id => user_agent.id, :dhcp_vendor_id => dhcp_vendor.id, :mac_vendor => mac_vendor).first
+    if combination.nil?
+      combination = self.create!(:dhcp_fingerprint => dhcp_fingerprint, :dhcp6_fingerprint => dhcp6_fingerprint, :dhcp6_enterprise_id => dhcp6_enterprise.id, :user_agent => user_agent, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor)
+      combination.just_created = true
+      return combination
+    else
+      return combination
+    end
   end
 
   def validate_combination_uniqueness
-    existing = Combination.where(:dhcp_fingerprint_id => dhcp_fingerprint_id, :user_agent_id => user_agent_id, :dhcp_vendor_id => dhcp_vendor_id, :mac_vendor_id => mac_vendor_id).size
+    existing = Combination.where(:dhcp_fingerprint_id => dhcp_fingerprint_id, :dhcp6_fingerprint_id => dhcp6_fingerprint_id, :dhcp6_enterprise_id => dhcp6_enterprise_id, :user_agent_id => user_agent_id, :dhcp_vendor_id => dhcp_vendor_id, :mac_vendor_id => mac_vendor_id).size
     if (persisted? && existing > 1) || (!persisted? && existing > 0)
-      logger.warn "Combination #{id} was going to be saved, but a duplicate was found with dhcp_fingerprint_id #{dhcp_fingerprint_id}, user_agent_id #{user_agent_id}, dhcp_vendor_id #{dhcp_vendor_id}, mac_vendor_id #{mac_vendor_id}"
+      logger.warn "Combination #{id} was going to be saved, but a duplicate was found with dhcp_fingerprint_id #{dhcp_fingerprint_id}, dhcp6_fingerprint_id #{dhcp6_fingerprint_id}, :dhcp6_enterprise_id #{dhcp6_enterprise_id}, user_agent_id #{user_agent_id}, dhcp_vendor_id #{dhcp_vendor_id}, mac_vendor_id #{mac_vendor_id}"
       errors.add(:combination, 'A unique set of attributes must be set. This combination already exists')
     end
   end
@@ -101,6 +124,11 @@ class Combination < FingerbankModel
     else
       return "#{condition} "
     end
+  end
+
+  def create_temp_combination
+    mac_vendor_name = mac_vendor ? mac_vendor.name : ''
+    return TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :dhcp6_fingerprint => dhcp6_fingerprint.value, :dhcp6_enterprise => dhcp6_enterprise.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name)
   end
 
 end

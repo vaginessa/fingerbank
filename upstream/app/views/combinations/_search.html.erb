@@ -12,7 +12,7 @@
     <% end %>
     <div id="advanced_fields" style="<%= @selected_fields.nil? ? 'display:none' : '' %>">
       <label>Filter on :</label><br/>
-      <%= select_tag :fields, options_for_select(@search_fields.collect {|f| [ f[:display], f[:field] ] }, :selected => @selected_fields), :multiple => true %> 
+      <%= select_tag :fields, options_for_select(@search_fields.collect {|field,display| [ display, field ] }, :selected => @selected_fields), :multiple => true %> 
     </div>
 
   <% end %>

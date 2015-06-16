@@ -1,21 +1,31 @@
 class CombinationsController < ApplicationController
   before_action :set_combination, only: [:show, :edit, :update, :destroy, :calculate]
   before_action :set_index_help, only: [:index, :unknown, :unrated]
+  before_action :set_search_fields, only: [:index, :unknown, :unrated]
+  before_action :set_sort_fields, only: [:index, :unknown, :unrated]
   before_action :set_submit_help, only: [:new, :create]
 
   skip_before_filter :ensure_admin, :only => [:new, :create, :unknown, :unrated, :interogate]
   before_filter :ensure_community, :only => [:new, :create]
-  before_filter :search_fields, :only => [:index, :unknown, :unrated]
 
-  def search_fields
-    @search_fields = [
-      {:field => 'user_agents.value', :display => 'User Agent'},
-      {:field => 'dhcp_vendors.value', :display => 'DHCP Vendor'},
-      {:field => 'dhcp_fingerprints.value', :display => 'DhcpFingerprint'},
-      {:field => 'devices.name', :display => 'Device name'},
-      {:field => 'mac_vendors.name', :display => 'Mac vendor name', :type => 'string'},
-      {:field => 'submitters.name', :display => 'Submitter username', :type => 'string'},
-    ]
+  def set_search_fields
+    @search_fields = {
+      'user_agents.value' => 'User Agent',
+      'dhcp_vendors.value' =>  'DHCPv4 Vendor',
+      'dhcp_fingerprints.value' => 'DHCPv4 Fingerprint',
+      'dhcp6_fingerprints.value' => 'DHCPv6 Fingerprint',
+      'dhcp6_enterprises.value' => 'DHCPv6 Enterprise',
+      'devices.name' => 'Device name',
+      'mac_vendors.name'=> 'Mac vendor name',
+      'submitters.name'=> 'Submitter username',
+    }
+    return @search_fields
+  end
+
+  def set_sort_fields
+    @sort_fields = set_search_fields
+    @sort_fields['combinations.score'] = 'Score'
+    return @search_fields
   end
 
   def escaped_search
@@ -23,19 +33,6 @@ class CombinationsController < ApplicationController
     #search = search.gsub!(/[+\-"]/, ' ')
     logger.debug "escaped_search #{search}"
     return search
-  end
-
-  def base_search
-    @selected_fields = params[:fields]
-
-    @search = Combination.simple_search {paginate :page => params[:page], :per_page => 15}if @search.nil?
-    if escaped_search 
-      @search.build do
-        fulltext escaped_search do
-          fields(*params[:fields]) unless params[:fields].nil? 
-        end
-      end
-    end
   end
 
   # GET /combinations
@@ -175,7 +172,12 @@ class CombinationsController < ApplicationController
     end
 
     def order_results
-      @order = params[:order] || 'created_at'
+      if params[:order]
+        @order = params[:order]
+      else
+        @order = 'created_at'
+        @default_order = true
+      end
       @order_way = params[:order_way] || 'desc'
       @combinations = @combinations.order("#{@order} #{@order_way}")
     end
