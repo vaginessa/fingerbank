@@ -9,16 +9,16 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
 
   desc 'This method allows you to submit data to Fingerbank. It will not compute the details about the information you submit.'
 
-  param :user_agent, String, 
-    :desc => "The User Agent of the device", 
+  param :user_agent, Array, :of => String,
+    :desc => "The User Agents to process", 
     :meta => {'Type' => "payload"}
 
-  param :dhcp_fingerprint, String, 
-    :desc => "The DHCP fingerprint of the device", 
+  param :dhcp_fingerprint, Array, :of => String,
+    :desc => "The DHCP fingerprints to process", 
     :meta => {'Type' => "payload"}
 
-  param :dhcp_vendor, String, 
-    :desc => "The DHCP vendor of the device", 
+  param :dhcp_vendor, Array, :of => String,
+    :desc => "The DHCP vendors to process", 
     :meta => {'Type' => "payload"}
 
   formats ['Request : application/json', 'Response : application/json']
