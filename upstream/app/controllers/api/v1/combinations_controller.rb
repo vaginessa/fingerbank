@@ -17,8 +17,16 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
     :desc => "The DHCP fingerprints to process", 
     :meta => {'Type' => "payload"}
 
+  param :dhcp6_fingerprint, Array, :of => String,
+    :desc => "The DHCPv6 fingerprints to process", 
+    :meta => {'Type' => "payload"}
+
   param :dhcp_vendor, Array, :of => String,
     :desc => "The DHCP vendors to process", 
+    :meta => {'Type' => "payload"}
+
+  param :dhcp6_enterprise, Array, :of => String,
+    :desc => "The DHCPv6 enterprises to process", 
     :meta => {'Type' => "payload"}
 
   formats ['Request : application/json', 'Response : application/json']
@@ -119,8 +127,16 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
     :desc => "The DHCP fingerprint of the device", 
     :meta => {'Type' => "payload"}
 
+  param :dhcp6_fingerprint, String, 
+    :desc => "The DHCPv6 fingerprint of the device", 
+    :meta => {'Type' => "payload"}
+
   param :dhcp_vendor, String, 
     :desc => "The DHCP vendor of the device", 
+    :meta => {'Type' => "payload"}
+
+  param :dhcp6_enterprise, String, 
+    :desc => "The DHCPv6 enterprise of the device", 
     :meta => {'Type' => "payload"}
 
   param :mac, String, 
