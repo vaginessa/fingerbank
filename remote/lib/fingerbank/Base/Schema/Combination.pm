@@ -2,6 +2,7 @@ package fingerbank::Base::Schema::Combination;
 
 use Moose;
 use namespace::autoclean;
+use fingerbank::Util qw(is_success);
 
 extends 'fingerbank::Base::Schema';
 
@@ -27,8 +28,11 @@ __PACKAGE__->set_primary_key('id');
 # See L<fingerbank::Base::CRUD::read>
 sub value {
     my ( $self ) = @_;
-    my $value = fingerbank::Model::Device->read($self->device_id);
-    return $value->{'name'};
+    my ($status, $value) = fingerbank::Model::Device->read($self->device_id);
+    if (is_success ($status)) {
+        return $value->{'name'};
+    }
+    return undef;
 }
 
 __PACKAGE__->meta->make_immutable;
