@@ -25,6 +25,8 @@ gem 'rails-observers'
 # See : https://github.com/Apipie/apipie-rails/issues/353
 gem 'apipie-rails', '= 0.3.3'
 
+gem 'newrelic_rpm'
+
 # cache digest
 #gem 'cache_digests'
 
