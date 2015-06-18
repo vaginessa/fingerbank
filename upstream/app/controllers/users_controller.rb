@@ -3,9 +3,9 @@ class UsersController < ApplicationController
   
   skip_before_filter :ensure_admin
 
-  before_filter :ensure_admin, except: [:login, :show, :register]
+  before_filter :ensure_admin, except: [:login, :key_login, :show, :register]
   before_filter :admin_or_current_user
-  skip_before_filter :admin_or_current_user, :only => [:login, :register]
+  skip_before_filter :admin_or_current_user, :only => [:login, :key_login, :register]
 
   def register
   end
@@ -23,6 +23,9 @@ class UsersController < ApplicationController
       session[:previous_page] = params[:redirect_url] || request.referer 
     end
     redirect_to '/auth/github'
+  end
+
+  def key_login
   end
 
   def promote

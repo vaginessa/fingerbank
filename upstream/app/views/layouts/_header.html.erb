@@ -16,6 +16,9 @@
         <li><%= link_to "Logout", logout_path %></li>
       <% else %>
         <li>
+          <a href="<%= key_login_path %>">Corporate login</a>
+        </li>
+        <li>
           <a href="<%= login_path %>">
             Login using Github
             <%= image_tag "github.png", :size => '17x17' %>

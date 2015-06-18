@@ -91,6 +91,8 @@ Rails.application.routes.draw do
   get '/events', :to => 'events#index'
 
   get '/login', :to => 'users#login'
+  get '/key_login', :to => 'users#key_login'
+  post '/key_login', :to => 'sessions#create'
   get '/auth/:provider/callback', :to => 'sessions#create'
   get '/logout', :to => 'sessions#destroy'
 
