@@ -2,8 +2,6 @@ class CombinationAttribute < ActiveRecord::Base
 
   self.abstract_class = true
 
-  has_many :combinations
-
   default_scope { order('value') }
 
   validates_uniqueness_of :value
