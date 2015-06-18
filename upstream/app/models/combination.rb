@@ -13,9 +13,9 @@ class Combination < FingerbankModel
 
   attr_accessor :processed_method
 
-  #validates_uniqueness_of :dhcp_fingerprint_id, :scope => [ :user_agent_id, :dhcp_vendor_id ], :message => "A combination with these attributes already exists"
+  validates_uniqueness_of :id, :scope => [ :dhcp_fingerprint_id, :dhcp6_fingerprint_id, :dhcp6_enterprise_id, :dhcp_vendor_id, :user_agent_id ], :message => "A combination with these attributes already exists"
   validates_presence_of :dhcp_fingerprint_id, :dhcp6_fingerprint_id, :dhcp6_enterprise_id, :dhcp_vendor_id, :user_agent_id
-  validate :validate_combination_uniqueness
+  #validate :validate_combination_uniqueness
 
   scope :unknown, -> {where(:device => nil)}   
   scope :known, -> {where('device_id is not null')}   
