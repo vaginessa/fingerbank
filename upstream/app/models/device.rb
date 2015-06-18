@@ -5,6 +5,7 @@ class Device < FingerbankModel
   belongs_to :parent, :class_name => "Device"
   validate :parent_is_not_child
   validates_uniqueness_of :name
+  validates_presence_of :name
 
   has_many :discoverers
   has_many :combinations
