@@ -35,14 +35,7 @@ class RulesController < ApplicationController
     @rule = Rule.new(rule_params)
     create_result = @rule.save
 
-    condition_result = true
-    unless condition_params.values.all? {|x| x.empty?}
-      @condition = Condition.create(condition_params)
-      @rule.conditions << @condition 
-      condition_result = @rule.save
-    else
-      @condition = Condition.new
-    end
+    condition_result = handle_condition_creation
 
     respond_to do |format|
       if create_result && condition_result
@@ -64,14 +57,7 @@ class RulesController < ApplicationController
   def update
     update_result = @rule.update(rule_params)
 
-    condition_result = true
-    unless condition_params.values.all? {|x| x.empty?}
-      @condition = Condition.create(condition_params)
-      @rule.conditions << @condition 
-      condition_result = @rule.save
-    else
-      @condition = Condition.new
-    end
+    condition_result = handle_condition_creation
 
     respond_to do |format|
       if update_result && condition_result 
@@ -92,6 +78,22 @@ class RulesController < ApplicationController
       format.html { redirect_to rules_url, notice: 'Rule was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def handle_condition_creation
+    unless condition_params.all? {|x,y| y.empty?}
+      @condition = Condition.create(condition_params)
+      condition_result = false
+      unless @condition.errors.any?
+        @rule.conditions << @condition 
+        condition_result = @condition.save
+      end
+      @rule.save
+    else
+      @condition = Condition.new
+      condition_result = true
+    end
+    return condition_result
   end
 
   private

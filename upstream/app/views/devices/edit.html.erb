@@ -1,6 +1,1 @@
-<h1>Editing device</h1>
-
-<%= render 'form' %>
-
-<%= link_to 'Show', @device %> |
-<%= link_to 'Index', devices_path %>
+<%= render 'form', :title => "Editing device #{@device.name}" %>

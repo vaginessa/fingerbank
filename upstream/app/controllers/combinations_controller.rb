@@ -96,10 +96,6 @@ class CombinationsController < ApplicationController
     end
   end
 
-  # GET /combinations/1/edit
-  def edit
-  end
-
   # POST /combinations
   # POST /combinations.json
   def create
@@ -136,20 +132,6 @@ class CombinationsController < ApplicationController
         format.json { render :show, status: :created, location: @combination }
       else
         format.html { render :new }
-        format.json { render json: @combination.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /combinations/1
-  # PATCH/PUT /combinations/1.json
-  def update
-    respond_to do |format|
-      if @combination.update(combination_params)
-        format.html { redirect_to @combination, notice: 'Combination was successfully updated.' }
-        format.json { render :show, status: :ok, location: @combination }
-      else
-        format.html { render :edit }
         format.json { render json: @combination.errors, status: :unprocessable_entity }
       end
     end

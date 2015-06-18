@@ -126,3 +126,27 @@ textarea{
   width:500px;
   height:100px;
 }
+
+.field{
+  @extend .form-group;
+  label {
+    @extend .control-label;
+  }
+  input[type="text"], input[type="password"], input[type="number"] {
+    @extend .form-control;
+    width:100%;
+  }
+  textarea {
+    @extend .form-control;
+  }
+  .field_with_errors {
+    @extend .has-error;
+  }
+}
+
+.actions {
+  input[type="submit"]{
+    @extend .btn;
+    @extend .btn-primary;
+  }
+}
