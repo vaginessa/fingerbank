@@ -1,3 +1,6 @@
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
 body {
   background-color: #fff;
   color: #333;
@@ -6,10 +9,11 @@ body {
   line-height: 18px;
 }
 
-p, ol, ul, td {
+p, ol, ul, td, th {
   font-family: verdana, arial, helvetica, sans-serif;
   font-size: 13px;
   line-height: 18px;
+  padding: 0 1em;
 }
 
 pre {
@@ -29,9 +33,7 @@ div {
 }
 
 .field_with_errors {
-  padding: 2px;
-  background-color: red;
-  display: table;
+  @extend .has-error
 }
 
 #error_explanation {

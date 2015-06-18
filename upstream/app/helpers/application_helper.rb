@@ -40,4 +40,12 @@ module ApplicationHelper
     devices
   end
 
+  def simple_form_container
+    content_tag(:div, :class => "row") do
+      content_tag(:div, :class => "col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3") do
+        yield
+      end
+    end
+  end
+
 end

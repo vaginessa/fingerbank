@@ -1,3 +1,8 @@
+
+<ul class="nav nav-pills">
+  <li role="presentation"><%= link_to 'Create', new_user_path %></li>
+</ul>
+
 <h3>Admin users (<%= User.admins.count %>)</h3>
 <%= render :partial => 'users', :locals => {:users => User.admins} %>
 

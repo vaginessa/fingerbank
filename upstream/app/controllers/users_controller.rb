@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :promote, :demote, :block, :unblock, :request_api, :generate_key]
+  before_action :set_user, only: [:show, :edit, :update, :promote, :demote, :block, :unblock, :request_api, :generate_key]
   
   skip_before_filter :ensure_admin
 
@@ -90,6 +90,37 @@ class UsersController < ApplicationController
     @users = User.all
   end
 
+  def new
+    @user = User.new
+  end
+
+  def create
+    @user = User.new(user_params)
+    result = @user.save
+
+    if result
+      redirect_to users_path, :notice => "User sucessfully created"
+    else
+      render 'new' 
+    end    
+  end
+
+  def edit
+    if @user.name !~ /^local\..*/
+      flash.now[:notice] = "CAUTION : Not editing a local account"
+    end
+  end
+
+  def update
+    result = @user.update(user_params)
+
+    if result
+      redirect_to users_path, :notice => "User sucessfully updated"
+    else
+      render 'new' 
+    end    
+  end
+
   def anonymous_users
     @users = {} 
     open(ENV['ANONYMOUS_STATS_FILE'], 'r') do |f|
@@ -117,7 +148,7 @@ class UsersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:name)
+      params.require(:user).permit(:name, :email, :level)
     end
 
 

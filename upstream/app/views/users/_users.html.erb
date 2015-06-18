@@ -12,7 +12,10 @@
 </tr>
 <% users.order('requests DESC').each do |user| %>
   <tr>
-    <td><%= link_to '', user_path(user), :class => 'btn-show' %></td>
+    <td>
+      <%= link_to '', user_path(user), :class => 'btn-show' %>
+      <%= link_to '', edit_user_path(user), :class => 'btn-edit' %>
+    </td>
     <td><%= user.github_uid %></td>
     <td><%= user.name %></td>
     <td><%= user.display_name %></td>
