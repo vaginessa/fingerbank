@@ -45,7 +45,12 @@
 
 
     </td>
-    <td><%= user.github_uid %></td>
+    <td>
+      <%= user.github_uid %>
+      <% if user.blocked %>
+        <span class="label label-danger">Blocked</span>
+      <% end %>
+    </td>
     <td><%= user.name %></td>
     <td><%= user.display_name %></td>
     <td><%= user.email %></td>
