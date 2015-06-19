@@ -16,95 +16,97 @@
   </div>
 </div>
 
-<div>
+<%= simple_index_container do %>
+  <%= render partial: "shared/help" %>
 
-  <div class="btn-group" style="float:left">
-    <a href="?<%= @default_order ? '' : sorting_request(@order) %>" class="btn btn-primary">
-      <%= @default_order ? 'Sort by' : sorting_span(@sort_fields[@order], @order) %>
-    </a>
-    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-      <span class="caret"></span>
-      <span class="sr-only">Toggle Dropdown</span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-      <% @sort_fields.each do |field, display| %>
-        <li><%= sorting_link display, field %></li>
-      <% end %>
+  <div>
+    <div class="btn-group" style="float:left">
+      <a href="?<%= @default_order ? '' : sorting_request(@order) %>" class="btn btn-primary">
+        <%= @default_order ? 'Sort by' : sorting_span(@sort_fields[@order], @order) %>
+      </a>
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <% @sort_fields.each do |field, display| %>
+          <li><%= sorting_link display, field %></li>
+        <% end %>
 
-      <li><%= sorting_link 'Discovered when', 'created_at' %></li>
+        <li><%= sorting_link 'Discovered when', 'created_at' %></li>
 
 
-    </ul>
+      </ul>
+    </div>
+
+    <%= render :partial => 'search' %>
+
+    <div class="pull-right">
+
+    <%= render :partial => 'shared/stats' if Rails.env.production?  %>
+    <%= link_to 'Known combinations', combinations_path, :class => request.path == combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
+    <%= link_to 'Unknown', unknown_combinations_path, :class => request.path == unknown_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
+    <%= link_to 'Unrated', unrated_combinations_path, :class => request.path == unrated_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
+    <%= link_to 'Submit a combination', new_combination_path, :class => 'btn btn-primary' %>
+    </div>
   </div>
 
-  <%= render :partial => 'search' %>
-
-  <div class="pull-right">
-
-  <%= render :partial => 'shared/stats' if Rails.env.production?  %>
-  <%= link_to 'Known combinations', combinations_path, :class => request.path == combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
-  <%= link_to 'Unknown', unknown_combinations_path, :class => request.path == unknown_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
-  <%= link_to 'Unrated', unrated_combinations_path, :class => request.path == unrated_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
-  <%= link_to 'Submit a combination', new_combination_path, :class => 'btn btn-primary' %>
-  </div>
-</div>
-
-<div style="clear:both"></div>
-<table class="table-striped">
-  <thead>
-    <tr>
-      <th>Device</th>
-      <th>Submitter</th>
-      <th>User agent</th>
-      <th>
-        DHCPv4 fingerprint<br/>
-        DHCPv4 vendor
-      </th>
-      <th>
-        DHCPv6 fingerprint<br/>
-        DHCPv6 enterprise
-      </th>
-      <th>Mac vendor</th>
-      <th>Discovered when</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @combinations.each do |combination| %>
-      <%= link_to '', combination, :class => "hidden", :remote => true, :id => "show_#{combination.id}" %>
-      <tr class="combination" data-combination-id="<%= combination.id %>">
-        <td class="device_info shortened hover-popup" 
-          data-details="
-            <%= combination.device ? combination.device.full_path : "Unknown" %>
-          ">
-          <span><%= combination.device ? combination.device.name : "Unknown" %></span>
-          <br/>
-          <% if combination.version %>
-          <span class="label label-success">Version : <%= combination.version %></span>
-          <% else %>
-          <span class="label label-warning">Unknown version</span>
-          <% end %>
-          <span class="label label-primary">Score : <%= combination.score %></span>
-        </td>
-        <td><%= combination.submitter ? combination.submitter.name : '' %></td>
-        <td class="shortened hover-popup"><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
-        <td class="shortened hover-popup">
-          <span><%= combination.dhcp_fingerprint.value %></span>
-          <span class="splitter"></span>
-          <span><%= combination.dhcp_vendor.value %></span>
-        </td>
-        <td class="shortened hover-popup">
-          <span><%= combination.dhcp6_fingerprint.value %></span>
-          <span class="splitter"></span>
-          <span ><%= combination.dhcp6_enterprise.value %></span>
-        </td>
-        <td class="shortened hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
-
-        <td><%= time_ago_in_words(combination.created_at) %> ago</td>
+  <div style="clear:both"></div>
+  <table class="table-striped">
+    <thead>
+      <tr>
+        <th>Device</th>
+        <th>Submitter</th>
+        <th>User agent</th>
+        <th>
+          DHCPv4 fingerprint<br/>
+          DHCPv4 vendor
+        </th>
+        <th>
+          DHCPv6 fingerprint<br/>
+          DHCPv6 enterprise
+        </th>
+        <th>Mac vendor</th>
+        <th>Discovered when</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
-<%= will_paginate %>
-<br>
+    </thead>
 
+    <tbody>
+      <% @combinations.each do |combination| %>
+        <%= link_to '', combination, :class => "hidden", :remote => true, :id => "show_#{combination.id}" %>
+        <tr class="combination" data-combination-id="<%= combination.id %>">
+          <td class="device_info shortened hover-popup" 
+            data-details="
+              <%= combination.device ? combination.device.full_path : "Unknown" %>
+            ">
+            <span><%= combination.device ? combination.device.name : "Unknown" %></span>
+            <br/>
+            <% if combination.version %>
+            <span class="label label-success">Version : <%= combination.version %></span>
+            <% else %>
+            <span class="label label-warning">Unknown version</span>
+            <% end %>
+            <span class="label label-primary">Score : <%= combination.score %></span>
+          </td>
+          <td><%= combination.submitter ? combination.submitter.name : '' %></td>
+          <td class="shortened hover-popup"><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
+          <td class="shortened hover-popup">
+            <span><%= combination.dhcp_fingerprint.value %></span>
+            <span class="splitter"></span>
+            <span><%= combination.dhcp_vendor.value %></span>
+          </td>
+          <td class="shortened hover-popup">
+            <span><%= combination.dhcp6_fingerprint.value %></span>
+            <span class="splitter"></span>
+            <span ><%= combination.dhcp6_enterprise.value %></span>
+          </td>
+          <td class="shortened hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
+
+          <td><%= time_ago_in_words(combination.created_at) %> ago</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= will_paginate %>
+  <br>
+<% end %>

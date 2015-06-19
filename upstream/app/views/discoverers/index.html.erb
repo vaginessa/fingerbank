@@ -1,30 +1,34 @@
-<%= render :partial => 'shared/search', :locals => {:action_url => discoverers_path, :previous_search => params[:search]} %>
-<table>
-  <thead>
-    <tr>
-      <th></th>
-      <th>Description</th>
-      <th>For Device</th>
-    </tr>
-  </thead>
 
-  <tbody>
-    <% @discoverers.each do |discoverer| %>
+<%= simple_index_container do %>
+  <%= render partial: "shared/help" %>
+  <%= link_to 'New Discoverer', new_discoverer_path, :class => 'btn btn-primary pull-right' if current_user_admin? %>
+
+  <%= render :partial => 'shared/search', :locals => {:action_url => discoverers_path, :previous_search => params[:search]} %>
+  <table>
+    <thead>
       <tr>
-        <td>
-          <%= link_to '', discoverer, :class => "btn-show" %>
-          <%= link_to '', edit_discoverer_path(discoverer), :class => "btn-edit" if current_user_admin? %>
-          <%= link_to '', discoverer, method: :delete, :data => { confirm: 'Are you sure?' }, :class => "btn-delete" if current_user_admin? %>
-        </td>
-        <td class="hover-popup"><%= discoverer.description %></td>
-        <td class="hover-popup"><%= discoverer.device.name unless discoverer.device.nil? %></td> 
+        <th></th>
+        <th>Description</th>
+        <th>For Device</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
 
-<%= will_paginate %>
+    <tbody>
+      <% @discoverers.each do |discoverer| %>
+        <tr>
+          <td>
+            <%= link_to '', discoverer, :class => "btn-show" %>
+            <%= link_to '', edit_discoverer_path(discoverer), :class => "btn-edit" if current_user_admin? %>
+            <%= link_to '', discoverer, method: :delete, :data => { confirm: 'Are you sure?' }, :class => "btn-delete" if current_user_admin? %>
+          </td>
+          <td class="hover-popup"><%= discoverer.description %></td>
+          <td class="hover-popup"><%= discoverer.device.name unless discoverer.device.nil? %></td> 
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
-<br>
+  <%= will_paginate %>
 
-<%= link_to 'New Discoverer', new_discoverer_path %>
+<% end %>
+
