@@ -105,7 +105,8 @@ class User < ActiveRecord::Base
   end
 
   def demote_to(level)
-    if User.admins.size > 1
+    # we make sure there will be at least an admin left
+    unless self.level == User.LEVELS[:admin] && User.admins.size <= 1
       update(:level => level)
     else
       return false 
