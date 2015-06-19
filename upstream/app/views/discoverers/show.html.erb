@@ -1,5 +1,6 @@
 
 <%= simple_show_container do %>
+  <%= render partial: "shared/help" %>
   <div class="pull-right">
     <%= link_to 'Edit', edit_discoverer_path(@discoverer), :class=> 'btn btn-primary' if current_user_admin? %> 
   </div>

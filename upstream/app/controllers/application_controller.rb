@@ -7,6 +7,20 @@ class ApplicationController < ActionController::Base
 
   before_filter :ensure_admin, :except => [:index, :show] 
 
+  before_filter :set_help
+
+  def set_help
+    begin
+      @help = Rails.application.config.help[params[:controller]][action_name]
+      
+      @help.prepend(Rails.application.config.help[params[:controller]]["#{action_name}_before"] || '')
+      @help += Rails.application.config.help[params[:controller]]["#{action_name}_add"] || ''
+    rescue Exception => e
+      logger.info "Can't find help for #{params[:controller]}/#{action_name}"
+      logger.debug e
+    end
+  end
+
   def find_current_user
     if session[:user_id]
       @current_user = User.find(session[:user_id])

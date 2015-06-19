@@ -53,6 +53,8 @@ module RailsFingerbank
     end
 
     #puts config.action_mailer.smtp_settings.inspect
+    
+    config.help = YAML.load_file('config/help.yml')
 
   end
 end

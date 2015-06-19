@@ -1,7 +1,5 @@
 class DevicesController < ApplicationController
   before_action :set_device, only: [:show, :edit, :update, :destroy, :approve]
-  before_action :set_index_help, only: [:index]
-  before_action :set_show_help, only: [:show]
 
   skip_before_filter :ensure_admin, :only => [:community_new, :community_create, :search]
   before_filter :ensure_community, :only => [:community_new, :community_create]
@@ -133,19 +131,4 @@ class DevicesController < ApplicationController
     def device_params
       params.require(:device).permit(:name, :mobile, :inherit, :tablet, :parent_id, :dhcp_fingerprint_ids => [])
     end
-
-    def set_index_help
-      @help = %Q(These are all the devices that are known to Fingerbank.
-                 Click on the eye next to a device to have more information about it, including how it's discovered and the matching combinations in the database.
-      )
-    end
-
-    def set_show_help
-      @help = %Q(On this page you can see where the device is located in the device hierarchy and it's parents and neighbors.
-                 The discoverers that find combinations belonging to that device are listed below.
-                 Also listed below are the matching combinations in the Fingerbank database that belong to this device.
-      )
-    end
-    
-
 end
