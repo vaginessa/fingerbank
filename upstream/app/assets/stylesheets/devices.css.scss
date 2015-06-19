@@ -1,16 +1,24 @@
+@import "bootstrap-sprockets";
+@import "bootstrap";
 @import "global"; 
 
 span.minimized {
   display:none;
 }
 
-span.device-toggler {
-  border: 1px solid grey;
-  cursor:pointer;
-  width:17px;
-  text-align:center;
-  display:inline-block;
-  @include rounded(3px);
+.device-toggler {
+  @extend .fb-btn;
+  @extend .btn-primary;
+}
+
+.device-toggler-expand {
+  @extend .device-toggler;
+  @extend .glyphicon-resize-full;
+}
+
+.device-toggler-shrink {
+  @extend .device-toggler;
+  @extend .glyphicon-minus;
 }
 
 li.no-bullet {
