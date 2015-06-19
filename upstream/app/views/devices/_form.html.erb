@@ -16,6 +16,7 @@
     </div>
 
     <div class="actions">
+      <%= link_to 'Back to device', @device, :class => 'btn btn-warning' if @device.persisted? %>
       <%= f.submit %>
     </div>
 

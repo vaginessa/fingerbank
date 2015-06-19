@@ -1,16 +1,18 @@
 
-<ul class="nav nav-pills">
-  <li role="presentation"><%= link_to 'Create', new_user_path %></li>
-</ul>
+<%= simple_index_container do %>
+  <ul class="nav nav-pills">
+    <li role="presentation"><%= link_to 'Create', new_user_path %></li>
+  </ul>
 
-<h3>Admin users (<%= User.admins.count %>)</h3>
-<%= render :partial => 'users', :locals => {:users => User.admins} %>
+  <h3>Admin users (<%= User.admins.count %>)</h3>
+  <%= render :partial => 'users', :locals => {:users => User.admins} %>
 
-<h3>Unlimited users (<%= User.unlimited.count %>)</h3>
-<%= render :partial => 'users', :locals => {:users => User.unlimited} %>
+  <h3>Unlimited users (<%= User.unlimited.count %>)</h3>
+  <%= render :partial => 'users', :locals => {:users => User.unlimited} %>
 
-<h3>API submitters users (<%= User.api_submitters.count %>)</h3>
-<%= render :partial => 'users', :locals => {:users => User.api_submitters} %>
+  <h3>API submitters users (<%= User.api_submitters.count %>)</h3>
+  <%= render :partial => 'users', :locals => {:users => User.api_submitters} %>
 
-<h3>Normal users (<%= User.community.count %>)</h3>
-<%= render :partial => 'users', :locals => {:users => User.community} %>
+  <h3>Normal users (<%= User.community.count %>)</h3>
+  <%= render :partial => 'users', :locals => {:users => User.community} %>
+<% end %>

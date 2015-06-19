@@ -55,6 +55,8 @@
       </div>
     </div>
     <div class="actions">
+      <%= link_to 'Back to device discoverer', edit_discoverer_path(@rule.device_discoverer), :class => 'btn btn-warning' if @rule.device_discoverer %>
+      <%= link_to 'Back to version discoverer', edit_discoverer_path(@rule.version_discoverer), :class => 'btn btn-warning' if @rule.version_discoverer %>
       <%= link_to 'Cancel', edit_rule_path(@rule), :class => 'btn btn-warning' if @rule.persisted? %>
       <%= f.submit %>
     </div>

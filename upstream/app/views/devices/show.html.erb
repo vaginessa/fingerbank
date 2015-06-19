@@ -1,34 +1,58 @@
-<p id="notice"><%= notice %></p>
 
-<div>
-<%= link_to 'New', new_device_path if current_user_admin? %> 
-<%= link_to 'Edit', edit_device_path(@device) if current_user_admin? %> 
-</div>
 
-Name : <%= @device.name %> <br/>
-Mobile : <%= @device.is_mobile? %> <br/>
-Tablet : <%= @device.tablet %> <br/>
-Full path : <%= @device.full_path %> <br/>
+<%= simple_show_container do %>
+  <h3>
+    Device : <%= @device.name %>
+    <div class="pull-right">
+      <%= link_to 'Edit', edit_device_path(@device), :class=> 'btn btn-primary' if current_user_admin? %> 
+    </div>
+  </h3>
 
-<h3>Hierarchy</h3>
-<%= render :partial => 'childs', :locals => {:device => @top_level_parent } %>
+  <div class="padded">
+    <div>
+      <strong>Full path:</strong>
+      <%= @device.full_path %>
+    </div>
 
-<h3>
-  Discoverers 
-  <% if current_user_admin? %>
-    <a href="<%= new_discoverer_path %>?device_id=<%= @device.id %>">New</a>
-  <% end %>
-</h3>
-<div  style="height:300px;overflow-y:scroll">
-<table>
-<% @device.discoverers.each do |discoverer| %>
-  <tr>
-    <td><a href="<%= discoverer_path discoverer %>"><%= discoverer.description %></a></td>
-  </tr>
+    <%= simple_line_container do %>
+      <strong>Attributes:</strong>
+      <div>
+        <% if @device.mobile? %>
+          <span class="label label-success">Mobile device</span>
+        <% else %>
+          <span class="label label-warning">Not a mobile</span>
+        <% end %>
+
+        <% if @device.tablet %>
+          <span class="label label-success">Tablet</span>
+        <% else %>
+          <span class="label label-warning">Not a tablet</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <ul class="list-group">
+        <li class="list-group-item active"><strong>Discoverers</strong></li>
+      <% @device.discoverers.each do |discoverer| %>
+        <a href="<%= discoverer_path discoverer %>" class="list-group-item"><%= discoverer.description %></a>
+      <% end %>
+      </ul>
+    </div>
+
+    <div class="col-md-6">
+      <ul class="list-group">
+        <li class="list-group-item active"><strong>Hierarchy</strong></li>
+      <% @device.parents.each do |parent| %>
+        <a href="<%= device_path parent %>" class="list-group-item"><%= parent.name %></a>
+      <% end %>
+        <li class="list-group-item"><%= @device.name %></li>
+      </ul>
+    </div>
+  </div>
+
+
+
 <% end %>
-</table>
-</div> 
-
-</div>
-
-

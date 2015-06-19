@@ -56,4 +56,20 @@ module ApplicationHelper
     end
   end
 
+  def simple_show_container
+    content_tag(:div, :class => "row") do
+      content_tag(:div, :class => "col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2") do
+        yield
+      end
+    end
+  end
+
+  def simple_line_container
+    content_tag(:div, :class => "row") do
+      content_tag(:div, :class => "col-xs-12") do
+        yield
+      end
+    end
+  end
+
 end

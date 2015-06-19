@@ -39,7 +39,7 @@ class RulesController < ApplicationController
 
     respond_to do |format|
       if create_result && condition_result
-        format.html { redirect_to @rule, notice: 'Rule was successfully created.' }
+        format.html { redirect_to edit_rule_path(@rule), notice: 'Rule was successfully created.' }
         format.json { render :show, status: :created, location: @rule }
       else
         format.html { render :new }
@@ -61,7 +61,7 @@ class RulesController < ApplicationController
 
     respond_to do |format|
       if update_result && condition_result 
-        format.html { redirect_to @rule, notice: 'Rule was successfully updated.' }
+        format.html { redirect_to edit_rule_path(@rule), notice: 'Rule was successfully updated.' }
         format.json { render :show, status: :ok, location: @rule }
       else
         format.html { render :edit }
@@ -75,7 +75,7 @@ class RulesController < ApplicationController
   def destroy
     @rule.destroy
     respond_to do |format|
-      format.html { redirect_to rules_url, notice: 'Rule was successfully destroyed.' }
+      format.html { redirect_to :back, notice: 'Rule was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

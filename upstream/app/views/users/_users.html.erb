@@ -1,4 +1,4 @@
-<table>
+<table class="users">
 <tr>
   <th></th>
   <th>Github user ID</th>
@@ -15,6 +15,35 @@
     <td>
       <%= link_to '', user_path(user), :class => 'btn-show' %>
       <%= link_to '', edit_user_path(user), :class => 'btn-edit' %>
+
+      <% unless user.blocked %>
+        <%= link_to '', block_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-lock" if current_user_admin? %>
+      <% else %>
+      <%= link_to '', unblock_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-unlock" if current_user_admin? %>
+      <% end %>
+
+
+    <% if user.admin? %>
+
+      <%= link_to '', demote_user_path(user, User.LEVELS[:unlimited]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-down" if current_user_admin? %>
+
+    <% elsif user.unlimited? %>
+
+      <%= link_to '', promote_user_path(user, User.LEVELS[:admin]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-up" if current_user_admin? %>
+      <%= link_to '', demote_user_path(user, User.LEVELS[:api_submitter]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-down" if current_user_admin? %>
+
+    <% elsif user.api_submitter? %>
+
+      <%= link_to '', promote_user_path(user, User.LEVELS[:unlimited]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-up" if current_user_admin? %>
+      <%= link_to '', demote_user_path(user, User.LEVELS[:community]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-down" if current_user_admin? %>
+
+    <% else %>
+
+      <%= link_to '', promote_user_path(user, User.LEVELS[:api_submitter]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn-up" if current_user_admin? %>
+
+    <% end %>
+
+
     </td>
     <td><%= user.github_uid %></td>
     <td><%= user.name %></td>
@@ -23,30 +52,6 @@
     <td><%= user.requests || 0 %></td>
     <td><%= user.timeframed_requests %></td>
     <td><%= time_ago_in_words(user.created_at) %> ago</td>
-    <% if user.admin? %>
-
-      <td><%= link_to 'Demote to unlimited', demote_user_path(user, User.LEVELS[:unlimited]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-
-    <% elsif user.unlimited? %>
-
-      <td><%= link_to 'Promote to admin', promote_user_path(user, User.LEVELS[:admin]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-      <td><%= link_to 'Demote to api submitter', demote_user_path(user, User.LEVELS[:api_submitter]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-
-    <% elsif user.api_submitter? %>
-
-      <td><%= link_to 'Promote to unlimited', promote_user_path(user, User.LEVELS[:unlimited]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-      <td><%= link_to 'Demote to community', demote_user_path(user, User.LEVELS[:community]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-
-    <% else %>
-
-      <td><%= link_to 'Promote to api submitter', promote_user_path(user, User.LEVELS[:api_submitter]), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-
-    <% end %>
-    <% unless user.blocked %>
-      <td><%= link_to 'Block user', block_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-    <% else %>
-      <td><%= link_to 'Unblock user', unblock_user_path(user), method: :post, data: { confirm: 'Are you sure?' }, :class => "btn btn-warning" if current_user_admin? %></td>
-    <% end %>
 
   </tr>
 <% end %>

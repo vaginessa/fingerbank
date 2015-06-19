@@ -118,6 +118,46 @@ td.shortened {
   color:white;
 }
 
+.btn-lock {
+  @extend .btn;
+  @extend .btn-danger;
+  @extend .glyphicon;
+  @extend .glyphicon-ban-circle;
+  margin:0.1em;
+  padding:0.1em;
+  color:white;
+}
+
+.btn-unlock {
+  @extend .btn;
+  @extend .btn-success;
+  @extend .glyphicon;
+  @extend .glyphicon-ok-circle;
+  margin:0.1em;
+  padding:0.1em;
+  color:white;
+}
+
+.btn-down {
+  @extend .btn;
+  @extend .btn-info;
+  @extend .glyphicon;
+  @extend .glyphicon-circle-arrow-down;
+  margin:0.1em;
+  padding:0.1em;
+  color:white;
+}
+
+.btn-up {
+  @extend .btn;
+  @extend .btn-info;
+  @extend .glyphicon;
+  @extend .glyphicon-circle-arrow-up;
+  margin:0.1em;
+  padding:0.1em;
+  color:white;
+}
+
 input[type='text']{
   width:500px;
 }
@@ -149,4 +189,12 @@ textarea{
     @extend .btn;
     @extend .btn-primary;
   }
+}
+
+.padded {
+  padding: 0.5em;
+}
+
+.show-field {
+  @extend .padded;
 }
