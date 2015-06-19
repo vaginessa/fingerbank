@@ -50,7 +50,7 @@ module ApplicationHelper
 
   def simple_index_container
     content_tag(:div, :class => "row") do
-      content_tag(:div, :class => "col-xs-10 col-xs-offset-1") do
+      content_tag(:div, :class => "col-xs-12 col-sm-12 col-lg-10 col-lg-offset-1") do
         yield
       end
     end
