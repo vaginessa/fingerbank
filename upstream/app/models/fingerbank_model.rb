@@ -42,6 +42,11 @@ class FingerbankModel < ActiveRecord::Base
     
     logger.warn("Going to flatten")
     fields = default_fields.flatten if fields.nil?
+
+    self.simple_search_joins[:ignore].each do |ignore|
+      fields.delete(ignore)
+    end
+
     logger.warn("le fields : #{fields.inspect}")
     params = []
     started = false

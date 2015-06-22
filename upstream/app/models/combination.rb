@@ -33,6 +33,9 @@ class Combination < FingerbankModel
         :mac_vendor,
         :device,
         :submitter,
+      ],
+      :ignore => [
+        'submitters.key'
       ]
     }
   end
