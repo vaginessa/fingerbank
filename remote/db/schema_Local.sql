@@ -35,7 +35,23 @@ CREATE TABLE "dhcp_fingerprint" (
   PRIMARY KEY ("id")
 );
 
+CREATE TABLE "dhcp6_fingerprint" (
+  "id" varchar(11) NOT NULL,
+  "value" varchar(1000) DEFAULT NULL,
+  "created_at" datetime DEFAULT NULL,
+  "updated_at" datetime DEFAULT NULL,
+  PRIMARY KEY ("id")
+);
+
 CREATE TABLE "dhcp_vendor" (
+  "id" varchar(11) NOT NULL,
+  "value" varchar(1000) DEFAULT NULL,
+  "created_at" datetime DEFAULT NULL,
+  "updated_at" datetime DEFAULT NULL,
+  PRIMARY KEY ("id")
+);
+
+CREATE TABLE "dhcp6_enterprise" (
   "id" varchar(11) NOT NULL,
   "value" varchar(1000) DEFAULT NULL,
   "created_at" datetime DEFAULT NULL,
