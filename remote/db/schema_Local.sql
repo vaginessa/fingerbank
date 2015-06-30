@@ -10,8 +10,11 @@ CREATE TABLE "combination" (
   "score" int(11) DEFAULT '0',
   "mac_vendor_id" varchar(11) DEFAULT NULL,
   "submitter_id" int(11) DEFAULT NULL,
+  "dhcp6_fingerprint_id" varchar(11) DEFAULT NULL,
+  "dhcp6_enterprise_id" varchar(11) DEFAULT NULL,
   PRIMARY KEY ("id")
 );
+
 
 CREATE TABLE "device" (
   "id" varchar(11) NOT NULL,
@@ -81,11 +84,13 @@ CREATE TABLE "tables_ids" (
   "combination" int(11) NOT NULL,
   "device" int(11) NOT NULL,
   "dhcp_fingerprint" int(11) NOT NULL,
+  "dhcp6_fingerprint" int(11) NOT NULL,
   "dhcp_vendor" int(11) NOT NULL,
+  "dhcp6_enterprise" int(11) NOT NULL,
   "mac_vendor" int(11) NOT NULL,
   "user_agent" int(11) NOT NULL
 );
-INSERT INTO "tables_ids" VALUES (1, 1, 1, 1, 1, 1);
+INSERT INTO "tables_ids" VALUES (1, 1, 1, 1, 1, 1, 1, 1);
 
 CREATE TABLE "unmatched" (
   "id" INTEGER PRIMARY KEY AUTOINCREMENT,
