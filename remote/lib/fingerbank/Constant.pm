@@ -49,7 +49,11 @@ Readonly::Scalar our $NO        => 'no';
 
 =item $DHCP_FINGERPRINT
 
+=item $DHCP6_FINGERPRINT
+
 =item $DHCP_VENDOR
+
+=item $DHCP6_ENTERPRISE
 
 =item $USER_AGENT
 
@@ -58,7 +62,9 @@ Readonly::Scalar our $NO        => 'no';
 =cut
 
 Readonly::Scalar our $DHCP_FINGERPRINT  => 'DHCP_Fingerprint';
+Readonly::Scalar our $DHCP6_FINGERPRINT => 'DHCP6_Fingerprint';
 Readonly::Scalar our $DHCP_VENDOR       => 'DHCP_Vendor';
+Readonly::Scalar our $DHCP6_ENTERPRISE  => 'DHCP6_Enterprise';
 Readonly::Scalar our $USER_AGENT        => 'User_Agent';
 Readonly::Scalar our $MAC_VENDOR        => 'MAC_Vendor';
 
@@ -70,7 +76,9 @@ An array containing all the query parameters
 
 Readonly::Array our @QUERY_PARAMETERS => (
     $DHCP_FINGERPRINT,
+    $DHCP6_FINGERPRINT,
     $DHCP_VENDOR,
+    $DHCP6_ENTERPRISE,
     $USER_AGENT,
     $MAC_VENDOR,
 );
