@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150609195104) do
+ActiveRecord::Schema.define(version: 20150707120836) do
 
   create_table "combinations", force: true do |t|
     t.integer  "dhcp_fingerprint_id"
@@ -28,6 +28,8 @@ ActiveRecord::Schema.define(version: 20150609195104) do
     t.integer  "dhcp6_enterprise_id"
   end
 
+  add_index "combinations", ["dhcp6_enterprise_id"], name: "combinations_dhcp6_enterprise_id_ix", using: :btree
+  add_index "combinations", ["dhcp6_fingerprint_id"], name: "combinations_dhcp6_fingerprint_id_ix", using: :btree
   add_index "combinations", ["dhcp_fingerprint_id"], name: "combinations_dhcp_fingerprint_id_ix", using: :btree
   add_index "combinations", ["dhcp_vendor_id"], name: "combinations_dhcp_vendor_id_ix", using: :btree
   add_index "combinations", ["mac_vendor_id"], name: "combinations_mac_vendor_id_ix", using: :btree
@@ -59,11 +61,15 @@ ActiveRecord::Schema.define(version: 20150609195104) do
     t.datetime "updated_at"
   end
 
+  add_index "dhcp6_enterprises", ["value"], name: "index_dhcp6_enterprises_on_value", length: {"value"=>255}, using: :btree
+
   create_table "dhcp6_fingerprints", force: true do |t|
     t.string   "value",      limit: 1000
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "dhcp6_fingerprints", ["value"], name: "index_dhcp6_fingerprints_on_value", length: {"value"=>255}, using: :btree
 
   create_table "dhcp_fingerprints", force: true do |t|
     t.string   "value",      limit: 1000
