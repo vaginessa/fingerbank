@@ -51,7 +51,7 @@ class UsersController < ApplicationController
   def block
     if @user.update(:blocked => true)
       flash[:success] = "User blocked"
-      UserMailer.user_blocked(@user).deliver
+      UserMailer.user_blocked(@user).deliver_later
     else
       flash[:error] = "Couldn't block the user"
     end 
@@ -68,7 +68,7 @@ class UsersController < ApplicationController
   end
 
   def request_api
-    if UserMailer.request_api_submission(@user).deliver
+    if UserMailer.request_api_submission(@user).deliver_later
       flash[:success] = "Request has been sent. You will be notified if this is accepted."
     else
       flash[:error] = "Could not send the request. Please try again later."

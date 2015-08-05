@@ -25,11 +25,11 @@ class Package
           Has #{self.db_stats[:mac_vendors]} MAC vendors in it
         ")
       else
-        AdminMailer.package_failed.deliver
+        AdminMailer.package_failed.deliver_later
       end 
     rescue Exception => e
       Rails.logger.error e
-      AdminMailer.package_failed.deliver
+      AdminMailer.package_failed.deliver_later
     end
 
   end
