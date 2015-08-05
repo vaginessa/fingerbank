@@ -4,7 +4,8 @@ class FingerbankModel < ActiveRecord::Base
   def self.simple_search_joins
     return {
       :has => [],
-      :belongs_to => []
+      :belongs_to => [],
+      :ignore => [],
     }
   end
 

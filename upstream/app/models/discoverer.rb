@@ -12,7 +12,8 @@ class Discoverer < FingerbankModel
   def self.simple_search_joins
     return {
       :has => [],
-      :belongs_to => [:device]
+      :belongs_to => [:device],
+      :ignore => [],
     }
   end
 
