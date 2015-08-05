@@ -67,6 +67,7 @@
           DHCPv6 enterprise
         </th>
         <th>Mac vendor</th>
+        <th>Saw by</th>
         <th>Discovered when</th>
       </tr>
     </thead>
@@ -103,8 +104,10 @@
             </td>
             <td class="shortened hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
 
-            <td><%= time_ago_in_words(combination.created_at) %> ago</td>
-          </tr>
+          <td><%= combination.query_log.count %> users</td>
+
+          <td><%= time_ago_in_words(combination.created_at) %> ago</td>
+        </tr>
         <% end %>
       <% end %>
     </tbody>
