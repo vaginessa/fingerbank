@@ -12,7 +12,7 @@ class Discoverer < FingerbankModel
      now = Time.now
       happened_at = Rails.cache.fetch("discoverers-full-cache-miss", :expires_in => 30.minute) {Time.now}
       if happened_at > now 
-        AdminMailer.discoverers_cache_miss.deliver
+        AdminMailer.discoverers_cache_miss.deliver_later
         Discoverer.fbcache 
       end
       ActiveRecord::Base.connection.close
