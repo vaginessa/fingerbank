@@ -28,6 +28,7 @@ gem 'apipie-rails', '= 0.3.3'
 
 gem 'newrelic_rpm'
 
+gem 'daemons'
 gem 'delayed_job_active_record'
 
 # cache digest
