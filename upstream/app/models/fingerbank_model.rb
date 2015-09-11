@@ -48,15 +48,19 @@ class FingerbankModel < ActiveRecord::Base
       fields.delete(ignore)
     end
 
-    logger.warn("le fields : #{fields.inspect}")
-    params = []
-    started = false
+    if what.empty? or what.nil?
+      query = "1=1"
+    else
+      logger.warn("le fields : #{fields.inspect}")
+      params = []
+      started = false
 
-    fields.each do |field|
-      to_add, value = self.add_where field, what, started
-      query += to_add
-      params << value
-      started = true
+      fields.each do |field|
+        to_add, value = self.add_where field, what, started
+        query += to_add
+        params << value
+        started = true
+      end
     end
      
     results = le_join.where("(#{query}) #{add_query}", *params) 

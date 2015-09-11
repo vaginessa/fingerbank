@@ -38,36 +38,27 @@ class CombinationsController < ApplicationController
   # GET /combinations
   # GET /combinations.json
   def index
-    if params[:search]
-      @search = escaped_search
-      @selected_fields = params[:fields]
-      @combinations = Combination.simple_search(params[:search], @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
-    else
-      @combinations = Combination.where('device_id IS NOT NULL').paginate(:page => params[:page])
-    end
+    params[:search] = params[:search] || ''
+    @search = escaped_search
+    @selected_fields = params[:fields]
+    @combinations = Combination.simple_search(params[:search], @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
     order_results
   end
 
   def unknown
-    if params[:search]
-      @search = escaped_search
-      @selected_fields = params[:fields]
-      @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page])
-    else
-      @combinations = Combination.where("device_id IS NULL").paginate(:page => params[:page])
-    end
+    params[:search] = params[:search] || ''
+    @search = escaped_search
+    @selected_fields = params[:fields]
+    @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page])
     order_results
     render 'index'
   end
 
   def unrated
-    if params[:search]
-      @search = escaped_search
-      @selected_fields = params[:fields]
-      @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
-    else
-      @combinations = Combination.where("device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
-    end
+    params[:search] = params[:search] || ''
+    @search = escaped_search
+    @selected_fields = params[:fields]
+    @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
     order_results
     render 'index'
   end
