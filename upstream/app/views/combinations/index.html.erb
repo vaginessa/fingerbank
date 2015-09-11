@@ -74,36 +74,38 @@
     <tbody>
       <% @combinations.each do |combination| %>
         <%= link_to '', combination, :class => "hidden", :remote => true, :id => "show_#{combination.id}" %>
-        <tr class="combination" data-combination-id="<%= combination.id %>">
-          <td class="device_info shortened hover-popup" 
-            data-details="
-              <%= combination.device ? combination.device.full_path : "Unknown" %>
-            ">
-            <span><%= combination.device ? combination.device.name : "Unknown" %></span>
-            <br/>
-            <% if combination.version %>
-            <span class="label label-success">Version : <%= combination.version %></span>
-            <% else %>
-            <span class="label label-warning">Unknown version</span>
-            <% end %>
-            <span class="label label-primary">Score : <%= combination.score %></span>
-          </td>
-          <td><%= combination.submitter ? combination.submitter.name : '' %></td>
-          <td class="shortened hover-popup"><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
-          <td class="shortened hover-popup">
-            <span><%= combination.dhcp_fingerprint.value %></span>
-            <span class="splitter"></span>
-            <span><%= combination.dhcp_vendor.value %></span>
-          </td>
-          <td class="shortened hover-popup">
-            <span><%= combination.dhcp6_fingerprint.value %></span>
-            <span class="splitter"></span>
-            <span ><%= combination.dhcp6_enterprise.value %></span>
-          </td>
-          <td class="shortened hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
+        <% cache("combination-row-#{combination.id}") do %>
+          <tr class="combination" data-combination-id="<%= combination.id %>">
+            <td class="device_info shortened hover-popup" 
+              data-details="
+                <%= combination.device ? combination.device.full_path : "Unknown" %>
+              ">
+              <span><%= combination.device ? combination.device.name : "Unknown" %></span>
+              <br/>
+              <% if combination.version %>
+              <span class="label label-success">Version : <%= combination.version %></span>
+              <% else %>
+              <span class="label label-warning">Unknown version</span>
+              <% end %>
+              <span class="label label-primary">Score : <%= combination.score %></span>
+            </td>
+            <td><%= combination.submitter ? combination.submitter.name : '' %></td>
+            <td class="shortened hover-popup"><%= combination.user_agent ? combination.user_agent.value : "Unknown" %></td>
+            <td class="shortened hover-popup">
+              <span><%= combination.dhcp_fingerprint.value %></span>
+              <span class="splitter"></span>
+              <span><%= combination.dhcp_vendor.value %></span>
+            </td>
+            <td class="shortened hover-popup">
+              <span><%= combination.dhcp6_fingerprint.value %></span>
+              <span class="splitter"></span>
+              <span ><%= combination.dhcp6_enterprise.value %></span>
+            </td>
+            <td class="shortened hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
 
-          <td><%= time_ago_in_words(combination.created_at) %> ago</td>
-        </tr>
+            <td><%= time_ago_in_words(combination.created_at) %> ago</td>
+          </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>

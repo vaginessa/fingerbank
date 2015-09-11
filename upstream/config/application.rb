@@ -56,5 +56,7 @@ module RailsFingerbank
     
     config.help = YAML.load_file('config/help.yml')
 
+    config.active_record.observers = :combination_observer
+
   end
 end
