@@ -1,0 +1,5 @@
+$('#stats_modal .modal-body').html(
+    "<%= escape_javascript(render(:partial => 'shared/stats_body'))%>"
+);
+
+$('#stats_modal').modal('show')

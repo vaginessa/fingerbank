@@ -43,7 +43,7 @@
 
     <div class="pull-right">
 
-    <%= render :partial => 'shared/stats' if Rails.env.production?  %>
+    <%= render :partial => 'shared/stats'  %>
     <%= link_to 'Known combinations', combinations_path, :class => request.path == combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
     <%= link_to 'Unknown', unknown_combinations_path, :class => request.path == unknown_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>
     <%= link_to 'Unrated', unrated_combinations_path, :class => request.path == unrated_combinations_path ? 'btn btn-primary active' : 'btn btn-primary' %>

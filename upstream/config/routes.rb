@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   apipie
   get '/download', :to => 'pages#download'  
   get '/api_doc', :to => 'pages#api_doc'  
+  get '/stats', :to => 'pages#stats'  
 
   resources :combinations do
     collection do

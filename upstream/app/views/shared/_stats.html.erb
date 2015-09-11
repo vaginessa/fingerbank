@@ -1,7 +1,5 @@
 <!-- Button trigger modal -->
-<button type="button" id="stats_button" class="btn btn-primary" >
-  Statistics
-</button>
+<%= link_to 'Statistics', stats_path, :class => "btn btn-primary", :remote => true, :id => "stats_button" %>
 
 <!-- Modal -->
 <div class="modal fade" id="stats_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -12,16 +10,6 @@
         <h4 class="modal-title" id="myModalLabel">Fingerbank stats</h4>
       </div>
       <div class="modal-body">
-        <ul class="stats list-group">
-        <% cache('stats') do %>
-          <li class="list-group-item"><%= Combination.count %> different combinations discovered</li>
-          <li class="list-group-item"><%= Combination.unknown.count %> unknown combinations</li>
-          <li class="list-group-item"><%= new_combinations(1.day.ago).size %> new combinations discovered in the last 24 hours</li>
-          <li class="list-group-item"><%= new_user_agents(1.day.ago).size %> new user agents discovered in the last 24 hours</li>
-          <li class="list-group-item"><%= Combination.average(:score).round %> is the average combination score</li>
-        <% end %>      
-          <li class="list-group-item"><%= average_response_time %>ms is the average response time for interrogate</li>
-        </ul>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -30,8 +18,4 @@
   </div>
 </div>
 
-<script>
-  $('#stats_button').on('click', function(){
-    $('#stats_modal').modal('show')
-  });
-</script>
+

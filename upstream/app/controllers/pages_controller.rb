@@ -9,4 +9,7 @@ class PagesController < ApplicationController
   def api_doc
   end
 
+  def stats
+  end
+
 end
