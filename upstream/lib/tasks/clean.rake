@@ -6,6 +6,23 @@ namespace :clean do |ns|
     puts ns.tasks
   end
 
+  task delete_lost_causes: :environment do
+    searches = [
+      Regexp.new('^ALU_[0-9]+\\.[0-9]+\\.[0-9]+_'),
+      Regexp.new('^%%%.*%%%$'),
+      Regexp.new('^\\{\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}\\}$'),
+    ] 
+    Combination.unknown.each do |c|
+      searches.each do |search|
+        match = c.user_agent.value.scan(search)
+        if match[0]
+          puts "#{c.id} : #{c.user_agent.value}"
+          c.delete
+        end
+      end
+    end
+  end
+
   task delete_orphans: :environment do
     Proc.new{
       ua_ids = Combination.all.collect {|c| c.user_agent_id }

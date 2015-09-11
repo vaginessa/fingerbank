@@ -32,6 +32,9 @@ RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
 # remove the orphan data due to administrative deletion or another reason
 RAILS_ENV=production bundle exec rake clean:delete_orphans
 
+# delete user agents which we have no chances to detect
+RAILS_ENV=production bundle exec rake clean:delete_lost_causes
+
 # delete invalid combinations
 RAILS_ENV=production bundle exec rake fdb:delete_invalid_combinations
 
