@@ -11,6 +11,8 @@ class Combination < FingerbankModel
 
   belongs_to :submitter, :class_name => "User"
 
+  has_many :query_log
+
   attr_accessor :processed_method
 
   validates_uniqueness_of :id, :scope => [ :dhcp_fingerprint_id, :dhcp6_fingerprint_id, :dhcp6_enterprise_id, :dhcp_vendor_id, :user_agent_id ], :message => "A combination with these attributes already exists"
