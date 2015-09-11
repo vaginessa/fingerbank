@@ -43,7 +43,7 @@ class CombinationsController < ApplicationController
       @selected_fields = params[:fields]
       @combinations = Combination.simple_search(params[:search], @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
     else
-      @combinations = Combination.simple_search('', @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
+      @combinations = Combination.where('device_id IS NOT NULL').paginate(:page => params[:page])
     end
     order_results
   end
@@ -54,7 +54,7 @@ class CombinationsController < ApplicationController
       @selected_fields = params[:fields]
       @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page])
     else
-      @combinations = Combination.simple_search('', @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page])
+      @combinations = Combination.where("device_id IS NULL").paginate(:page => params[:page])
     end
     order_results
     render 'index'
@@ -66,7 +66,7 @@ class CombinationsController < ApplicationController
       @selected_fields = params[:fields]
       @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
     else
-      @combinations = Combination.simple_search('', @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
+      @combinations = Combination.where("device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
     end
     order_results
     render 'index'
