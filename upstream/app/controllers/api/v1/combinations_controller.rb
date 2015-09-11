@@ -211,6 +211,7 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
     end_time = Time.now
     logger.info "Time elapsed for combination lookup #{(end_time - beginning_time)*1000} milliseconds"  
 
+    QueryStatsJob.perform_later(:user => @current_user, :combination => @combination)
     if @combination.just_created
       logger.warn "Combination didn't exist and was created."
       @combination.update(:submitter => @current_user)
@@ -221,7 +222,6 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
       @combination.destroy unless @current_user.api_submitter?
       render json: @combination, :status => 404
     else
-      QueryStatsJob.perform_later(:user => @current_user, :combination => @combination)
       logger.info "Combination processed correctly."
       if params[:debug] == "on"
         combination_hash = @combination.attributes 
