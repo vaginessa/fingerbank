@@ -37,7 +37,7 @@ sub read {
 
     # If parents are requested, we build them
     if ( (defined($with_parents) && $with_parents) && defined($return->{parent_id}) ) {
-        $logger->info("Device ID '$id' have at least 1 parent. Building parent(s) list");
+        $logger->debug("Device ID '$id' have at least 1 parent. Building parent(s) list");
 
         my $parent_id = $return->{parent_id};
         my $parent_exists = 1;  # We need to run at least once since we know parent(s) exists

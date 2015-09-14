@@ -344,7 +344,7 @@ sub isWindows {
 
     my $result = fingerbank::Model::Device->is_a($device, $WINDOWS_PARENT_ID);
 
-    $logger->info("Device '$device' is a Windows based device") if $result;
+    $logger->debug("Device '$device' is a Windows based device") if $result;
 
     return $result;
 }
@@ -364,7 +364,7 @@ sub isMacOS {
 
     my $result = fingerbank::Model::Device->is_a($device, $MACOS_PARENT_ID);
 
-    $logger->info("Device '$device' is a MacOS based device") if $result;
+    $logger->debug("Device '$device' is a MacOS based device") if $result;
 
     return $result;
 }
@@ -384,7 +384,7 @@ sub isAndroid {
 
     my $result = fingerbank::Model::Device->is_a($device, $ANDROID_PARENT_ID);
 
-    $logger->info("Device '$device' is an Android based device") if $result;
+    $logger->debug("Device '$device' is an Android based device") if $result;
 
     return $result;
 }
@@ -404,7 +404,7 @@ sub isIOS {
 
     my $result = fingerbank::Model::Device->is_a($device, $IOS_PARENT_ID);
 
-    $logger->info("Device '$device' is an IOS based device") if $result;
+    $logger->debug("Device '$device' is an IOS based device") if $result;
 
     return $result;
 }
