@@ -27,7 +27,7 @@ Initiate the logging facility
 =cut
 
 sub init_logger {
-    Log::Log4perl::init_and_watch($LOG_CONF_FILE, 10);
+    Log::Log4perl::init_and_watch($LOG_CONF_FILE, 60);
 }
 
 =head2 get_logger
