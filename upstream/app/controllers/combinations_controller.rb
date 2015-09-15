@@ -25,6 +25,7 @@ class CombinationsController < ApplicationController
   def set_sort_fields
     @sort_fields = set_search_fields
     @sort_fields['combinations.score'] = 'Score'
+    @sort_fields['combinations.created_at'] = 'Discovered date'
     return @search_fields
   end
 
@@ -41,7 +42,11 @@ class CombinationsController < ApplicationController
     params[:search] = params[:search] || ''
     @search = escaped_search
     @selected_fields = params[:fields]
-    @combinations = Combination.simple_search(params[:search], @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
+    unless params[:search].empty?
+      @combinations = Combination.simple_search(params[:search], @selected_fields, 'AND device_id IS NOT NULL').paginate(:page => params[:page])
+    else
+      @combinations = Combination.where('device_id IS NOT NULL').paginate(:page => params[:page])
+    end
     order_results
   end
 
@@ -49,7 +54,11 @@ class CombinationsController < ApplicationController
     params[:search] = params[:search] || ''
     @search = escaped_search
     @selected_fields = params[:fields]
-    @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page])
+    unless params[:search].empty?
+      @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NULL").paginate(:page => params[:page])
+    else
+      @combinations = Combination.where("device_id IS NULL").paginate(:page => params[:page])
+    end
     order_results
     render 'index'
   end
@@ -58,7 +67,12 @@ class CombinationsController < ApplicationController
     params[:search] = params[:search] || ''
     @search = escaped_search
     @selected_fields = params[:fields]
-    @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
+    unless params[:search].empty?
+      @combinations = Combination.simple_search(params[:search], @selected_fields, "AND device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
+    else
+      @combinations = Combination.where("device_id IS NOT NULL AND score=0").paginate(:page => params[:page])
+    end
+
     order_results
     render 'index'
   end
@@ -146,9 +160,11 @@ class CombinationsController < ApplicationController
       if params[:order]
         @order = params[:order]
       else
-        @order = 'created_at'
+        @order = 'combinations.created_at'
         @default_order = true
       end
+      @order_table = @order.split('.')[0]
+      @combinations = @combinations.add_join(@combinations, @order_table) unless @order_table == "combinations"
       @order_way = params[:order_way] || 'desc'
       @combinations = @combinations.order("#{@order} #{@order_way}")
     end

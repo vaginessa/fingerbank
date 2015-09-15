@@ -28,17 +28,13 @@ class FingerbankModel < ActiveRecord::Base
 
     le_join = self
     self.simple_search_joins[:belongs_to].each do |assoc| 
-      assoc = self.reflect_on_association(assoc)
-      default_fields << self.create_scoped_fields(eval("#{assoc.class_name}.column_names"), assoc.plural_name)
-      join_string = "left outer join #{assoc.table_name} as #{assoc.plural_name} on #{table_name}.#{assoc.name}_id=#{assoc.plural_name}.id"
-      le_join = le_join.joins(join_string)
+      le_join, added_fields = self.add_join(le_join, assoc)
+      default_fields << added_fields
     end 
 
     self.simple_search_joins[:has].each do |assoc| 
-      assoc = self.reflect_on_association(assoc)
-      default_fields << self.create_scoped_fields(eval("#{assoc.class_name}.column_names"), assoc.plural_name)
-      join_string = "left outer join #{assoc.table_name} as #{assoc.plural_name} on #{assoc.table_name}.#{assoc.name}_id=#{table_name}.id"
-      le_join = le_join.joins(join_string)
+      le_join, added_fields = self.add_join(le_join, assoc)
+      default_fields << added_fields
     end 
     
     logger.warn("Going to flatten")
@@ -65,6 +61,14 @@ class FingerbankModel < ActiveRecord::Base
      
     results = le_join.where("(#{query}) #{add_query}", *params) 
 
+  end
+
+  def self.add_join(le_join, assoc)
+      assoc = self.reflect_on_association(assoc)
+      default_fields = self.create_scoped_fields(eval("#{assoc.class_name}.column_names"), assoc.plural_name)
+      join_string = "left outer join #{assoc.table_name} as #{assoc.plural_name} on #{table_name}.#{assoc.name}_id=#{assoc.plural_name}.id"
+      le_join = le_join.joins(join_string)
+      return le_join, default_fields
   end
 
   def self.add_where(field, what, started)
