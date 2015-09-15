@@ -15,9 +15,8 @@ class Combination < FingerbankModel
 
   attr_accessor :processed_method
 
-  validates_uniqueness_of :id, :scope => [ :dhcp_fingerprint_id, :dhcp6_fingerprint_id, :dhcp6_enterprise_id, :dhcp_vendor_id, :user_agent_id ], :message => "A combination with these attributes already exists"
   validates_presence_of :dhcp_fingerprint_id, :dhcp6_fingerprint_id, :dhcp6_enterprise_id, :dhcp_vendor_id, :user_agent_id
-  #validate :validate_combination_uniqueness
+  validate :validate_combination_uniqueness
 
   scope :unknown, -> {where(:device => nil)}   
   scope :known, -> {where('device_id is not null')}   
@@ -55,20 +54,21 @@ class Combination < FingerbankModel
   end
 
   def self.get_or_create(values)
-    dhcp_fingerprint = DhcpFingerprint.get_or_create(:value => values[:dhcp_fingerprint])
-    dhcp6_fingerprint = Dhcp6Fingerprint.get_or_create(:value => values[:dhcp6_fingerprint])
-    dhcp6_enterprise = Dhcp6Enterprise.get_or_create(:value => values[:dhcp6_enterprise])
-    dhcp_vendor = DhcpVendor.get_or_create(:value => values[:dhcp_vendor])
-    user_agent = UserAgent.get_or_create(:value => values[:user_agent])
-    mac_vendor = MacVendor.from_mac(values[:mac])
-    combination = Combination.where(:dhcp_fingerprint_id => dhcp_fingerprint.id, :dhcp6_fingerprint_id => dhcp6_fingerprint.id, :dhcp6_enterprise_id => dhcp6_enterprise.id, :user_agent_id => user_agent.id, :dhcp_vendor_id => dhcp_vendor.id, :mac_vendor => mac_vendor).first
-    if combination.nil?
-      combination = self.create!(:dhcp_fingerprint => dhcp_fingerprint, :dhcp6_fingerprint => dhcp6_fingerprint, :dhcp6_enterprise_id => dhcp6_enterprise.id, :user_agent => user_agent, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor)
-      combination.just_created = true
-      return combination
-    else
-      return combination
+    combination = nil
+    Combination.transaction do
+      dhcp_fingerprint = DhcpFingerprint.get_or_create(:value => values[:dhcp_fingerprint])
+      dhcp6_fingerprint = Dhcp6Fingerprint.get_or_create(:value => values[:dhcp6_fingerprint])
+      dhcp6_enterprise = Dhcp6Enterprise.get_or_create(:value => values[:dhcp6_enterprise])
+      dhcp_vendor = DhcpVendor.get_or_create(:value => values[:dhcp_vendor])
+      user_agent = UserAgent.get_or_create(:value => values[:user_agent])
+      mac_vendor = MacVendor.from_mac(values[:mac])
+      combination = Combination.where(:dhcp_fingerprint_id => dhcp_fingerprint.id, :dhcp6_fingerprint_id => dhcp6_fingerprint.id, :dhcp6_enterprise_id => dhcp6_enterprise.id, :user_agent_id => user_agent.id, :dhcp_vendor_id => dhcp_vendor.id, :mac_vendor => mac_vendor).first
+      if combination.nil?
+        combination = self.create!(:dhcp_fingerprint => dhcp_fingerprint, :dhcp6_fingerprint => dhcp6_fingerprint, :dhcp6_enterprise_id => dhcp6_enterprise.id, :user_agent => user_agent, :dhcp_vendor => dhcp_vendor, :mac_vendor => mac_vendor)
+        combination.just_created = true
+      end
     end
+    return combination
   end
 
   def validate_combination_uniqueness
