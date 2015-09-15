@@ -26,17 +26,17 @@ echo "Starting BB phone discovery job"
 RAILS_ENV=production bundle exec rake import:discover_blackberry_models
 
 # merge the stats that were collected (2 days worth)
-echo "Starting merge with stats"
-RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
+#echo "Starting merge with stats"
+#RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
 
-# remove the orphan data due to administrative deletion or another reason
-RAILS_ENV=production bundle exec rake clean:delete_orphans
+## remove the orphan data due to administrative deletion or another reason
+#RAILS_ENV=production bundle exec rake clean:delete_orphans
 
-# delete user agents which we have no chances to detect
-RAILS_ENV=production bundle exec rake clean:delete_lost_causes
+## delete user agents which we have no chances to detect
+#RAILS_ENV=production bundle exec rake clean:delete_lost_causes
 
-# delete invalid combinations
-RAILS_ENV=production bundle exec rake fdb:delete_invalid_combinations
+## delete invalid combinations
+#RAILS_ENV=production bundle exec rake fdb:delete_invalid_combinations
 
 # rebuild the discoverers cache from scratch
 echo "Starting discoverers cache build"
