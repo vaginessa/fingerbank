@@ -115,7 +115,8 @@ namespace :fdb do |ns|
 
   task delete_invalid_combinations: :environment do
     Combination.all.each do |c| 
-      unless c.valid?
+      c.validate_combination_uniqueness
+      if c.errors.size > 0
         puts "Deleting #{c.id}"
         c.delete
       end
