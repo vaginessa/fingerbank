@@ -164,7 +164,7 @@ class CombinationsController < ApplicationController
         @default_order = true
       end
       @order_table = @order.split('.')[0]
-      @combinations = @combinations.add_join(@combinations, @order_table) unless @order_table == "combinations"
+      @combinations, fields = @combinations.add_join(@combinations, @order_table.singularize) unless @order_table == "combinations"
       @order_way = params[:order_way] || 'desc'
       @combinations = @combinations.order("#{@order} #{@order_way}")
     end
