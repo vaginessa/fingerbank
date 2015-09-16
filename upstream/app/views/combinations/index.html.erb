@@ -72,8 +72,8 @@
     <tbody>
       <% @combinations.each do |combination| %>
         <%= link_to '', combination, :class => "hidden", :remote => true, :id => "show_#{combination.id}" %>
-        <% cache("combination-row-#{combination.id}") do %>
-          <tr class="combination" data-combination-id="<%= combination.id %>">
+        <tr class="combination" data-combination-id="<%= combination.id %>">
+          <% cache("combination-row-#{combination.id}") do %>
             <td class="device_info shortened hover-popup" 
               data-details="
                 <%= combination.device ? combination.device.full_path : "Unknown" %>
@@ -100,13 +100,12 @@
               <span ><%= combination.dhcp6_enterprise.value %></span>
             </td>
             <td class="shortened hover-popup"><%= combination.mac_vendor ? combination.mac_vendor.name : "Unknown" %></td>
-
-          <td><%= combination.query_log.count %> users</td>
-
-          <td><%= time_ago_in_words(combination.created_at) %> ago</td>
-        </tr>
         <% end %>
-      <% end %>
+
+        <td><%= combination.query_log.count %> users</td>
+        <td><%= time_ago_in_words(combination.created_at) %> ago</td>
+      </tr>
+    <% end %>
     </tbody>
   </table>
   <%= will_paginate %>
