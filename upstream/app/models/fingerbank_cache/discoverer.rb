@@ -123,6 +123,7 @@ class Discoverer < FingerbankModel
     to_add = to_add.gsub('user_agents.value', 'user_agent')
     to_add = to_add.gsub('dhcp_vendors.value', 'dhcp_vendor')
     to_add = to_add.gsub('mac_vendors.name', 'mac_vendor')
+    to_add = to_add.gsub('mac_vendors.mac', 'oui')
     return to_add
   end
 

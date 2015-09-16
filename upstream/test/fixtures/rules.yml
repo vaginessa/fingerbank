@@ -23,3 +23,7 @@ windows_ipv6:
 android_ipv6:
   value: "dhcp6_enterprises.value LIKE '%Google%'"
   device_discoverer: android_ipv6
+
+nintendo_oui_detection:
+  value: "mac_vendors.mac = '234567'"
+  device_discoverer: nintendo
