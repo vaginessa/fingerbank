@@ -158,7 +158,7 @@ class CombinationsController < ApplicationController
 
     def order_results
       if params[:order]
-        if @sort_fields.include? @order
+        if @sort_fields.keys.include? params[:order]
           @order = params[:order]
           @order_way = params[:order_way] || 'desc'
         else
