@@ -158,14 +158,22 @@ class CombinationsController < ApplicationController
 
     def order_results
       if params[:order]
-        @order = params[:order]
-      else
+        if @sort_fields.include? @order
+          @order = params[:order]
+          @order_way = params[:order_way] || 'desc'
+        else
+          flash[:error] = "Invalid sort field"
+        end
+      end
+
+      unless @order
         @order = 'combinations.created_at'
+        @order_way = 'desc'
         @default_order = true
       end
+
       @order_table = @order.split('.')[0]
       @combinations, fields = @combinations.add_join(@combinations, @order_table.singularize) unless @order_table == "combinations"
-      @order_way = params[:order_way] || 'desc'
       @combinations = @combinations.order("#{@order} #{@order_way}")
     end
 
