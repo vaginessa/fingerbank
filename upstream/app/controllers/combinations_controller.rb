@@ -162,7 +162,7 @@ class CombinationsController < ApplicationController
           @order = params[:order]
           @order_way = params[:order_way] || 'desc'
         else
-          flash[:error] = "Invalid sort field"
+          flash.now[:error] = "Invalid sort field"
         end
       end
 
