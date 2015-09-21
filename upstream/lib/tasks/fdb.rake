@@ -7,7 +7,8 @@ namespace :fdb do |ns|
   end
 
   task :test_discoverer, [:discoverer_id] => [:environment] do |t, args|
-    puts "That discoverer matches : #{Discoverer.find(args[:discoverer_id]).find_matches.count} combinations"
+    puts "That discoverer device rules match : #{Discoverer.find(args[:discoverer_id]).find_device_matches.count} combinations"
+    puts "That discoverer version rules match : #{Discoverer.find(args[:discoverer_id]).find_version_matches.count} combinations"
   end
 
   task reset_timeframed_requests: :environment do

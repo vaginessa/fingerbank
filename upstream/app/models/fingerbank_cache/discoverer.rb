@@ -25,7 +25,7 @@ class Discoverer < FingerbankModel
       combinations[c.id] = []
     end
     Discoverer.all.each do |discoverer|
-      records = discoverer.find_matches
+      records = discoverer.find_device_matches
       records.each do |record|
         begin
           combinations[record[0]] << discoverer

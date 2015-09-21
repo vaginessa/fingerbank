@@ -35,11 +35,11 @@ class Discoverer < FingerbankModel
     return FingerbankCache.get("version_discoverers_ifs") || nil
   end
 
-  def find_matches
+  def find_matches(rules)
     query = ""
     started = false
 
-    self.device_rules.each do |rule|
+    rules.each do |rule|
       to_add = Combination.add_condition rule.computed, started
       
       query += to_add
@@ -60,6 +60,14 @@ class Discoverer < FingerbankModel
     else
       return [] 
     end
+  end
+
+  def find_device_matches
+    self.find_matches(self.device_rules)
+  end
+
+  def find_version_matches
+    self.find_matches(self.version_rules)
   end
 
   def self.discoverers_ifs
