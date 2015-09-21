@@ -54,7 +54,8 @@ Fingerbank
 rm -rf %{buildroot}
 %{__install} -d $RPM_BUILD_ROOT/usr/local/fingerbank
 cp -r * $RPM_BUILD_ROOT/usr/local/fingerbank
-
+%{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
+cp rhel/fingerbank.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/fingerbank
 
 %post
 /usr/local/fingerbank/db/init_databases.pl
@@ -74,6 +75,7 @@ rm -rf %{buildroot}
 %dir                                /usr/local/fingerbank
                                     /usr/local/fingerbank/*
 %attr(775,fingerbank,fingerbank)    /usr/local/fingerbank/db/init_databases.pl
-
+%dir                                %{_sysconfdir}/logrotate.d
+%config                             %{_sysconfdir}/logrotate.d/fingerbank
 
 %changelog
