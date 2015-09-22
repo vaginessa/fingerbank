@@ -6,6 +6,7 @@
       <th>Ignore</th>
       <th>Known combinations</th>
       <th>Unknown combinations</th>
+      <th>Unknown with DHCP vendor</th>
       <th>Fingerprint</th>
     </tr>
   </thead>
@@ -16,6 +17,7 @@
         <td class="options"><%= link_to '', trigger_ignore_dhcp_fingerprint_path(dhcp_fingerprint), :method => 'post', :class => "btn-unwatch" if current_user_admin? %></td>
         <td><%= link_to count, dhcp_fingerprint_search(dhcp_fingerprint.value) %></td>
         <td><%= link_to dhcp_fingerprint.combinations.unknown.count, dhcp_fingerprint_search(dhcp_fingerprint.value, "unknown") %></td>
+        <td><%= @fingerprints_w_dhcp_vendor[dhcp_fingerprint] %></td>
         <td><%= dhcp_fingerprint.value %></td>
       </tr>
     <% end %>
