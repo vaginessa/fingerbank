@@ -7,3 +7,7 @@ submit_url = https://fingerbank.inverse.ca/api/v1/combinations/submit?key=
 
 [query]
 record_unmatched = enabled
+
+[tcp_fingerprinting]
+p0f_socket_path = /var/run/p0f.sock
+use_in_queries = enabled
