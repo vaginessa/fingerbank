@@ -15,11 +15,13 @@ use warnings;
 
 use Config::IniFiles;
 
+use LWP::UserAgent;
 use fingerbank::Constant qw($TRUE $FALSE);
 use fingerbank::FilePath qw($CONF_FILE $CONFIG_DEFAULTS_FILE $CONFIG_DOC_FILE);
 use fingerbank::Log;
 use fingerbank::Status;
-use fingerbank::Util qw(is_enabled);
+use fingerbank::Util qw(is_enabled is_success);
+use File::Copy qw(copy move);
 
 our %Config;
 
@@ -269,6 +271,105 @@ Return TRUE or FALSE whether if configured to interrogate Fingerbank upstream pr
 sub do_we_interrogate_upstream {
     my $interrogate_upstream = get_config('upstream', 'interrogate');
     ( is_enabled($interrogate_upstream) ) ? return $TRUE : return $FALSE;
+}
+
+sub update_p0f_map {
+    my ( $self ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my ( $status, $status_msg );
+
+    my $Config = fingerbank::Config::get_config;
+    my $map_file = $Config->{tcp_fingerprinting}{p0f_map_path};
+
+    my $is_an_update;
+    if ( -f $map_file ) {
+        $is_an_update = $TRUE;
+    } else {
+        $is_an_update = $FALSE;
+    }
+
+    $status = fetch_p0f_map($self, $is_an_update);
+
+    if ( is_success($status) && $is_an_update ) {
+        my $date                    = POSIX::strftime( "%Y%m%d_%H%M%S", localtime );
+        my $map_file_backup    = $map_file . "_$date";
+        my $map_file_new       = $map_file . ".new";
+
+        my $return_code;
+
+        # We create a backup of the actual p0f map file
+        $logger->debug("Backing up actual p0f map file to '$map_file_backup'");
+        $return_code = copy($map_file, $map_file_backup);
+
+        # If copy operation succeed
+        if ( $return_code == 1 ) {
+            # We move the newly downloaded p0f map file to the existing one
+            $logger->debug("Moving new p0f map file to existing one");
+            $return_code = move($map_file_new, $map_file);
+        }
+
+        # Handling error in either copy or move operation
+        if ( $return_code == 0 ) {
+            $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
+            $logger->warn("An error occured while copying / moving files during the p0f map update process: $!");
+        }
+    }
+
+    if ( is_success($status) ) {
+        $status_msg = "Successfully updated the Fingerbank p0f map file";
+        $logger->info($status_msg);
+
+        return ( $status, $status_msg );
+    }
+
+    $status_msg = "An error occured while updating the Fingerbank p0f map";
+    $logger->warn($status_msg);
+
+    return ( $status, $status_msg )
+}
+
+
+=head2 fetch_p0f_map
+
+Download the latest version of the Fingerbank p0f map
+
+=cut
+
+sub fetch_p0f_map {
+    my ( $self, $is_updating ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $Config = fingerbank::Config::get_config;
+
+    if ( !fingerbank::Config::is_api_key_configured ) {
+        $logger->warn("Can't communicate with Fingerbank project without a valid API key.");
+        return $fingerbank::Status::UNAUTHORIZED;
+    }
+
+    my $map_file = $Config->{tcp_fingerprinting}{p0f_map_path};
+    $map_file = $map_file . ".new" if ( defined($is_updating) && $is_updating );
+    my $download_url = $Config->{'tcp_fingerprinting'}{'p0f_map_url'} . $Config->{'upstream'}{'api_key'};
+
+    $logger->debug("Downloading the latest version of the Fingerbank p0f map from '$download_url' to '$map_file'");
+
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(60);   # An update query should not take more than 60 seconds
+    
+    my $status;
+    my $res = $ua->get($download_url);
+
+    if ( $res->is_success ) {
+        $status = $fingerbank::Status::OK;
+        $logger->info("Successfully fetched the p0f map from Fingerbank project");
+        open my $fh, ">", $map_file;
+        print {$fh} $res->decoded_content;
+    } else {
+        $status = $fingerbank::Status::INTERNAL_SERVER_ERROR;
+        $logger->warn("Failed to download latest version of the Fingerbank p0f map with the following return code: " . $res->status_line);
+    }
+
+    return $status;
 }
 
 =head1 AUTHOR

@@ -10,4 +10,7 @@ record_unmatched = enabled
 
 [tcp_fingerprinting]
 p0f_socket_path = /var/run/p0f.sock
+p0f_map_path = /usr/local/fingerbank/conf/fingerbank-p0f.fp
+p0f_map_url = https://fingerbank.inverse.ca/api/v1/download-p0f-map?key=
 use_in_queries = enabled
+
