@@ -4,7 +4,42 @@ namespace :tcp do |ns|
     puts ns.tasks
   end
 
-  task :convert_p0f do
+  task :generate_p0f_map do
+    p0f_archive_path = "tmp/p0f-latest.tgz"
+    p0f_map_path = "tmp/p0f.fp"
+    fingerbank_p0f_map_path = "db/package/p0f-fingerbank.fp"
+    Rake::Task["tcp:download_p0f"].invoke(p0f_archive_path)
+    Rake::Task["tcp:extract_p0f_map"].invoke(p0f_archive_path,p0f_map_path)
+    Rake::Task["tcp:convert_p0f_map"].invoke(p0f_map_path,fingerbank_p0f_map_path)
+  end
+
+  task :download_p0f, [:destination] do |t, args|
+    Net::HTTP.start("lcamtuf.coredump.cx") do |http|
+      resp = http.get("/p0f3/releases/p0f-latest.tgz")
+      open(args[:destination], "wb") do |file|
+          file.write(resp.body)
+          puts "Downloaded p0f latest archive"
+      end
+    end
+  end
+
+  task :extract_p0f_map, [:archive, :destination] do |t, args|
+    Dir.mktmpdir { |dir|
+      `tar -xvf #{args[:archive]} -C #{dir}`
+      p0f_dir = nil
+      Dir.entries(dir).select { |f| 
+        if f !~ /^\./
+          p0f_dir = f
+        end
+      }
+      p0f_dir = "#{dir}/#{p0f_dir}"
+      `cp -fp #{p0f_dir}/p0f.fp #{args[:destination]}`
+      puts "Copied p0f map to #{args[:destination]}"
+    }
+    
+  end
+
+  task :convert_p0f_map, [:source, :destination] do |t, args|
     REPLACE_MAP = {
       'Linux:(Android)' => '202:nil',
       'Linux:Linux:2.4-2.6' => '5:2.4/-/2.6',
@@ -92,14 +127,21 @@ namespace :tcp do |ns|
       end
     end
 
-    puts ";====================="
-    puts ";FAILED for : "
-    puts ";====================="
-    failed = failed.map {|o| ";#{o}"}
-    puts failed.join("\n")
 
-    puts "classes = win,unix,other"
-    puts tcp_lines.join("\n")
+    File.open(args[:destination], 'w') { |file| 
+      unless failed.empty?
+        file.write ";=====================\n"
+        file.write ";FAILED for : \n"
+        file.write ";=====================\n"
+        failed = failed.map {|o| ";#{o}"}
+        file.write failed.join("\n")
+      end
+
+      file.write "classes = win,unix,other\n"
+      file.write tcp_lines.join("\n")
+
+      puts "Completed conversion of p0f map into #{args[:destination]}"
+    }
 
   end
 end
