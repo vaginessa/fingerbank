@@ -28,4 +28,15 @@ class Api::V1::StaticController < Api::V1::V1Controller
     db_fname = Rails.root.join('db', 'package', "packaged.sqlite3")
     send_file(db_fname, :filename => "packaged.sqlite3", :type => "application/x-sqlite3")
   end
+
+  api :GET, '/download-p0f-map'
+
+  desc 'This method allows you to download the latest version of the p0f map that is compatible with the Fingerbank library'
+
+  formats ['Request : */*', 'Response : text/plain']
+  def download_p0f_map
+    db_fname = Rails.root.join('db', 'package', "p0f-fingerbank.fp")
+    send_file(db_fname, :filename => "p0f-fingerbank.fp", :type => "text/plain")
+  end
+
 end

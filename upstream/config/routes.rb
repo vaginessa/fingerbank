@@ -32,6 +32,7 @@ Rails.application.routes.draw do
         get 'key/:key', :action => 'key'
       end
       get 'download', :to => 'static#download'
+      get 'download-p0f-map', :to => 'static#download_p0f_map'
     end
   end
 
