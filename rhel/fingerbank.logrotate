@@ -1,8 +1,8 @@
 # logrotate file for fingerbank
 
 /usr/local/fingerbank/logs/*log {
-    weekly
-    rotate 2
+    daily
+    rotate 1
     missingok
     compress
     create 660 fingerbank fingerbank
