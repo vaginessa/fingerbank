@@ -1,0 +1,10 @@
+# logrotate file for Fingerbank
+
+/usr/local/fingerbank/logs/*log {
+    daily
+    rotate 4
+    missingok
+    compress
+    create 660 fingerbank fingerbank
+    copytruncate
+}
