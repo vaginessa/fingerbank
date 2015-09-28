@@ -6,4 +6,4 @@ interrogate_url = https://fingerbank.inverse.ca/api/v1/combinations/interrogate?
 submit_url = https://fingerbank.inverse.ca/api/v1/combinations/submit?key=
 
 [query]
-record_unmatched = enabled
+record_unmatched = disabled
