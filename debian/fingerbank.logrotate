@@ -1,0 +1,9 @@
+/usr/local/fingerbank/logs/*log {
+    su fingerbank fingerbank
+    daily
+    rotate 1
+    missingok
+    compress
+    create 660 fingerbank fingerbank
+    copytruncate
+}
