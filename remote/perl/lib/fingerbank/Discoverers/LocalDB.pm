@@ -11,7 +11,7 @@ use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 use fingerbank::Result;
 
 sub match {
-    my ( $args, $other_results ) = @_;
+    my ( $self, $args, $other_results ) = @_;
     my $logger = fingerbank::Log::get_logger;
 
     # Initialize status variables
@@ -49,7 +49,7 @@ sub match {
 
     if ( is_success($status) ) {
         $result->{device_id} = $result->{device}->{id};
-        return $result;
+        return ($status, $result);
     }
 
     $logger->warn("Unable to fullfil a match either locally or using upstream Fingerbank project.");

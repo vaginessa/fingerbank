@@ -2,6 +2,8 @@ package fingerbank::Discoverers::API;
 
 use Moose;
 
+use JSON;
+
 use fingerbank::Config;
 use fingerbank::Constant qw($TRUE);
 use fingerbank::Log;
@@ -10,8 +12,15 @@ use fingerbank::Model::Device;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 
 sub match {
-    my ( $args, $other_results ) = @_;
+    my ( $self, $args, $other_results ) = @_;
     my $logger = fingerbank::Log::get_logger;
+
+    foreach my $discoverer_id (keys %$other_results){
+        if($discoverer_id eq "fingerbank::Discoverers::LocalDB"){
+            $logger->debug("Found a good hit in the Fingerbank local databases. Will not interrogate Upstream.");
+            return $fingerbank::Status::NOT_FOUND;
+        }
+    }
 
     my $Config = fingerbank::Config::get_config;    
 

@@ -28,7 +28,6 @@ has 'device_id' => (is => 'rw', isa => 'Str');
 has 'combination_id' => (is => 'rw', isa => 'Str');
 has 'combination_is_exact' => (is => 'rw', isa => 'Str');
 
-
 =head2 _buildResult
 
 Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
@@ -148,7 +147,7 @@ sub _getCombinationID {
             return $fingerbank::Status::INTERNAL_SERVER_ERROR;
         }
 
-        my $resultset = $db->handle->resultset('CombinationMatch')->search({}, { bind => [ @bindings, @bindings, $self->MAC_Vendor_id ] })->first;
+        my $resultset = $db->handle->resultset('CombinationMatch')->search({}, { bind => [ @bindings ] })->first;
         if ( defined($resultset) ) {
             $self->combination_id($resultset->id);
             $logger->info("Found combination ID '" . $self->combination_id . "' in schema '$schema'");
@@ -177,55 +176,6 @@ sub _getCombinationID {
 
     return $fingerbank::Status::OK;
 }
-
-
-=head2 _interrogateUpstream
-
-=cut
-
-sub _interrogateUpstream {
-    my ( $self, $args ) = @_;
-    my $logger = fingerbank::Log::get_logger;
-
-    my $Config = fingerbank::Config::get_config;    
-
-    # Are we configured to do so ?
-    my $interrogate_upstream = $Config->{'upstream'}{'interrogate'};
-    if ( is_disabled($interrogate_upstream) ) {
-        $logger->debug("Not configured to interrogate upstream Fingerbank project with unknown match. Skipping");
-        return $fingerbank::Status::NOT_IMPLEMENTED;
-    }
-
-    # Is an API key configured ?
-    if ( !fingerbank::Config::is_api_key_configured ) {
-        $logger->warn("Can't communicate with Fingerbank project without a valid API key.");
-        return $fingerbank::Status::UNAUTHORIZED;
-    }
-
-    $logger->debug("Attempting to interrogate upstream Fingerbank project");
-
-    my $ua = LWP::UserAgent->new;
-    $ua->timeout(2);   # An interrogate query should not take more than 2 seconds
-    my $query_args = encode_json($args);
-
-    my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});
-    $req->content_type('application/json');
-    $req->content($query_args);
-
-    my $res = $ua->request($req);
-
-    if ( $res->is_success ) {
-        $logger->info("Successfully interrogate upstream Fingerbank project for matching");
-        my $result = decode_json($res->content);
-        # Tracking down from where the result is coming
-        $result->{'SOURCE'} = "Upstream";
-        return ( $fingerbank::Status::OK, $result );
-    } else {
-        $logger->warn("An error occured while interrogating upstream Fingerbank project: " . $res->status_line);
-        return $fingerbank::Status::INTERNAL_SERVER_ERROR;
-    }
-}
-
 
 =head2 _recordUnmatched
 
