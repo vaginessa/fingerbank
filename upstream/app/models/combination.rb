@@ -134,7 +134,9 @@ class Combination < FingerbankModel
   def create_temp_combination
     mac_vendor_name = mac_vendor ? mac_vendor.name : ''
     oui = mac_vendor ? mac_vendor.mac : nil
-    return TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :dhcp6_fingerprint => dhcp6_fingerprint.value, :dhcp6_enterprise => dhcp6_enterprise.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name, :oui => oui)
+    temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :dhcp6_fingerprint => dhcp6_fingerprint.value, :dhcp6_enterprise => dhcp6_enterprise.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name, :oui => oui)
+    DeleteTempCombinationJob.set(wait: 2.minute).perform_later(temp_combination)
+    return temp_combination
   end
 
 end
