@@ -9,52 +9,61 @@ sub register_discoverer {
   push @{$self->discoverers}, $discoverer;
 }
 
-sub match {
+sub match_best {
   my ($self, $args) = @_;
-
-  my $results = {};
-  foreach my $discoverer (@{$self->discoverers}){
-      my ( $status, $result ) = $discoverer->match($args, $results);
-      if ( $status eq $fingerbank::Status::OK ){
-          $results->{ref($discoverer)} = $result;
-      }
-  }
-  return $results;
+  my ($results, $results_array) = $self->match_all($args);
+  my @ordered = reverse sort { $results->{$a} <=> $results->{$b} } keys %$results;
+  return $results_array->[0];
 }
 
-sub merge_from_results {
-  my ($self, $results) = @_;
+sub match_all {
+    my ($self, $args) = @_;
 
-}
-
-sub merge_from_results {
-  my ($self, $results) = @_;
-  my $results_per_device = {};
-  my $score_per_device = {}
-  foreach my $discoverer_id ($results){
-    my $device_id = $results->{$discoverer_id}->{device}->{id};
-    $results_per_device->{$device_id} = [] unless defined($results_per_device->{$device_id});
-    push @{$results_per_device->{$device_id}}, $result
-  }
-
-  while (my ($device, $results) = each %$results_per_device) {
-    my $score = 0
-    foreach my $result (@$results) {
-        $score += $result->{score}
+    my $results = {};
+    foreach my $discoverer (@{$self->discoverers}){
+        my ( $status, $result ) = $discoverer->match($args, $results);
+        if ( $status eq $fingerbank::Status::OK ){
+            $results->{ref($discoverer)} = $result;
+        }
     }
-    foreach my $parent (@{$results->[0]->{device}->{parents}})
-      if(exists($results_per_device->{parent}))
-        foreach my $result (@{$results_per_device->{$results_per_device->{parent}}}){
+    my ($sorted, $results_array) = $self->merge_from_results($results);
+    return ($sorted, $results_array);
+}
+
+sub merge_from_results {
+    my ($self, $results) = @_;
+    my $results_per_device = {};
+    my $score_per_result = {};
+    my @results_array;
+    # we sort each result by the resulting device
+    foreach my $discoverer_id (keys %$results){
+        my $device_id = $results->{$discoverer_id}->{device}->{id};
+        $results_per_device->{$device_id} = [] unless defined($results_per_device->{$device_id});
+        push @{$results_per_device->{$device_id}}, $results->{$discoverer_id};
+    }
+
+    while (my ($device, $results) = each %$results_per_device) {
+        my $score = 0;
+        # adding each result with same hit
+        foreach my $result (@$results) {
             $score += $result->{score}
         }
-      end
-    end
-    logger.debug device.full_path
-    logger.debug score
-    score_per_device[device] = score
-  end
-  return score_per_device
-end
+        # cycling through this device parents and adding the scores found
+        # from hits on it's parents
+        foreach my $parent (@{$results->[0]->{device}->{parents}}){
+            my $parent_id = $parent->{id};
+            if(exists($results_per_device->{$parent_id})) {
+                foreach my $result (@{$results_per_device->{$parent_id}}){
+                    $score += $result->{score}
+                }
+            }
+        }
+        $score_per_result->{@results_array} = $score;
+        $results->[0]->{score} = $score;
+        push @results_array, $results->[0];
+    }
+    return ($score_per_result, \@results_array);
+}
 
 
 1;

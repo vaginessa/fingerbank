@@ -31,7 +31,7 @@ sub match {
     $discoverers->register_discoverer(fingerbank::Discoverers::API->new);
     $discoverers->register_discoverer(fingerbank::Discoverers::TCPFingerprinting->new);
 
-    return $discoverers->match($args);
+    return $discoverers->match_best($args);
 }
 
 
