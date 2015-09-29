@@ -14,7 +14,7 @@ namespace :fdb do |ns|
   task reset_timeframed_requests: :environment do
     User.update_all(:timeframed_requests => 0)
     User.all.each do |user|
-      Rails.cache.delete_matched("mail-#{user.name}-hourly-limit-reached")
+      Rails.cache.delete("mail-#{user.name}-hourly-limit-reached")
     end
   end
 
