@@ -51,16 +51,28 @@ Fingerbank
 
 
 %install
+# /usr/local/fingerbank
 rm -rf %{buildroot}
 %{__install} -d $RPM_BUILD_ROOT/usr/local/fingerbank
 cp -r * $RPM_BUILD_ROOT/usr/local/fingerbank
+touch $RPM_BUILD_ROOT/usr/local/fingerbank/logs/fingerbank.log
+
+# Logrotate
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 cp rhel/fingerbank.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/fingerbank
 
+
 %post
+# Local database initialization
 /usr/local/fingerbank/db/init_databases.pl
 chown fingerbank.fingerbank /usr/local/fingerbank/db/fingerbank_Local.db
 chmod 664 /usr/local/fingerbank/db/fingerbank_Local.db
+
+# Log file handling
+if [ ! -e /usr/local/fingerbank/logs/fingerbank.log ]; then
+    touch /usr/local/fingerbank/logs/fingerbank.log
+    chown fingerbank.fingerbank /usr/local/fingerbank/logs/fingerbank.log
+fi
 
 
 %clean
@@ -77,5 +89,8 @@ rm -rf %{buildroot}
 %attr(775,fingerbank,fingerbank)    /usr/local/fingerbank/db/init_databases.pl
 %dir                                %{_sysconfdir}/logrotate.d
 %config                             %{_sysconfdir}/logrotate.d/fingerbank
+%ghost                              /usr/local/fingerbank/logs/fingerbank.log
+%attr(664,fingerbank,fingerbank)    /usr/local/fingerbank/logs/fingerbank.log
+
 
 %changelog
