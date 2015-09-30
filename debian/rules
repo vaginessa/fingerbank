@@ -45,7 +45,7 @@ install: build
 	# Install all except debian and t directory
 	for i in `find * ! -path 'remote' ! -path 'debian/*' ! -path 'debian' ! -path 'obsolete/*' ! -path 'obsolete' ! -path 'upstream/*' ! -path 'upstream' -type d`; do \
 		i=$$(echo $$i | sed -e "s/remote\/perl//g"); \
-		install -d -m0775 $(CURDIR)/debian/fingerbank$(PREFIX)/$(NAME)/$$i; \
+		install -d -m2775 $(CURDIR)/debian/fingerbank$(PREFIX)/$(NAME)/$$i; \
 	done
 	for i in `find * ! -path 'remote' ! -path 'debian/*' ! -path 'debian' ! -path 'obsolete/*' ! -path 'obsolete' ! -path 'upstream/*' ! -path 'upstream' ! -type d`; do \
 		j=$$(echo $$i | sed -e "s/remote\/perl//g"); \
