@@ -215,7 +215,7 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
       logger.warn "Combination didn't exist and was created."
       @combination.update(:submitter => @current_user)
       @combination.process(:with_version => true, :save => true)
-      if @current_user.api_submitter?
+      if @current_user.api_submitter? || !@combination.device.nil?
         QueryStatsJob.perform_later(:user => @current_user, :combination => @combination)
       else
         @combination.destroy
