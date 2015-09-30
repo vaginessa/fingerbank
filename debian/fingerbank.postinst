@@ -26,6 +26,7 @@ case "$1" in
     configure)
         export FINGERBANK=/usr/local/fingerbank
         /usr/local/fingerbank/db/init_databases.pl
+        touch  $FINGERBANK/fingerbank.log
         chown -R fingerbank:fingerbank $FINGERBANK
         chmod 0664 $FINGERBANK/db/fingerbank_Local.db
     ;;
