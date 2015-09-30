@@ -71,7 +71,7 @@ rm -rf %{buildroot}
 
 
 %files
-%defattr(664,fingerbank,fingerbank,775)
+%defattr(664,fingerbank,fingerbank,2775)
 %dir                                /usr/local/fingerbank
                                     /usr/local/fingerbank/*
 %attr(775,fingerbank,fingerbank)    /usr/local/fingerbank/db/init_databases.pl
