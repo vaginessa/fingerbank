@@ -22,6 +22,7 @@ sub match_best {
     }
     else {
         $logger->debug("Could not find any match with args : $pretty_args");
+        return undef;
     }
 }
 
