@@ -10,10 +10,19 @@ sub register_discoverer {
 }
 
 sub match_best {
-  my ($self, $args) = @_;
-  my ($results, $results_array) = $self->match_all($args);
-  my @ordered = reverse sort { $results->{$a} <=> $results->{$b} } keys %$results;
-  return $results_array->[0];
+    my ($self, $args) = @_;
+    my $logger = fingerbank::Log::get_logger;
+    my ($results, $results_array) = $self->match_all($args);
+    my @ordered = reverse sort { $results->{$a} <=> $results->{$b} } keys %$results;
+    my $best_match = $results_array->[0];
+    my $pretty_args = '[' . join(',', map { "'$_' : '$args->{$_}'" } keys %$args) . ']';
+    if($best_match){
+        $logger->debug("Found '$best_match->{device}->{name}' with score $best_match->{score} for args : $pretty_args");
+        return $best_match;
+    }
+    else {
+        $logger->debug("Could not find any match with args : $pretty_args");
+    }
 }
 
 sub match_all {
