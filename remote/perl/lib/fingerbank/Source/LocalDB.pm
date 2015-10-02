@@ -1,6 +1,7 @@
-package fingerbank::Discoverers::LocalDB;
+package fingerbank::Source::LocalDB;
 
 use Moose;
+extends 'fingerbank::Base::Source';
 
 use namespace::autoclean;
 

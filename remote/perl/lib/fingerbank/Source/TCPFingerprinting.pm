@@ -1,6 +1,7 @@
-package fingerbank::Discoverers::TCPFingerprinting;
+package fingerbank::Source::TCPFingerprinting;
 
 use Moose;
+extends 'fingerbank::Base::Source';
 
 use strict;
 use warnings;

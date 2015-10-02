@@ -1,12 +1,12 @@
-package fingerbank::Discoverers;
+package fingerbank::SourceMatcher;
 
 use Moose;
 
-has 'discoverers' => (is => 'rw', isa => 'ArrayRef', default => sub {[]});
+has 'sources' => (is => 'rw', isa => 'ArrayRef', default => sub {[]});
 
-sub register_discoverer {
-  my ($self, $discoverer) = @_;
-  push @{$self->discoverers}, $discoverer;
+sub register_source {
+  my ($self, $source) = @_;
+  push @{$self->sources}, $source;
 }
 
 sub match_best {
@@ -30,10 +30,10 @@ sub match_all {
     my ($self, $args) = @_;
 
     my $results = {};
-    foreach my $discoverer (@{$self->discoverers}){
-        my ( $status, $result ) = $discoverer->match($args, $results);
+    foreach my $source (@{$self->sources}){
+        my ( $status, $result ) = $source->match($args, $results);
         if ( $status eq $fingerbank::Status::OK ){
-            $results->{ref($discoverer)} = $result;
+            $results->{ref($source)} = $result;
         }
     }
     my ($sorted, $results_array) = $self->merge_from_results($results);
@@ -46,10 +46,10 @@ sub merge_from_results {
     my $score_per_result = {};
     my @results_array;
     # we sort each result by the resulting device
-    foreach my $discoverer_id (keys %$results){
-        my $device_id = $results->{$discoverer_id}->{device}->{id};
+    foreach my $source_id (keys %$results){
+        my $device_id = $results->{$source_id}->{device}->{id};
         $results_per_device->{$device_id} = [] unless defined($results_per_device->{$device_id});
-        push @{$results_per_device->{$device_id}}, $results->{$discoverer_id};
+        push @{$results_per_device->{$device_id}}, $results->{$source_id};
     }
 
     while (my ($device, $results) = each %$results_per_device) {

@@ -14,10 +14,10 @@ use fingerbank::Log;
 use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
-use fingerbank::Discoverers;
-use fingerbank::Discoverers::LocalDB;
-use fingerbank::Discoverers::API;
-use fingerbank::Discoverers::TCPFingerprinting;
+use fingerbank::SourceMatcher;
+use fingerbank::Source::LocalDB;
+use fingerbank::Source::API;
+use fingerbank::Source::TCPFingerprinting;
 
 =head2 match
 
@@ -26,12 +26,12 @@ use fingerbank::Discoverers::TCPFingerprinting;
 sub match {
     my ( $self, $args ) = @_;
     my $logger = fingerbank::Log::get_logger;
-    my $discoverers = fingerbank::Discoverers->new;
-    $discoverers->register_discoverer(fingerbank::Discoverers::LocalDB->new);
-    $discoverers->register_discoverer(fingerbank::Discoverers::API->new);
-    $discoverers->register_discoverer(fingerbank::Discoverers::TCPFingerprinting->new);
+    my $matcher = fingerbank::SourceMatcher->new;
+    $matcher->register_source(fingerbank::Source::LocalDB->new);
+    $matcher->register_source(fingerbank::Source::API->new);
+    $matcher->register_source(fingerbank::Source::TCPFingerprinting->new);
 
-    return $discoverers->match_best($args);
+    return $matcher->match_best($args);
 }
 
 =head2 isWindows

@@ -1,6 +1,7 @@
-package fingerbank::Discoverers::API;
+package fingerbank::Source::API;
 
 use Moose;
+extends 'fingerbank::Base::Source';
 
 use JSON;
 
