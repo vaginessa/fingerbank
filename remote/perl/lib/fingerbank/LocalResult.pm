@@ -1,4 +1,4 @@
-package fingerbank::Result;
+package fingerbank::LocalResult;
 
 use Moose;
 use namespace::autoclean;

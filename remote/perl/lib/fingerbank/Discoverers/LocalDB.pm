@@ -8,7 +8,7 @@ use fingerbank::Log;
 use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
-use fingerbank::Result;
+use fingerbank::LocalResult;
 
 sub match {
     my ( $self, $args, $other_results ) = @_;
@@ -18,7 +18,7 @@ sub match {
     # We set the status to OK so we can proceed
     my ($status, $status_msg) = $fingerbank::Status::OK;
 
-    my $result = fingerbank::Result->new;
+    my $result = fingerbank::LocalResult->new;
 
     # TODO: Review that part to make it less "hacky"
     $args->{'mac_vendor'} = $args->{'mac'};
