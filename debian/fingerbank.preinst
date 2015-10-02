@@ -32,6 +32,10 @@ case "$1" in
     ;;
     
     upgrade)
+        export FINGERBANK=/usr/local/fingerbank
+        for i in `find $FINGERBANK -type d`; do \
+            chmod 2775 $i; \
+        done
     ;;
     abort-upgrade)
     ;;

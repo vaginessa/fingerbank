@@ -26,8 +26,19 @@ class DhcpFingerprintsController < ApplicationController
     dhcp_fingerprint_ids = combinations.map {|c| c.dhcp_fingerprint.id }
     @dhcp_fingerprints = DhcpFingerprint.where(:id => dhcp_fingerprint_ids).not_ignored
     @fingerprints_w_count = {}
+    @fingerprints_w_dhcp_vendor = {}
     @dhcp_fingerprints.each do |dhcp_fingerprint|
       @fingerprints_w_count[dhcp_fingerprint] = dhcp_fingerprint.combinations.known.count
+
+      dhcp_fingerprint.combinations.unknown.each do |combination|
+        unless combination.dhcp_vendor.value == ''
+          unless @fingerprints_w_dhcp_vendor[dhcp_fingerprint].nil?
+            @fingerprints_w_dhcp_vendor[dhcp_fingerprint] +=1
+          else
+            @fingerprints_w_dhcp_vendor[dhcp_fingerprint] = 1
+          end
+        end
+      end
     end
     @fingerprints_w_count = @fingerprints_w_count.sort {|a1,a2| a2[1]<=>a1[1]}
 

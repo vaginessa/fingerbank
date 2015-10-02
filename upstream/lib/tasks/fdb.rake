@@ -7,13 +7,14 @@ namespace :fdb do |ns|
   end
 
   task :test_discoverer, [:discoverer_id] => [:environment] do |t, args|
-    puts "That discoverer matches : #{Discoverer.find(args[:discoverer_id]).find_matches.count} combinations"
+    puts "That discoverer device rules match : #{Discoverer.find(args[:discoverer_id]).find_device_matches.count} combinations"
+    puts "That discoverer version rules match : #{Discoverer.find(args[:discoverer_id]).find_version_matches.count} combinations"
   end
 
   task reset_timeframed_requests: :environment do
     User.update_all(:timeframed_requests => 0)
     User.all.each do |user|
-      Rails.cache.delete_matched("mail-#{user.name}-hourly-limit-reached")
+      Rails.cache.delete("mail-#{user.name}-hourly-limit-reached")
     end
   end
 
@@ -115,11 +116,52 @@ namespace :fdb do |ns|
 
   task delete_invalid_combinations: :environment do
     Combination.all.each do |c| 
-      unless c.valid?
+      c.validate_combination_uniqueness
+      if c.errors.size > 0
         puts "Deleting #{c.id}"
         c.delete
       end
     end
+  end
+
+  task generate_replace: :environment do
+    devices = Device.where('created_at > ? or updated_at > ?', 1.week.ago, 1.week.ago)
+    discoverers = Discoverer.where('created_at > ? or updated_at > ?', 1.week.ago, 1.week.ago)
+    rules = Rule.where('created_at > ? or updated_at > ?', 1.week.ago, 1.week.ago)
+    conditions = Condition.where('created_at > ? or updated_at > ?', 1.week.ago, 1.week.ago)
+
+    objects = []
+    objects << devices.all
+    objects << discoverers.all
+    objects << rules.all
+    objects << conditions.all
+
+    objects.flatten!
+
+    puts objects.count
+
+    objects.each do |o|
+      query = "REPLACE into #{o.class.table_name} ("
+
+      values = []
+      o.attributes.each do |k,v|
+        query += "#{k},"
+        values << v
+      end
+      query = query[0...-1]
+      query += ") VALUES("
+
+      values.each do |v|
+        v = ActiveRecord::Base.send(:sanitize_sql_array, ['?', v])
+        query += "#{v},"
+      end
+
+      query = query[0...-1]
+      query += ");"
+
+      puts query
+    end
+
   end
 
 end

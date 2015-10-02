@@ -36,19 +36,7 @@ class User < ActiveRecord::Base
   end
 
   def add_request
-    if self.requests.nil?
-      self.requests = 1
-    else
-      self.requests += 1
-    end
-
-    if self.timeframed_requests.nil?
-      self.timeframed_requests = 1
-    else
-      self.timeframed_requests += 1
-    end
-    
-    save!
+    self.increment!(:timeframed_requests)
   end
 
   def can_use_api

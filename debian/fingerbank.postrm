@@ -30,11 +30,9 @@ case "$1" in
         if [ $? -ne 0 ]; then
             echo "Unable to remove fingerbank user"
         fi
-        if [ -e /etc/lsb-release ]; then
-            groupdel fingerbank
-            if [ $? -ne 0 ]; then
-                echo "Unable to remove fingerbank group"
-            fi
+        groupdel fingerbank
+        if [ $? -ne 0 ]; then
+            echo "Unable to remove fingerbank group"
         fi
         set -e
     ;;

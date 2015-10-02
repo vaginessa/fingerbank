@@ -215,13 +215,16 @@ class Api::V1::CombinationsController < Api::V1::V1Controller
       logger.warn "Combination didn't exist and was created."
       @combination.update(:submitter => @current_user)
       @combination.process(:with_version => true, :save => true)
+      if @current_user.api_submitter?
+        QueryStatsJob.perform_later(:user => @current_user, :combination => @combination)
+      else
+        @combination.destroy
+      end
     end
     if @combination.device.nil?
       logger.warn "Combination didn't yield any device."
-      @combination.destroy unless @current_user.api_submitter?
       render json: @combination, :status => 404
     else
-      QueryStatsJob.perform_later(:user => @current_user, :combination => @combination)
       logger.info "Combination processed correctly."
       if params[:debug] == "on"
         combination_hash = @combination.attributes 

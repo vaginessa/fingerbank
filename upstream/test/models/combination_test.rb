@@ -160,5 +160,16 @@ class CombinationTest < ActiveSupport::TestCase
    
   end
 
+  test 'combination lookup with OUI' do
+    Discoverer.fbcache
+    FingerbankCache.delete("model_regex_assoc")
+    
+    combination = Combination.get_or_create(:user_agent => "test oui", :mac => "23:45:67:89:90:12");
+    assert combination.process(:with_version => true, :save => true), "New combination can be detected properly with OUI rule"
+    assert combination.processed_method == "find_matching_discoverers_tmp_table"   
+    assert combination.device == devices(:nintendo), "Combination discovered by OUI yields the right result through the temp table"
+
+  end
+
 
 end
