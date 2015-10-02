@@ -94,7 +94,7 @@ sub match {
 
 =head2 _buildResult
 
-Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
+Not meant to be used outside of this class. Refer to L<fingerbank::Source::LocalDB::match>
 
 =cut
 
@@ -129,7 +129,7 @@ sub _buildResult {
 
 =head2 _getQueryKeyIDs
 
-Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
+Not meant to be used outside of this class. Refer to L<fingerbank::Source::LocalDB::match>
 
 =cut
 
@@ -183,7 +183,7 @@ sub _getQueryKeyIDs {
 
 =head2 _getCombinationID
 
-Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
+Not meant to be used outside of this class. Refer to L<fingerbank::Source::LocalDB::match>
 
 =cut
 
@@ -243,7 +243,7 @@ sub _getCombinationID {
 
 =head2 _recordUnmatched
 
-Not meant to be used outside of this class. Refer to L<fingerbank::Query::match>
+Not meant to be used outside of this class. Refer to L<fingerbank::Source::LocalDB::match>
 
 =cut
 
