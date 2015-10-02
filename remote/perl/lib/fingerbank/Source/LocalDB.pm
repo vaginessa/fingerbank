@@ -1,5 +1,15 @@
 package fingerbank::Source::LocalDB;
 
+=head1 NAME
+
+fingerbank::Source::LocalDB
+
+=head1 DESCRIPTION
+
+Source for interrogating the local Fingerbank databases (Upstream and Local)
+
+=cut
+
 use Moose;
 extends 'fingerbank::Base::Source';
 
@@ -30,6 +40,12 @@ has 'device_id' => (is => 'rw', isa => 'Str');
 has 'combination_id' => (is => 'rw', isa => 'Str');
 has 'combination_is_exact' => (is => 'rw', isa => 'Str');
 
+
+=head2 match
+
+Check whether or not the arguments match this source
+
+=cut
 
 sub match {
     my ( $self, $args, $other_results ) = @_;

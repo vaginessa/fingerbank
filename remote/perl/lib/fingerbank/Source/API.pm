@@ -1,5 +1,15 @@
 package fingerbank::Source::API;
 
+=head1 NAME
+
+fingerbank::Source::API
+
+=head1 DESCRIPTION
+
+Source for interrogating the upstream Fingerbank API
+
+=cut
+
 use Moose;
 extends 'fingerbank::Base::Source';
 
@@ -11,6 +21,12 @@ use fingerbank::Log;
 use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
+
+=head2 match
+
+Check whether or not the arguments match this source
+
+=cut
 
 sub match {
     my ( $self, $args, $other_results ) = @_;

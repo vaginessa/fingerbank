@@ -1,5 +1,15 @@
 package fingerbank::Source::TCPFingerprinting;
 
+=head1 NAME
+
+fingerbank::Source::TCPFingerprinting
+
+=head1 DESCRIPTION
+
+Source for TCPFingerprinting (p0f)
+
+=cut
+
 use Moose;
 extends 'fingerbank::Base::Source';
 
@@ -9,8 +19,13 @@ use warnings;
 use fingerbank::Constant qw($TRUE);
 use fingerbank::Status;
 use fingerbank::Util qw(is_error is_success);
-
 use IO::Socket::UNIX;
+
+=head2 match
+
+Check whether or not the arguments match this source
+
+=cut
 
 sub match {
     my ($self, $args, $other_results) = @_;
@@ -78,6 +93,12 @@ sub match {
         return $fingerbank::Status::INTERNAL_SERVER_ERROR;
     }
 }
+
+=head2 _buildResult
+
+Build expected resulting output (hash) from the information p0f has returned
+
+=cut
 
 sub _buildResult {
     my ($self, $info) = @_;

@@ -273,6 +273,12 @@ sub do_we_interrogate_upstream {
     ( is_enabled($interrogate_upstream) ) ? return $TRUE : return $FALSE;
 }
 
+=head2 update_p0f_map
+
+Updates the p0f map from Fingerbank upstream
+
+=cut
+
 sub update_p0f_map {
     my ( $self ) = @_;
     my $logger = fingerbank::Log::get_logger;
@@ -299,7 +305,7 @@ sub update_p0f_map {
         my $return_code;
 
         # We create a backup of the actual p0f map file
-        $logger->debug("Backing up actual p0f map file to '$map_file_backup'");
+        $logger->debug("Backing up current p0f map file to '$map_file_backup'");
         $return_code = copy($map_file, $map_file_backup);
 
         # If copy operation succeed

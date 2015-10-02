@@ -1,13 +1,35 @@
 package fingerbank::SourceMatcher;
 
+=head1 NAME
+
+fingerbank::SourceMatcher
+
+=head1 DESCRIPTION
+
+Class for matching multiple sources
+
+=cut
+
 use Moose;
 
 has 'sources' => (is => 'rw', isa => 'ArrayRef', default => sub {[]});
+
+=head2 register_source
+
+Register source into the engine for use in matching
+
+=cut
 
 sub register_source {
   my ($self, $source) = @_;
   push @{$self->sources}, $source;
 }
+
+=head2 match_best
+
+Match the result with the best score from all the available sources.
+
+=cut
 
 sub match_best {
     my ($self, $args) = @_;
@@ -26,6 +48,12 @@ sub match_best {
     }
 }
 
+=head2 match_all
+
+Match all the results from all the available sources
+
+=cut
+
 sub match_all {
     my ($self, $args) = @_;
 
@@ -39,6 +67,13 @@ sub match_all {
     my ($sorted, $results_array) = $self->merge_from_results($results);
     return ($sorted, $results_array);
 }
+
+=head2 merge_from_results
+
+Will merge the results from the same hierarchy and add their score together
+The device that is the lowest in the hierarchy will be the one with the highest score in that hierarchy as it contains the scores of all it's parents.
+
+=cut
 
 sub merge_from_results {
     my ($self, $results) = @_;
