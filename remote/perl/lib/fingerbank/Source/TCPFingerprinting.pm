@@ -15,9 +15,14 @@ use IO::Socket::UNIX;
 sub match {
     my ($self, $args, $other_results) = @_;
     my $logger = fingerbank::Log::get_logger;
-    $logger->info("Trying to interrogate p0f with IP $args->{ip}.");
  
     my @parts = split '\.', $args->{ip};
+    unless(@parts eq 4){
+        $logger->debug("Invalid IP ($args->{ip}) passed to TCPFingerprinting.");
+        return $fingerbank::Status::BAD_REQUEST;
+    }
+
+    $logger->info("Trying to interrogate p0f with IP $args->{ip}.");
 
     my $payload = pack("I C CCCC", 1345340929, 4, @parts);
     # We pad zeros at the end as the IP can extend up to 16 (for IPv6)
