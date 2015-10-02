@@ -17,7 +17,7 @@ sub match {
     my $logger = fingerbank::Log::get_logger;
 
     foreach my $discoverer_id (keys %$other_results){
-        if($discoverer_id eq "fingerbank::Discoverers::LocalDB"){
+        if($discoverer_id eq "fingerbank::Source::LocalDB"){
             $logger->debug("Found a good hit in the Fingerbank local databases. Will not interrogate Upstream.");
             return $fingerbank::Status::NOT_FOUND;
         }
