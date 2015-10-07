@@ -67,8 +67,8 @@ sub match {
     my $res = $ua->request($req);
 
     if ( $res->is_success ) {
-        $logger->info("Successfully interrogate upstream Fingerbank project for matching");
         my $result = decode_json($res->content);
+        $logger->info("Successfully interrogate upstream Fingerbank project for matching. Got device : ".$result->{device}->{id});
         # Tracking down from where the result is coming
         $result->{'SOURCE'} = "Upstream";
         return ( $fingerbank::Status::OK, $result );

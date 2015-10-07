@@ -37,7 +37,7 @@ sub match {
         return $fingerbank::Status::BAD_REQUEST;
     }
 
-    $logger->info("Trying to interrogate p0f with IP $args->{ip}.");
+    $logger->debug("Trying to interrogate p0f with IP $args->{ip}.");
 
     my $payload = pack("I C CCCC", 1345340929, 4, @parts);
     # We pad zeros at the end as the IP can extend up to 16 (for IPv6)
@@ -77,7 +77,7 @@ sub match {
     $info{os_name} = int($info{os_name});
 
     if($result eq 16){
-        $logger->debug("Success ! Found data through p0f.");
+        $logger->info("Found device : ".$info{os_name}." through p0f.");
         return $self->_buildResult(\%info);
     }
     elsif($result eq 32){
