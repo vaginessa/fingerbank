@@ -36,7 +36,7 @@ sub match_best {
     my $logger = fingerbank::Log::get_logger;
     my ($results, $results_array) = $self->match_all($args);
     my @ordered = reverse sort { $results->{$a} <=> $results->{$b} } keys %$results;
-    my $best_match = $results_array->[0];
+    my $best_match = $results_array->[$ordered[0]];
     my $pretty_args = '[' . join(',', map { "'$_' : '$args->{$_}'" } keys %$args) . ']';
     if($best_match){
         $logger->debug("Found '$best_match->{device}->{name}' with score $best_match->{score} for args : $pretty_args");
@@ -77,6 +77,7 @@ The device that is the lowest in the hierarchy will be the one with the highest 
 
 sub merge_from_results {
     my ($self, $results) = @_;
+    my $logger = fingerbank::Log::get_logger;
     my $results_per_device = {};
     my $score_per_result = {};
     my @results_array;
@@ -86,6 +87,8 @@ sub merge_from_results {
         $results_per_device->{$device_id} = [] unless defined($results_per_device->{$device_id});
         push @{$results_per_device->{$device_id}}, $results->{$source_id};
     }
+
+    $logger->trace(sub {use Data::Dumper;"Results per device : ".Dumper($results_per_device)});
 
     while (my ($device, $results) = each %$results_per_device) {
         my $score = 0;
@@ -99,6 +102,7 @@ sub merge_from_results {
             my $parent_id = $parent->{id};
             if(exists($results_per_device->{$parent_id})) {
                 foreach my $result (@{$results_per_device->{$parent_id}}){
+                    $logger->debug("Adding score from parent result ".$result->{score}." $parent_id");
                     $score += $result->{score}
                 }
             }
@@ -107,6 +111,7 @@ sub merge_from_results {
         $results->[0]->{score} = $score;
         push @results_array, $results->[0];
     }
+    $logger->trace(sub {use Data::Dumper;"After merge_from_results: ".Dumper($score_per_result).Dumper(\@results_array)});
     return ($score_per_result, \@results_array);
 }
 
