@@ -19,9 +19,7 @@ class Api::V1::V1Controller < Api::ApiController
       return
     end
 
-    @current_user = Rails.cache.fetch("user-with-key-#{params[:key]}", expires_in: 5.minute) do
-      User.where(:key => params[:key]).first
-    end
+    @current_user = User.where(:key => params[:key]).first
 
     if @current_user.nil?
       increment_fails
@@ -41,8 +39,6 @@ class Api::V1::V1Controller < Api::ApiController
     end
 
     @current_user.add_request
-
-    Rails.cache.write("user-with-key-#{params[:key]}", @current_user)
 
   end
 
