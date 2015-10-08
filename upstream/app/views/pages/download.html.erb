@@ -10,3 +10,9 @@
 </p>
 
 <%= link_to "Click here to download", "#{api_v1_download_path}?key=#{@current_user.key}" %> 
+
+<h1>Download the Fingerbank p0f map</h1>
+
+<p>The Fingerbank compatible p0f map will allow p0f to use the same device identifiers as Fingerbank so that when interogating it's socket, it will return a device identifier that can be used directly with the Fingerbank database.</p>
+
+<%= link_to "Click here to download", "#{api_v1_download_p0f_map_path}?key=#{@current_user.key}" %> 
