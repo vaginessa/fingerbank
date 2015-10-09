@@ -6,6 +6,8 @@ class CombinationsController < ApplicationController
   #before_action :set_submit_help, only: [:new, :create]
   before_action :advanced_only_for_users, only: [:index, :unknown, :unrated]
 
+  before_action :record_search, only: [:index, :unknown, :unrated]
+
   skip_before_filter :ensure_admin, :only => [:new, :create, :unknown, :unrated, :interogate]
   before_filter :ensure_community, :only => [:new, :create]
 
@@ -158,6 +160,13 @@ class CombinationsController < ApplicationController
   end
 
   private
+
+    def record_search
+      unless params[:search].nil?
+        @current_user.increment!(:search_count)
+      end
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_combination
       @combination = Combination.find(params[:id])
