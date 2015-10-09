@@ -22,10 +22,10 @@ class User < ActiveRecord::Base
 
   def self.LEVELS
     return {
-      :admin => 10,
-      :unlimited => 9,
-      :api_submitter => 5,
       :community => 0,
+      :api_submitter => 5,
+      :unlimited => 9,
+      :admin => 10,
     }
   end
 
