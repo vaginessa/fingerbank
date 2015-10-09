@@ -135,7 +135,11 @@ class Combination < FingerbankModel
     mac_vendor_name = mac_vendor ? mac_vendor.name : ''
     oui = mac_vendor ? mac_vendor.mac : nil
     temp_combination = TempCombination.create!(:dhcp_fingerprint => dhcp_fingerprint.value, :dhcp6_fingerprint => dhcp6_fingerprint.value, :dhcp6_enterprise => dhcp6_enterprise.value, :user_agent => user_agent.value, :dhcp_vendor => dhcp_vendor.value, :mac_vendor => mac_vendor_name, :oui => oui)
-    DeleteTempCombinationJob.set(wait: 2.minute).perform_later(temp_combination)
+
+    if Rails.application.config.active_job.queue_adapter != :inline
+      DeleteTempCombinationJob.set(wait: 2.minute).perform_later(temp_combination)
+    end
+
     return temp_combination
   end
 
