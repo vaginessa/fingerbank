@@ -92,7 +92,7 @@ namespace :tcp do |ns|
     starting_points = ["[tcp:request]","[tcp:response]"]
     ending_point = /^\[.*\]$/
 
-    lines = File.open('tmp/p0f-3.08b/p0f.fp').read
+    lines = File.open(args[:source]).read
     lines.gsub!(/\r\n?/, "\n")
 
     tcp_lines = []
