@@ -5,8 +5,8 @@
     <table class="users table table-condensed table-striped">
       <tr>
         <th colspan="7" class="simple_menu">
-          <%= link_to 'Create', new_user_path, :class => 'btn btn-primary' %>
           <%= render :partial => 'shared/sort_menu', :locals => { :current_order => @current_order, :current_order_way => @current_order_way, :fields => @sort_fields, :default_order => @default_order } %>
+          <%= link_to 'Create local account', new_user_path, :class => 'btn btn-primary' %>
         </th>
       </tr>
       <%= render :partial => 'users', :locals => {:users => User.admins, :user_class => "Admin users"} %>
