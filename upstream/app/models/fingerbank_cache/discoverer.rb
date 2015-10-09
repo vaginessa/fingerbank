@@ -9,9 +9,11 @@ class Discoverer < FingerbankModel
 
   def self.full_cache_miss
     Thread.new do
+     logger.warn "Got full cache miss."
      now = Time.now
       happened_at = Rails.cache.fetch("discoverers-full-cache-miss", :expires_in => 30.minute) {Time.now}
       if happened_at > now 
+        logger.info "Notifying full cache miss to admins."
         AdminMailer.discoverers_cache_miss.deliver_later
         Discoverer.fbcache 
       end
