@@ -13,6 +13,7 @@ use fingerbank::Constant qw($TRUE);
 use fingerbank::Log;
 use fingerbank::Model::Combination;
 use fingerbank::Model::Device;
+use fingerbank::Model::Endpoint;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 use fingerbank::SourceMatcher;
 use fingerbank::Source::LocalDB;
@@ -32,6 +33,12 @@ sub match {
     $matcher->register_source(fingerbank::Source::TCPFingerprinting->new);
 
     return $matcher->match_best($args);
+}
+
+sub matchEndpoint {
+    my ( $self, $args ) = @_;
+    my $result = $self->match($args);
+    return defined($result) ? fingerbank::Model::Endpoint->fromResult($result) : undef;
 }
 
 
