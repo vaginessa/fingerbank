@@ -22,7 +22,31 @@ use List::MoreUtils qw(any);
 has 'name' => (is => 'rw', required => 1);
 has 'version' => (is => 'rw', required => 1);
 has 'score' => (is => 'rw', required => 1);
-has 'parents' => (is => 'rw', isa => 'ArrayRef', default => sub {[]});
+has 'parents' => (is => 'rw', isa => 'ArrayRef');
+
+sub BUILD {
+    my ($self) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    unless(defined($self->parents)){
+        my ($status, $result) = fingerbank::Model::Device->find([{ name => $self->name }, {columns => ['id']}], 'Upstream');
+        if(is_success($status)){
+            my $device_id = $result->id;
+            ($status, $result) = fingerbank::Model::Device->read($device_id, $TRUE);
+            if(is_success($status)){
+                $logger->debug("Looked up parents for $device_id successfully");
+                my @parents = map {$_->{name}} @{$result->{parents}};
+                $self->parents(\@parents);
+            }
+            else {
+                $logger->debug("Cannot find device ".$device_id." in the database");
+            }
+        }
+        else {
+            $logger->debug("Cannot find device ".$self->name." in the database");
+        }
+    }
+}
 
 =head2 fromResult
 
@@ -52,7 +76,7 @@ sub isWindows {
 
     my ($status, $parent) = fingerbank::Model::Device->read($WINDOWS_PARENT_ID);
 
-    my $result = $self->isa($parent->{name});
+    my $result = $self->is_a($parent->{name});
 
     $logger->debug("Device '".$self->name."' is a Windows based device") if $result;
 
@@ -74,7 +98,7 @@ sub isMacOS {
 
     my ($status, $parent) = fingerbank::Model::Device->read($MACOS_PARENT_ID);
 
-    my $result = $self->isa($parent->{name});
+    my $result = $self->is_a($parent->{name});
 
     $logger->debug("Device '".$self->name."' is a MacOS based device") if $result;
 
@@ -96,7 +120,7 @@ sub isAndroid {
 
     my ($status, $parent) = fingerbank::Model::Device->read($ANDROID_PARENT_ID);
 
-    my $result = $self->isa($parent->{name});
+    my $result = $self->is_a($parent->{name});
 
     $logger->debug("Device '".$self->name."' is a Android based device") if $result;
 
@@ -118,7 +142,7 @@ sub isIOS {
 
     my ($status, $parent) = fingerbank::Model::Device->read($IOS_PARENT_ID);
 
-    my $result = $self->isa($parent->{name});
+    my $result = $self->is_a($parent->{name});
 
     $logger->debug("Device '".$self->name."' is a IOS based device") if $result;
 
@@ -126,11 +150,11 @@ sub isIOS {
 }
 
 
-=head2 isa
+=head2 is_a
 
 =cut
 
-sub isa {
+sub is_a {
     my ( $self, $device_name ) = @_;
     my $logger = fingerbank::Log::get_logger;
     return $self->name eq $device_name || $self->hasParent($device_name);
