@@ -63,7 +63,7 @@ sub fromResult {
 
 =head2 isWindows
 
-Test if device (name or ID) is Windows based
+Test if endpoint is Windows based
 
 =cut
 
@@ -72,20 +72,14 @@ sub isWindows {
     my $logger = fingerbank::Log::get_logger;
 
     my $WINDOWS_PARENT_ID = 1;
-    $logger->debug("Testing if device '".$self->name."' is a Windows based device");
-
-    my ($status, $parent) = fingerbank::Model::Device->read($WINDOWS_PARENT_ID);
-
-    my $result = $self->is_a($parent->{name});
-
-    $logger->debug("Device '".$self->name."' is a Windows based device") if $result;
+    my $result = $self->is_a_by_id($WINDOWS_PARENT_ID);
 
     return $result;
 }
 
 =head2 isMacOS
 
-Test if device (name or ID) is MacOS based
+Test if endpoint is MAC OS based
 
 =cut
 
@@ -94,20 +88,14 @@ sub isMacOS {
     my $logger = fingerbank::Log::get_logger;
 
     my $MACOS_PARENT_ID = 2;
-    $logger->debug("Testing if device '".$self->name."' is a MacOS based device");
-
-    my ($status, $parent) = fingerbank::Model::Device->read($MACOS_PARENT_ID);
-
-    my $result = $self->is_a($parent->{name});
-
-    $logger->debug("Device '".$self->name."' is a MacOS based device") if $result;
+    my $result = $self->is_a_by_id($MACOS_PARENT_ID);
 
     return $result;
 }
 
 =head2 isAndroid
 
-Test if device (name or ID) is Android based
+Test if endpoint is Android based
 
 =cut
 
@@ -116,20 +104,14 @@ sub isAndroid {
     my $logger = fingerbank::Log::get_logger;
 
     my $ANDROID_PARENT_ID = 202;
-    $logger->debug("Testing if device '".$self->name."' is a Android based device");
-
-    my ($status, $parent) = fingerbank::Model::Device->read($ANDROID_PARENT_ID);
-
-    my $result = $self->is_a($parent->{name});
-
-    $logger->debug("Device '".$self->name."' is a Android based device") if $result;
+    my $result = $self->is_a_by_id($ANDROID_PARENT_ID);
 
     return $result;
 }
 
 =head2 isIOS
 
-Test if device (name or ID) is IOS based
+Test if endpoint is IOS based
 
 =cut
 
@@ -138,17 +120,43 @@ sub isIOS {
     my $logger = fingerbank::Log::get_logger;
 
     my $IOS_PARENT_ID = 193;
-    $logger->debug("Testing if device '".$self->name."' is a IOS based device");
-
-    my ($status, $parent) = fingerbank::Model::Device->read($IOS_PARENT_ID);
-
-    my $result = $self->is_a($parent->{name});
-
-    $logger->debug("Device '".$self->name."' is a IOS based device") if $result;
+    my $result = $self->is_a_by_id($IOS_PARENT_ID);
 
     return $result;
 }
 
+
+=head2 isWindowsPhone
+
+Test if endpoint is Windows Phone based
+
+=cut
+
+sub isWindowsPhone {
+    my ( $self ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $WINDOWS_PHONE_PARENT_ID = 5474;
+    my $result = $self->is_a_by_id($WINDOWS_PHONE_PARENT_ID);
+
+    return $result;
+}
+
+=head2 isBlackberry
+
+Test if endpoint is Blackberry based
+
+=cut
+
+sub isBlackberry {
+    my ( $self ) = @_;
+    my $logger = fingerbank::Log::get_logger;
+
+    my $BLACKBERRY_PARENT_ID = 192;
+    my $result = $self->is_a_by_id($BLACKBERRY_PARENT_ID);
+
+    return $result;
+}
 
 =head2 is_a
 
@@ -160,6 +168,20 @@ sub is_a {
     return $self->name eq $device_name || $self->hasParent($device_name);
 }
 
+sub is_a_by_id {
+    my ($self, $id) = @_;
+    my $logger = fingerbank::Log::get_logger;
+    $logger->debug("Testing if device '".$self->name."' is or has $id for parent");
+
+    my ($status, $parent) = fingerbank::Model::Device->read($id);
+
+    my $result = $self->is_a($parent->{name});
+
+    $logger->debug("Device '".$self->name."' is or has $id for parent") if $result;
+
+    return $result;
+}
+
 =head2 hasParent
 
 =cut
@@ -168,6 +190,7 @@ sub hasParent {
     my ( $self, $device_name ) = @_;
     return any { $_ eq $device_name } @{$self->parents};
 }
+
 
 =head1 AUTHOR
 
