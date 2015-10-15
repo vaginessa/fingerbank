@@ -166,3 +166,12 @@ textarea{
 .show-field {
   @extend .padded;
 }
+
+.centered_container {
+  display:table;
+  margin:0 auto;
+}
+
+.simple_menu>* {
+  padding-right: 5px;
+}

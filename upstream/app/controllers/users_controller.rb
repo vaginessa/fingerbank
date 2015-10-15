@@ -1,5 +1,7 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :promote, :demote, :block, :unblock, :request_api, :generate_key]
+
+  before_action :sort_setup, only: [:index]
   
   skip_before_filter :ensure_admin
 
@@ -96,6 +98,7 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
+    @user.name = "local."+@user.name
     result = @user.save
 
     if result
@@ -141,6 +144,21 @@ class UsersController < ApplicationController
   end
 
   private
+
+    def sort_setup
+      @sort_fields = {
+        'display_name' => 'Display name',
+        'name' => 'Username',
+        'requests' => 'Total requests',
+        'timeframed_requests' => 'Hourly requests',
+        'search_count' => 'Search count',
+        'created_at' => 'Joined date',
+      }
+      @default_order = params[:order].nil?
+      @current_order = params[:order]
+      @current_order_way = params[:order_way]
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])

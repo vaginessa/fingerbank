@@ -97,11 +97,15 @@ class Combination < FingerbankModel
       return discoverers_match
     end
 
-    discoverers_match = find_matching_discoverers_long
-    logger.warn "Computing discoverers data without cache. THIS WILL BE LONG !!!!"
-    self.processed_method = "find_matching_discoverers_long"
     # Notify full cache miss to discoverer
     Discoverer.full_cache_miss
+    
+    # useless to do in production as it will jam the system
+    unless Rails.env.production?
+      discoverers_match = find_matching_discoverers_long
+      logger.warn "Computing discoverers data without cache. THIS WILL BE LONG !!!!"
+      self.processed_method = "find_matching_discoverers_long"
+    end
 
     return discoverers_match
   end

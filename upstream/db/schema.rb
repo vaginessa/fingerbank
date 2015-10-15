@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150916190317) do
+ActiveRecord::Schema.define(version: 20151009134254) do
 
   create_table "combinations", force: :cascade do |t|
     t.integer  "dhcp_fingerprint_id",  limit: 4
@@ -186,6 +186,7 @@ ActiveRecord::Schema.define(version: 20150916190317) do
     t.string   "email",               limit: 255
     t.boolean  "blocked"
     t.integer  "timeframed_requests", limit: 4,   default: 0
+    t.integer  "search_count",        limit: 4,   default: 0
   end
 
   create_table "watched_combinations", force: :cascade do |t|

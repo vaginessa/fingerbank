@@ -7,7 +7,14 @@
   <%= form_for(@user) do |f| %>
     <div class="form-group">
       <%= f.label :name, :class => 'control-label' %>
-      <%= f.text_field :name, :class => 'form-control', :type => '' %>
+       <% unless @user.persisted? %>
+         <div class="input-group">
+           <span class="input-group-addon" id="basic-addon1">local.</span>
+           <%= f.text_field :name, :class => 'form-control', :type => '' %>
+         </div> 
+       <% else %>
+         <%= f.text_field :name, :class => 'form-control', :type => '' %>
+       <% end %>
     </div>
 
     <div class="form-group">
@@ -17,7 +24,7 @@
 
     <div class="form-group">
       <%= f.label :level, :class => 'control-label' %>
-      <%= f.number_field :level , :class => 'form-control'%>
+      <%= select_tag :level , options_for_select(User.LEVELS), :class => 'form-control' %>
     </div>
 
     <div class="actions">

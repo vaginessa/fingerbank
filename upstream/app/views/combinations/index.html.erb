@@ -20,20 +20,8 @@
   <%= render partial: "shared/help" %>
 
   <div>
-    <div class="btn-group" style="float:left">
-      <a href="?<%= @default_order ? '' : sorting_request(@order) %>" class="btn btn-primary">
-        <%= @default_order ? 'Sort by' : sorting_span(@sort_fields[@order], @order) %>
-      </a>
-      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu" role="menu">
-        <% @sort_fields.each do |field, display| %>
-          <li><%= sorting_link display, field %></li>
-        <% end %>
-
-      </ul>
+    <div style="float:left">
+      <%= render :partial => 'shared/sort_menu', :locals => { :current_order => @order, :current_order_way => @order_way, :fields => @sort_fields, :default_order => @default_order } %>
     </div>
 
     <%= render :partial => 'search' %>

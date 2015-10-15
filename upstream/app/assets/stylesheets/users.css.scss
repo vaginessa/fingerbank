@@ -48,9 +48,13 @@ div.register_container {
 }
 
 table.users {
-  th {
-    min-width:200px;
-    width:200px;
-    max-width:200px;
+  tr.user_header {
+    border-top:2px solid black !important;
+    border-bottom:2px solid black !important;
+    th {
+      border: 2 px solid black !important;
+      background-color: #f7f7f9 !important;
+    }
+    background-color: #f7f7f9 !important;
   }
 }

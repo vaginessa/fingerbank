@@ -25,6 +25,9 @@ RAILS_ENV=production bundle exec rake import:discover_windows_phone
 echo "Starting BB phone discovery job"
 RAILS_ENV=production bundle exec rake import:discover_blackberry_models
 
+# p0f map generation
+RAILS_ENV=production bundle exec rake tcp:generate_p0f_map
+
 # merge the stats that were collected (2 days worth)
 #echo "Starting merge with stats"
 #RAILS_ENV=production bundle exec rake import:merge_stats[tmp/stats.sqlite,2]
@@ -44,7 +47,7 @@ RAILS_ENV=production bundle exec rake fbcache:build_discoverers
 
 # reevaluate every combination
 echo "Starting the reprocessing of all the combinations"
-RAILS_ENV=production bundle exec rake fdb:process_unknown
+RAILS_ENV=production bundle exec rake fdb:process_combination
 
 # find the mobile + tablets in what we have
 echo "Finding the mobiles + tablets"
