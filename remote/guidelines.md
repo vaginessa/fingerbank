@@ -80,16 +80,16 @@ A Fingerbank client should implement at least the following methods (the object 
  * **endpoint.is("Samsung Android")**
   * Check if the device is or has for parent the device 'Samsung Android'
  * **endpoint.is_android**
-  * Is the device an Android device (`currentDevice.is("Generic Android")`)
+  * Is the device an Android device (`endpoint.is("Generic Android")`)
  * **endpoint.is_ios**
-  * Is the device an iOS device (`currentDevice.is("Apple iPod, iPhone or iPad")`)
+  * Is the device an iOS device (`endpoint.is("Apple iPod, iPhone or iPad")`)
  * **endpoint.is_windows**
-  * Is the device a Windows device (`currentDevice.is("Windows")`)
+  * Is the device a Windows device (`endpoint.is("Windows")`)
  * **endpoint.is_mac**
-  * Is the device a Mac (`currentDevice.is("Macintosh")`)
+  * Is the device a Mac (`endpoint.is("Macintosh")`)
  * **endpoint.is_windows_phone** 
-  * Is the device a Windows phone (`currentDevice.is("Windows Phone")`)
+  * Is the device a Windows phone (`endpoint.is("Windows Phone")`)
  * **endpoint.is_blackberry**
-  * Is the device a BlackBerry (`currentDevice.is("RIM BlackBerry")`)
+  * Is the device a BlackBerry (`endpoint.is("RIM BlackBerry")`)
 
 
