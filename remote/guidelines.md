@@ -27,7 +27,7 @@ Optionnally, the client can find the best combination match based off all parame
 
 The client should be able to query the Fingerbank public API if an exact match is not found locally.
 
-The documentation of the call is available here : https://fingerbank.inverse.ca/api_doc/1/combinations/interogate.html
+The documentation of the call is available here : `https://fingerbank.inverse.ca/api_doc/1/combinations/interogate.html`
 
 ## Storing the Fingerbank result as a Device object
 
@@ -75,13 +75,13 @@ An endpoint object should have the following attributes :
  * **score** : Score returned in the result
 
 A Fingerbank client should implement at least the following methods (the object here is refered as endpoint): 
- * endpoint.has_parent("Generic Android") # Check if the device has for parent the device 'Generic Android'
- * endpoint.is("Samsung Android")         # Check if the device is or has for parent the device 'Samsung Android'
- * endpoint.is_android       # Is the device an Android device (currentDevice.is("Generic Android"))
- * endpoint.is_ios           # Is the device an iOS device (currentDevice.is("Apple iPod, iPhone or iPad"))
- * endpoint.is_windows       # Is the device a Windows device (currentDevice.is("Windows"))
- * endpoint.is_mac           # Is the device a Mac (currentDevice.is("Macintosh"))
- * endpoint.is_windows_phone # Is the device a Windows phone (currentDevice.is("Windows Phone"))
- * endpoint.is_blackberry    # Is the device a BlackBerry (currentDevice.is("RIM BlackBerry"))
+ * **endpoint.has_parent("Generic Android")** | Check if the device has for parent the device 'Generic Android'
+ * **endpoint.is("Samsung Android")**         | Check if the device is or has for parent the device 'Samsung Android'
+ * **endpoint.is_android**       | Is the device an Android device (currentDevice.is("Generic Android"))
+ * **endpoint.is_ios**           | Is the device an iOS device (currentDevice.is("Apple iPod, iPhone or iPad"))
+ * **endpoint.is_windows**       | Is the device a Windows device (currentDevice.is("Windows"))
+ * **endpoint.is_mac**           | Is the device a Mac (currentDevice.is("Macintosh"))
+ * **endpoint.is_windows_phone** | Is the device a Windows phone (currentDevice.is("Windows Phone"))
+ * **endpoint.is_blackberry**    | Is the device a BlackBerry (currentDevice.is("RIM BlackBerry"))
 
 
