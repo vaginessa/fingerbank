@@ -50,6 +50,8 @@ sub BUILD {
 
 =head2 fromResult
 
+Build an endpoint object from a result obtained from Fingerbank sources
+
 =cut
 
 sub fromResult {
