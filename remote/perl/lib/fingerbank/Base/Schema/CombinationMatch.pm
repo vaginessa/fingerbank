@@ -36,7 +36,7 @@ __PACKAGE__->result_source_instance->view_definition(q{
     case when (mac_vendor_id = $4 OR (mac_vendor_id IS NULL AND $4 IS NULL)) then 1 else 0 END
     DESC,
     score DESC LIMIT 1
-    });
+});
 
 __PACKAGE__->meta->make_immutable;
 
