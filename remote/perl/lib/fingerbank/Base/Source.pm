@@ -15,7 +15,7 @@ use fingerbank::Status;
 
 =head2 match
 
-Whether or not the arguements match a result in this source
+Whether or not the arguments match a result in this source
 
 =cut
 
