@@ -18,7 +18,7 @@ use warnings;
 
 use fingerbank::Constant qw($TRUE);
 use fingerbank::Status;
-use fingerbank::Util qw(is_error is_success);
+use fingerbank::Util qw(is_error is_success is_enabled);
 use IO::Socket::UNIX;
 
 =head2 match
@@ -30,6 +30,13 @@ Check whether or not the arguments match this source
 sub match {
     my ($self, $args, $other_results) = @_;
     my $logger = fingerbank::Log::get_logger;
+
+    my $Config = fingerbank::Config::get_config;
+
+    unless(isenabled($Config->{query}{use_tcp_fingerprinting})){
+        $logger->debug("TCP fingerprinting is disabled in configuration. Not interrogating p0f.");
+        return $fingerbank::Status::NOT_IMPLEMENTED;
+    }
  
     my @parts = split '\.', $args->{ip};
     unless(@parts eq 4){
