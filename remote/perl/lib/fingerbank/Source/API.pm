@@ -60,7 +60,11 @@ sub match {
     $ua->timeout(2);   # An interrogate query should not take more than 2 seconds
     my $query_args = encode_json($args);
 
-    my $req = HTTP::Request->new( GET => $Config->{'upstream'}{'interrogate_url'}.$Config->{'upstream'}{'api_key'});
+    my %parameters = ( key => $Config->{'upstream'}{'api_key'} );
+    my $url = URI->new($Config->{'upstream'}{'interrogate_url'});
+    $url->query_form(%parameters);
+
+    my $req = HTTP::Request->new( GET => $url->as_string);
     $req->content_type('application/json');
     $req->content($query_args);
 
